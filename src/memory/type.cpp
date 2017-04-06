@@ -1,0 +1,74 @@
+#include "type.hpp"
+
+#include "../types/type_null.hpp"
+
+LiteScript::Type& LiteScript::Type::NIL(LiteScript::_type_nil);
+
+unsigned int litescript_type_id_iterator = 0;
+
+LiteScript::Type::Type(const char * name) :
+    name(name), id(litescript_type_id_iterator++)
+{
+    this->name.shrink_to_fit();
+}
+
+unsigned int LiteScript::Type::GetID() const {
+    return this->id;
+}
+
+const char * LiteScript::Type::GetName() const {
+    return this->name.c_str();
+}
+
+bool LiteScript::Type::operator==(const Type & t) const {
+    return (this->id == t.id);
+}
+
+bool LiteScript::Type::operator!=(const Type & t) const {
+    return (this->id != t.id);
+}
+
+LiteScript::Object& LiteScript::Type::OAssign(LiteScript::Object& x1, const LiteScript::Object&) const { return x1; }
+
+LiteScript::Object LiteScript::Type::OUnaryPlus(const LiteScript::Object&) const { return LiteScript::Type::NIL.CreateObject(); }
+LiteScript::Object LiteScript::Type::OUnaryMinus(const LiteScript::Object&) const { return LiteScript::Type::NIL.CreateObject(); }
+LiteScript::Object& LiteScript::Type::OPreIncrement(LiteScript::Object& x) const { return x; }
+LiteScript::Object LiteScript::Type::OPostIncrement(LiteScript::Object&) const { return LiteScript::Type::NIL.CreateObject(); }
+LiteScript::Object& LiteScript::Type::OPreDecrement(LiteScript::Object& x) const { return x; }
+LiteScript::Object LiteScript::Type::OPostDecrement(LiteScript::Object&) const { return LiteScript::Type::NIL.CreateObject(); }
+
+LiteScript::Object LiteScript::Type::OAdd(const LiteScript::Object&, const LiteScript::Object&) const { return LiteScript::Type::NIL.CreateObject(); }
+LiteScript::Object LiteScript::Type::OSubstract(const LiteScript::Object&, const LiteScript::Object&) const { return LiteScript::Type::NIL.CreateObject(); }
+LiteScript::Object LiteScript::Type::OMultiply(const LiteScript::Object&, const LiteScript::Object&) const { return LiteScript::Type::NIL.CreateObject(); }
+LiteScript::Object LiteScript::Type::ODivide(const LiteScript::Object&, const LiteScript::Object&) const { return LiteScript::Type::NIL.CreateObject(); }
+LiteScript::Object LiteScript::Type::OModulo(const LiteScript::Object&, const LiteScript::Object&) const { return LiteScript::Type::NIL.CreateObject(); }
+
+bool LiteScript::Type::OEqual(const LiteScript::Object&, const LiteScript::Object&) const { return false; }
+bool LiteScript::Type::ONotEqual(const LiteScript::Object&, const LiteScript::Object&) const { return false; }
+bool LiteScript::Type::OGreater(const LiteScript::Object&, const LiteScript::Object&) const { return false; }
+bool LiteScript::Type::OLess(const LiteScript::Object&, const LiteScript::Object&) const { return false; }
+bool LiteScript::Type::OGreaterOrEqual(const LiteScript::Object&, const LiteScript::Object&) const { return false; }
+bool LiteScript::Type::OLessOrEqual(const LiteScript::Object&, const LiteScript::Object&) const { return false; }
+
+LiteScript::Object LiteScript::Type::OLogicalNot(const LiteScript::Object&) const { return LiteScript::Type::NIL.CreateObject(); }
+LiteScript::Object LiteScript::Type::OLogicalAnd(const LiteScript::Object&, const LiteScript::Object&) const { return LiteScript::Type::NIL.CreateObject(); }
+LiteScript::Object LiteScript::Type::OLogicalOr(const LiteScript::Object&, const LiteScript::Object&) const { return LiteScript::Type::NIL.CreateObject(); }
+
+LiteScript::Object LiteScript::Type::OBitwiseNot(const LiteScript::Object&) const { return LiteScript::Type::NIL.CreateObject(); }
+LiteScript::Object LiteScript::Type::OBitwiseAnd(const LiteScript::Object&, const LiteScript::Object&) const { return LiteScript::Type::NIL.CreateObject(); }
+LiteScript::Object LiteScript::Type::OBitwiseOr(const LiteScript::Object&, const LiteScript::Object&) const { return LiteScript::Type::NIL.CreateObject(); }
+LiteScript::Object LiteScript::Type::OBitwiseXor(const LiteScript::Object&, const LiteScript::Object&) const { return LiteScript::Type::NIL.CreateObject(); }
+LiteScript::Object LiteScript::Type::OLeftShift(const LiteScript::Object&, const LiteScript::Object&) const { return LiteScript::Type::NIL.CreateObject(); }
+LiteScript::Object LiteScript::Type::ORightShift(const LiteScript::Object&, const LiteScript::Object&) const { return LiteScript::Type::NIL.CreateObject(); }
+
+LiteScript::Object& LiteScript::Type::OAddAndAssign(LiteScript::Object& x, const LiteScript::Object&) const { return x; }
+LiteScript::Object& LiteScript::Type::OSubstractAndAssign(LiteScript::Object& x, const LiteScript::Object&) const { return x; }
+LiteScript::Object& LiteScript::Type::OMultiplyAndAssign(LiteScript::Object& x, const LiteScript::Object&) const { return x; }
+LiteScript::Object& LiteScript::Type::ODivideAndAssign(LiteScript::Object& x, const LiteScript::Object&) const { return x; }
+
+LiteScript::Object& LiteScript::Type::OArray(LiteScript::Object& x, const LiteScript::Object&) const { return x; }
+LiteScript::Object& LiteScript::Type::OMember(LiteScript::Object& x, const char *) const { return x; }
+
+LiteScript::Object LiteScript::Type::OCall(LiteScript::Object&, std::vector<std::unique_ptr<LiteScript::Object>>&) const { return LiteScript::Type::NIL.CreateObject(); }
+
+std::string LiteScript::Type::ToString(LiteScript::Object&) const { return this->name; }
