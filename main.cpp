@@ -2,7 +2,12 @@
 
 #include "src/litescript.hpp"
 
+using namespace LiteScript;
+
 int main() {
-    std::cout << "Hello, World!" << std::endl;
+    Object obj = Type::BOOLEAN.CreateObject();
+    obj.GetData<bool>() = true;
+    std::cout << obj.ToString() << std::endl;
+
     return 0;
 }

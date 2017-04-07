@@ -13,6 +13,7 @@ namespace LiteScript {
     public:
 
         static Type& NIL;
+        static Type& BOOLEAN;
 
     private:
 
@@ -27,6 +28,7 @@ namespace LiteScript {
         const char * GetName() const;
 
         virtual Object CreateObject() = 0;
+        virtual Object Convert(const Type&);
 
         bool operator==(const Type&) const;
         bool operator!=(const Type&) const;
@@ -76,7 +78,7 @@ namespace LiteScript {
 
         virtual Object OCall(Object&, std::vector<std::unique_ptr<Object>>&) const;
 
-        virtual std::string ToString(Object&) const;
+        virtual std::string ToString(const Object&) const;
 
     };
 

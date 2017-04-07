@@ -17,6 +17,6 @@ namespace LiteScript {
 }
 
 #include "memory/type.hpp"
-#include "memory/variable.hpp"
+#include "memory/object.hpp"
 
 #endif //LITESCRIPT_LITESCRIPT_HPP

@@ -1,3 +1,3 @@
 Liste des objectifs :
- - compléter la class Object
+ - complÃ©ter la class Object
  - ajouter la class Memory

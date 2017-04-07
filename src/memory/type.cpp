@@ -1,8 +1,10 @@
 #include "type.hpp"
 
 #include "../types/type_null.hpp"
+#include "../types/type_boolean.hpp"
 
 LiteScript::Type& LiteScript::Type::NIL(LiteScript::_type_nil);
+LiteScript::Type& LiteScript::Type::BOOLEAN(LiteScript::_type_boolean);
 
 unsigned int litescript_type_id_iterator = 0;
 
@@ -19,6 +21,8 @@ unsigned int LiteScript::Type::GetID() const {
 const char * LiteScript::Type::GetName() const {
     return this->name.c_str();
 }
+
+LiteScript::Object LiteScript::Type::Convert(const Type & type) { return LiteScript::Type::NIL.CreateObject(); }
 
 bool LiteScript::Type::operator==(const Type & t) const {
     return (this->id == t.id);
@@ -71,4 +75,4 @@ LiteScript::Object& LiteScript::Type::OMember(LiteScript::Object& x, const char 
 
 LiteScript::Object LiteScript::Type::OCall(LiteScript::Object&, std::vector<std::unique_ptr<LiteScript::Object>>&) const { return LiteScript::Type::NIL.CreateObject(); }
 
-std::string LiteScript::Type::ToString(LiteScript::Object&) const { return this->name; }
+std::string LiteScript::Type::ToString(const LiteScript::Object&) const { return this->name; }

@@ -13,6 +13,8 @@ namespace LiteScript {
 
         Object CreateObject() override;
 
+        std::string ToString(const Object&) const override;
+
     };
 
     extern _Type_NIL _type_nil;
