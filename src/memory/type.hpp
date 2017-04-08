@@ -14,6 +14,8 @@ namespace LiteScript {
 
         static Type& NIL;
         static Type& BOOLEAN;
+        static Type& NUMBER;
+        static Type& STRING;
 
     private:
 
@@ -28,12 +30,15 @@ namespace LiteScript {
         const char * GetName() const;
 
         virtual Object CreateObject() = 0;
-        virtual Object Convert(const Type&);
+        virtual Object Convert(const Object&, const Type&) const;
+        virtual Object& AssignObject(Object&);
 
         bool operator==(const Type&) const;
         bool operator!=(const Type&) const;
 
         /****** OPERATORS ******/
+
+        virtual void ODestroy(Object&);
 
         virtual Object& OAssign(Object&, const Object&) const;
 
@@ -50,12 +55,12 @@ namespace LiteScript {
         virtual Object ODivide(const Object&, const Object&) const;
         virtual Object OModulo(const Object&, const Object&) const;
 
-        virtual bool OEqual(const Object&, const Object&) const;
-        virtual bool ONotEqual(const Object&, const Object&) const;
-        virtual bool OGreater(const Object&, const Object&) const;
-        virtual bool OLess(const Object&, const Object&) const;
-        virtual bool OGreaterOrEqual(const Object&, const Object&) const;
-        virtual bool OLessOrEqual(const Object&, const Object&) const;
+        virtual Object OEqual(const Object&, const Object&) const;
+        virtual Object ONotEqual(const Object&, const Object&) const;
+        virtual Object OGreater(const Object&, const Object&) const;
+        virtual Object OLess(const Object&, const Object&) const;
+        virtual Object OGreaterOrEqual(const Object&, const Object&) const;
+        virtual Object OLessOrEqual(const Object&, const Object&) const;
 
         virtual Object OLogicalNot(const Object&) const;
         virtual Object OLogicalAnd(const Object&, const Object&) const;

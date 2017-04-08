@@ -1,10 +1,14 @@
 #include "type.hpp"
 
-#include "../types/type_null.hpp"
-#include "../types/type_boolean.hpp"
+#include "../types/null.hpp"
+#include "../types/boolean.hpp"
+#include "../types/number.hpp"
+#include "../types/string.hpp"
 
 LiteScript::Type& LiteScript::Type::NIL(LiteScript::_type_nil);
 LiteScript::Type& LiteScript::Type::BOOLEAN(LiteScript::_type_boolean);
+LiteScript::Type& LiteScript::Type::NUMBER(LiteScript::_type_number);
+LiteScript::Type& LiteScript::Type::STRING(LiteScript::_type_string);
 
 unsigned int litescript_type_id_iterator = 0;
 
@@ -22,7 +26,9 @@ const char * LiteScript::Type::GetName() const {
     return this->name.c_str();
 }
 
-LiteScript::Object LiteScript::Type::Convert(const Type & type) { return LiteScript::Type::NIL.CreateObject(); }
+LiteScript::Object LiteScript::Type::Convert(const Object&, const Type & type) const { return LiteScript::Type::NIL.CreateObject(); }
+
+LiteScript::Object& LiteScript::Type::AssignObject(Object & obj) { obj.Reassign(*this, 0); }
 
 bool LiteScript::Type::operator==(const Type & t) const {
     return (this->id == t.id);
@@ -31,6 +37,8 @@ bool LiteScript::Type::operator==(const Type & t) const {
 bool LiteScript::Type::operator!=(const Type & t) const {
     return (this->id != t.id);
 }
+
+void LiteScript::Type::ODestroy(Object& obj) {}
 
 LiteScript::Object& LiteScript::Type::OAssign(LiteScript::Object& x1, const LiteScript::Object&) const { return x1; }
 
@@ -47,16 +55,16 @@ LiteScript::Object LiteScript::Type::OMultiply(const LiteScript::Object&, const 
 LiteScript::Object LiteScript::Type::ODivide(const LiteScript::Object&, const LiteScript::Object&) const { return LiteScript::Type::NIL.CreateObject(); }
 LiteScript::Object LiteScript::Type::OModulo(const LiteScript::Object&, const LiteScript::Object&) const { return LiteScript::Type::NIL.CreateObject(); }
 
-bool LiteScript::Type::OEqual(const LiteScript::Object&, const LiteScript::Object&) const { return false; }
-bool LiteScript::Type::ONotEqual(const LiteScript::Object&, const LiteScript::Object&) const { return false; }
-bool LiteScript::Type::OGreater(const LiteScript::Object&, const LiteScript::Object&) const { return false; }
-bool LiteScript::Type::OLess(const LiteScript::Object&, const LiteScript::Object&) const { return false; }
-bool LiteScript::Type::OGreaterOrEqual(const LiteScript::Object&, const LiteScript::Object&) const { return false; }
-bool LiteScript::Type::OLessOrEqual(const LiteScript::Object&, const LiteScript::Object&) const { return false; }
+LiteScript::Object LiteScript::Type::OEqual(const LiteScript::Object&, const LiteScript::Object&) const { return LiteScript::Type::BOOLEAN.CreateObject(); }
+LiteScript::Object LiteScript::Type::ONotEqual(const LiteScript::Object&, const LiteScript::Object&) const { return LiteScript::Type::BOOLEAN.CreateObject(); }
+LiteScript::Object LiteScript::Type::OGreater(const LiteScript::Object&, const LiteScript::Object&) const { return LiteScript::Type::BOOLEAN.CreateObject(); }
+LiteScript::Object LiteScript::Type::OLess(const LiteScript::Object&, const LiteScript::Object&) const { return LiteScript::Type::BOOLEAN.CreateObject(); }
+LiteScript::Object LiteScript::Type::OGreaterOrEqual(const LiteScript::Object&, const LiteScript::Object&) const { return LiteScript::Type::BOOLEAN.CreateObject(); }
+LiteScript::Object LiteScript::Type::OLessOrEqual(const LiteScript::Object&, const LiteScript::Object&) const { return LiteScript::Type::BOOLEAN.CreateObject(); }
 
-LiteScript::Object LiteScript::Type::OLogicalNot(const LiteScript::Object&) const { return LiteScript::Type::NIL.CreateObject(); }
-LiteScript::Object LiteScript::Type::OLogicalAnd(const LiteScript::Object&, const LiteScript::Object&) const { return LiteScript::Type::NIL.CreateObject(); }
-LiteScript::Object LiteScript::Type::OLogicalOr(const LiteScript::Object&, const LiteScript::Object&) const { return LiteScript::Type::NIL.CreateObject(); }
+LiteScript::Object LiteScript::Type::OLogicalNot(const LiteScript::Object&) const { return LiteScript::Type::BOOLEAN.CreateObject(); }
+LiteScript::Object LiteScript::Type::OLogicalAnd(const LiteScript::Object&, const LiteScript::Object&) const { return LiteScript::Type::BOOLEAN.CreateObject(); }
+LiteScript::Object LiteScript::Type::OLogicalOr(const LiteScript::Object&, const LiteScript::Object&) const { return LiteScript::Type::BOOLEAN.CreateObject(); }
 
 LiteScript::Object LiteScript::Type::OBitwiseNot(const LiteScript::Object&) const { return LiteScript::Type::NIL.CreateObject(); }
 LiteScript::Object LiteScript::Type::OBitwiseAnd(const LiteScript::Object&, const LiteScript::Object&) const { return LiteScript::Type::NIL.CreateObject(); }

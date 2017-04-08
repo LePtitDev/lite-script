@@ -1,5 +1,5 @@
-#ifndef LITESCRIPT_TYPES_TYPE_NULL_HPP
-#define LITESCRIPT_TYPES_TYPE_NULL_HPP
+#ifndef LITESCRIPT_TYPES_NULL_HPP
+#define LITESCRIPT_TYPES_NULL_HPP
 
 #include "../litescript.hpp"
 
@@ -12,6 +12,9 @@ namespace LiteScript {
         _Type_NIL();
 
         Object CreateObject() override;
+
+        Object Convert(const Object&, const Type&) const override;
+        Object& AssignObject(Object&) override;
 
         std::string ToString(const Object&) const override;
 

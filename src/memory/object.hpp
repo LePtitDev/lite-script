@@ -8,13 +8,14 @@
 
 namespace LiteScript {
 
+    extern std::allocator<char> ObjectAllocator;
+
     class Object {
 
-        Type& type;
+        Type * type;
 
         unsigned int size;
         void * data;
-        std::allocator<char> allocator;
 
     public:
 
@@ -27,6 +28,9 @@ namespace LiteScript {
 
         template<typename T>
         T& GetData() const { return *(T*)this->data; }
+
+        Object Convert(const Type&) const;
+        Object& Reassign(Type&, unsigned int);
 
         Object& operator=(const Object&);
 
@@ -43,12 +47,12 @@ namespace LiteScript {
         Object operator/(const Object&) const;
         Object operator%(const Object&) const;
 
-        bool operator==(const Object&) const;
-        bool operator!=(const Object&) const;
-        bool operator>(const Object&) const;
-        bool operator<(const Object&) const;
-        bool operator>=(const Object&) const;
-        bool operator<=(const Object&) const;
+        Object operator==(const Object&) const;
+        Object operator!=(const Object&) const;
+        Object operator>(const Object&) const;
+        Object operator<(const Object&) const;
+        Object operator>=(const Object&) const;
+        Object operator<=(const Object&) const;
 
         Object operator!() const;
         Object operator&&(const Object&) const;
@@ -71,7 +75,7 @@ namespace LiteScript {
 
         Object operator()(std::vector<std::unique_ptr<Object>>&);
 
-        std::string ToString() const;
+        operator std::string() const;
 
     };
 

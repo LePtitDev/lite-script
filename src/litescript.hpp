@@ -1,11 +1,15 @@
 #ifndef LITESCRIPT_LITESCRIPT_HPP
 #define LITESCRIPT_LITESCRIPT_HPP
 
+#include <cmath>
 #include <cstring>
 
+#include <iostream>
+#include <bitset>
 #include <vector>
 #include <string>
 #include <memory>
+#include <sstream>
 
 namespace LiteScript {
 
@@ -18,5 +22,7 @@ namespace LiteScript {
 
 #include "memory/type.hpp"
 #include "memory/object.hpp"
+
+#include "types/internal.hpp"
 
 #endif //LITESCRIPT_LITESCRIPT_HPP
