@@ -114,7 +114,7 @@ LiteScript::Number LiteScript::Number::operator*(const LiteScript::Number& numbe
 LiteScript::Number LiteScript::Number::operator/(const LiteScript::Number& number) const {
     if (this->numeric_type == 0 && number.numeric_type == 0) {
         if (number.value.integer == 0)
-            return Number(NAN);
+            return Number(nanf(""));
         else
             return Number(this->value.integer / number.value.integer);
     }
@@ -124,7 +124,7 @@ LiteScript::Number LiteScript::Number::operator/(const LiteScript::Number& numbe
 LiteScript::Number LiteScript::Number::operator%(const LiteScript::Number& number) const {
     if (this->numeric_type == 0 && number.numeric_type == 0) {
         if (number.value.integer == 0)
-            return Number(NAN);
+            return Number(nanf(""));
         else
             return Number(this->value.integer % number.value.integer);
     }
@@ -225,8 +225,6 @@ LiteScript::Number& LiteScript::Number::operator/=(const LiteScript::Number& num
 /**************************/
 
 LiteScript::String::String() {}
-LiteScript::String::String(char c) { this->str.push_back((unsigned char)c); }
-LiteScript::String::String(char32_t c) { this->str.push_back(c); }
 LiteScript::String::String(const char * data) : str(String::ConvertToUnicode(std::string(data))) {}
 LiteScript::String::String(const char32_t * data) : str(data) {}
 LiteScript::String::String(const std::string& data) : str(String::ConvertToUnicode(data)) {}
@@ -237,15 +235,9 @@ unsigned int LiteScript::String::GetLength() const { return this->str.size(); }
 std::u32string& LiteScript::String::GetData() { return this->str; }
 
 void LiteScript::String::Clear() { this->str.clear(); }
-void LiteScript::String::Insert(unsigned int i, char32_t c) { this->str.insert(this->str.begin() + i, c); }
 void LiteScript::String::Insert(unsigned int i, const LiteScript::String& data) { this->str.insert(i, data.str); }
 void LiteScript::String::Erase(unsigned int i, unsigned int len) { this->str.erase(i, len); }
-void LiteScript::String::Replace(unsigned int i, char32_t c) { this->Replace(i, 1, c); }
 void LiteScript::String::Replace(unsigned int i, const LiteScript::String& data) { this->Replace(i, 1, data); }
-void LiteScript::String::Replace(unsigned int i, unsigned int len, char32_t c) {
-    this->Erase(i, len);
-    this->Insert(i, c);
-}
 void LiteScript::String::Replace(unsigned int i, unsigned int len, const LiteScript::String& data) {
     this->Erase(i, len);
     this->Insert(i, data);
@@ -255,32 +247,6 @@ LiteScript::String LiteScript::String::SubString(unsigned int i, unsigned int le
 LiteScript::String::operator std::string() const { return String::ConvertToUTF8(this->str); }
 LiteScript::String::operator std::u32string() const { return this->str; }
 
-std::string LiteScript::String::ConvertToUTF8(char32_t c) {
-    std::string res;
-    if (c < 0x80) {
-        //1 byte
-        res.push_back((unsigned char)(c));
-    }
-    else {
-        if (c < 0x800) {
-            //2 bytes
-            res.push_back((unsigned char) (0b11000000 | (c >> 6)));
-        }
-        else {
-            if (c < 0x10000) {
-                //3 bytes
-                res.push_back((unsigned char) (0b11100000 | (c >> 12)));
-            } else {
-                //4 bytes
-                res.push_back((unsigned char) (0b11110000 | (c >> 18)));
-                res.push_back((unsigned char) (0b10000000 | ((c >> 12) & 0b00111111)));
-            }
-            res.push_back((unsigned char) (0b10000000 | ((c >> 6) & 0b00111111)));
-        }
-        res.push_back((unsigned char) (0b10000000 | (c & 0b00111111)));
-    }
-    return res;
-}
 std::string LiteScript::String::ConvertToUTF8(const std::u32string& str) {
     std::string res;
     for (unsigned int i = 0, sz = str.size(); i < sz; i++) {
@@ -345,19 +311,10 @@ std::u32string LiteScript::String::ConvertToUnicode(const std::string& str) {
     return res;
 }
 
-LiteScript::String& LiteScript::String::operator=(char32_t c) {
-    this->str.clear();
-    this->str += c;
-}
 LiteScript::String& LiteScript::String::operator=(const LiteScript::String& string) {
     this->str = string.str;
 }
 
-LiteScript::String LiteScript::String::operator+(char32_t c) const {
-    String res(*this);
-    res.str += c;
-    return res;
-}
 LiteScript::String LiteScript::String::operator+(const LiteScript::String& string) const {
     String res(*this);
     res.str += string.str;
@@ -377,10 +334,6 @@ bool LiteScript::String::operator<(const LiteScript::String& string) const { ret
 bool LiteScript::String::operator>=(const LiteScript::String& string) const { return (this->str >= string.str); }
 bool LiteScript::String::operator<=(const LiteScript::String& string) const { return (this->str <= string.str); }
 
-LiteScript::String& LiteScript::String::operator+=(char32_t c) {
-    this->str += c;
-    return *this;
-}
 LiteScript::String& LiteScript::String::operator+=(const LiteScript::String& string) {
     this->str += string.str;
     return *this;

@@ -16,8 +16,6 @@ namespace LiteScript {
         Object Convert(const Object&, const Type&) const override;
         Object& AssignObject(Object&) override;
 
-        void ODestroy(Object&) override;
-
         Object& OAssign(Object&, const Object&) const override;
 
         Object OAdd(const Object&, const Object&) const override;

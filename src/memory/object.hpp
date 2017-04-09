@@ -81,6 +81,8 @@ namespace LiteScript {
 
 }
 
+std::ostream& operator<<(std::ostream&, const LiteScript::Object&);
+
 #endif //LITESCRIPT_MEMORY_VARIABLE_HPP
 
 #endif

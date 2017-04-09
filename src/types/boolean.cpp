@@ -21,6 +21,11 @@ LiteScript::Object LiteScript::_Type_BOOLEAN::Convert(const LiteScript::Object& 
         res.GetData<Number>() = Number(obj.GetData<bool>() ? 1 : 0);
         return res;
     }
+    else if (type == Type::STRING) {
+        Object res = Type::STRING.CreateObject();
+        res.GetData<String>() = String((std::string)obj);
+        return res;
+    }
     else {
         return Type::NIL.CreateObject();
     }

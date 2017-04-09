@@ -1,5 +1,4 @@
 Liste des objectifs :
- - finir le type "String"
- - réécrire les fonctions de conversion
+ - créer le type "Character"
  - ajouter de nouveaux types
  - ajouter la class Memory

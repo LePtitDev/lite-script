@@ -21,6 +21,11 @@ LiteScript::Object LiteScript::_Type_NUMBER::Convert(const LiteScript::Object& o
         res.GetData<Number>() = obj.GetData<Number>();
         return res;
     }
+    else if (type == Type::STRING) {
+        Object res = Type::STRING.CreateObject();
+        res.GetData<String>() = String((std::string)obj);
+        return res;
+    }
     else {
         return Type::NIL.CreateObject();
     }

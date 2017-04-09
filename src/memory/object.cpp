@@ -167,3 +167,8 @@ LiteScript::Object LiteScript::Object::operator()(std::vector<std::unique_ptr<Li
 LiteScript::Object::operator std::string() const {
     return this->type->ToString(*this);
 }
+
+std::ostream& operator<<(std::ostream& stream, const LiteScript::Object& obj) {
+    stream << (std::string)obj << std::endl;
+    return stream;
+}
