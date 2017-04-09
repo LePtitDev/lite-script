@@ -12,6 +12,12 @@ namespace LiteScript {
 
     class Object {
 
+    public:
+
+        static Object UNDEFINED;
+
+    private:
+
         Type * type;
 
         unsigned int size;
@@ -27,7 +33,9 @@ namespace LiteScript {
         Type& GetType() const;
 
         template<typename T>
-        T& GetData() const { return *(T*)this->data; }
+        T& GetData() { return *(T*)this->data; }
+        template<typename T>
+        const T& GetData() const { return *(T*)this->data; }
 
         Object Convert(const Type&) const;
         Object& Reassign(Type&, unsigned int);

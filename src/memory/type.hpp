@@ -15,6 +15,7 @@ namespace LiteScript {
         static Type& NIL;
         static Type& BOOLEAN;
         static Type& NUMBER;
+        static Type& CHARACTER;
         static Type& STRING;
 
     private:

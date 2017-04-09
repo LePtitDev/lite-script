@@ -1,22 +1,18 @@
-#ifndef LITESCRIPT_STRING_HPP
-#define LITESCRIPT_STRING_HPP
+#ifndef LITESCRIPT_CHARACTER_HPP
+#define LITESCRIPT_CHARACTER_HPP
 
 #include "../litescript.hpp"
 
 namespace LiteScript {
 
-    class _Type_STRING : public Type {
+    class _Type_CHARACTER : public Type {
 
     public:
 
-        _Type_STRING();
+        _Type_CHARACTER();
 
         Object CreateObject() override;
-
         Object Convert(const Object&, const Type&) const override;
-        Object& AssignObject(Object&) override;
-
-        void ODestroy(Object&) override;
 
         Object& OAssign(Object&, const Object&) const override;
 
@@ -33,15 +29,12 @@ namespace LiteScript {
         Object& OAddAndAssign(Object&, const Object&) const override;
         Object& OMultiplyAndAssign(Object&, const Object&) const override;
 
-        Object& OArray(Object&, const Object&) const override;
-        Object& OMember(Object&, const char *) const override;
-
         std::string ToString(const Object&) const override;
 
     };
 
-    extern _Type_STRING _type_string;
+    extern _Type_CHARACTER _type_character;
 
 }
 
-#endif //LITESCRIPT_STRING_HPP
+#endif //LITESCRIPT_CHARACTER_HPP

@@ -23,7 +23,7 @@ LiteScript::Object LiteScript::_Type_NUMBER::Convert(const LiteScript::Object& o
     }
     else if (type == Type::STRING) {
         Object res = Type::STRING.CreateObject();
-        res.GetData<String>() = String((std::string)obj);
+        res.GetData<String>() = String(obj);
         return res;
     }
     else {

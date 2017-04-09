@@ -5,8 +5,9 @@ LiteScript::_Type_STRING LiteScript::_type_string;
 LiteScript::_Type_STRING::_Type_STRING() : Type("String") {};
 
 LiteScript::Object LiteScript::_Type_STRING::CreateObject() {
-    Object res(*this, sizeof(String));
+    Object res(*this, sizeof(String) + sizeof(Object));
     ObjectAllocator.construct(&res.GetData<String>());
+    ObjectAllocator.construct((Object *)(&res.GetData<char>() + sizeof(Object)));
     return res;
 }
 
@@ -21,8 +22,14 @@ LiteScript::Object LiteScript::_Type_STRING::Convert(const LiteScript::Object& o
     }
 }
 LiteScript::Object& LiteScript::_Type_STRING::AssignObject(LiteScript::Object& obj) {
-    obj.Reassign(*this, sizeof(String));
+    obj.Reassign(*this, sizeof(String) + sizeof(Object));
     ObjectAllocator.construct(&obj.GetData<String>());
+    ObjectAllocator.construct((Object *)(&obj.GetData<char>() + sizeof(Object)));
+    return obj;
+}
+
+void LiteScript::_Type_STRING::ODestroy(LiteScript::Object& obj) {
+    ObjectAllocator.destroy((Object *)(&obj.GetData<char>() + sizeof(Object)));
 }
 
 LiteScript::Object& LiteScript::_Type_STRING::OAssign(LiteScript::Object& src, const LiteScript::Object& dest) const {
@@ -158,10 +165,19 @@ LiteScript::Object& LiteScript::_Type_STRING::OMultiplyAndAssign(LiteScript::Obj
 }
 
 LiteScript::Object& LiteScript::_Type_STRING::OArray(LiteScript::Object& obj1, const LiteScript::Object& obj2) const {
-    return obj1; //A TERMINER AVEC LE TYPE CHARACTER
+    Object tmp = obj2.Convert(Type::NUMBER);
+    if (tmp.GetType() != Type::NUMBER)
+        return Object::UNDEFINED;
+    if ((unsigned int)(int)tmp.GetData<Number>() >= obj1.GetData<String>().GetLength())
+        tmp.GetData<Number>() = Number(0);
+    ObjectAllocator.destroy((Object *)(&obj1.GetData<char>() + sizeof(Object)));
+    ObjectAllocator.construct((Object *)(&obj1.GetData<char>() + sizeof(Object)), Type::CHARACTER, sizeof(Character));
+    Object * obj_c = (Object *)(&obj1.GetData<char>() + sizeof(Object));
+    ObjectAllocator.construct(&(obj_c->GetData<Character>()), obj1, (unsigned int)(int)tmp.GetData<Number>());
+    return *(Object *)(&obj1.GetData<char>() + sizeof(Object));
 }
 LiteScript::Object& LiteScript::_Type_STRING::OMember(LiteScript::Object& obj, const char * name) const {
-    return obj; //A MODIFIER
+    return obj; //A MODIFIER AVEC UN CALLBACK (length, substring, etc.)
 }
 
 std::string LiteScript::_Type_STRING::ToString(const LiteScript::Object& obj) const {

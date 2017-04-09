@@ -2,6 +2,8 @@
 
 std::allocator<char> LiteScript::ObjectAllocator;
 
+LiteScript::Object LiteScript::Object::UNDEFINED = Type::NIL.CreateObject();
+
 LiteScript::Object::Object() :
     type(&Type::NIL), size(0), data(nullptr)
 {
@@ -16,12 +18,10 @@ LiteScript::Object::Object(Type & t, unsigned int n) :
 }
 
 LiteScript::Object::Object(const Object & obj) :
-    type(obj.type), size(obj.size), data(nullptr)
+    type(&Type::NIL), size(0), data(nullptr)
 {
-    if (this->size > 0) {
-        this->data = ObjectAllocator.allocate(this->size);
-        memcpy(this->data, obj.data, this->size);
-    }
+    obj.type->AssignObject(*this);
+    *this = obj;
 }
 
 LiteScript::Object::~Object() {
@@ -169,6 +169,6 @@ LiteScript::Object::operator std::string() const {
 }
 
 std::ostream& operator<<(std::ostream& stream, const LiteScript::Object& obj) {
-    stream << (std::string)obj << std::endl;
+    stream << (std::string)obj;
     return stream;
 }

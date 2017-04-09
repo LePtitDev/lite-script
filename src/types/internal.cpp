@@ -225,6 +225,8 @@ LiteScript::Number& LiteScript::Number::operator/=(const LiteScript::Number& num
 /**************************/
 
 LiteScript::String::String() {}
+LiteScript::String::String(char c) { this->str += (char32_t)c; }
+LiteScript::String::String(char32_t c) { this->str += c; }
 LiteScript::String::String(const char * data) : str(String::ConvertToUnicode(std::string(data))) {}
 LiteScript::String::String(const char32_t * data) : str(data) {}
 LiteScript::String::String(const std::string& data) : str(String::ConvertToUnicode(data)) {}
@@ -317,7 +319,8 @@ LiteScript::String& LiteScript::String::operator=(const LiteScript::String& stri
 
 LiteScript::String LiteScript::String::operator+(const LiteScript::String& string) const {
     String res(*this);
-    res.str += string.str;
+    for (unsigned int i = 0, sz = string.str.size(); i < sz; i++)
+        res.str += string.str[i];
     return res;
 }
 LiteScript::String LiteScript::String::operator*(unsigned int nb) const {
@@ -348,3 +351,62 @@ LiteScript::String& LiteScript::String::operator*=(unsigned int nb) {
 
 char32_t& LiteScript::String::operator[](unsigned int i) { return this->str[i]; }
 const char32_t& LiteScript::String::operator[](unsigned int i) const { return this->str[i]; }
+
+
+/*****************************/
+/****** CLASS CHARACTER ******/
+/*****************************/
+
+LiteScript::Character::Character(Object& obj, unsigned int i) : obj(obj), str(obj.GetData<String>()), i(i) {}
+
+LiteScript::Character::operator char32_t() const {
+    return this->str[i];
+}
+
+LiteScript::String LiteScript::Character::operator=(const LiteScript::String& str) {
+    this->str.Replace(this->i, str);
+    return str;
+}
+
+LiteScript::String LiteScript::Character::operator+(const LiteScript::String& str) const {
+    String res(this->str[this->i]);
+    res += str;
+    return res;
+}
+LiteScript::String LiteScript::Character::operator*(unsigned int nb) const {
+    String res, cpy(this->str[this->i]);
+    for (unsigned int j = 0; j < nb; j++)
+        res += cpy;
+    return res;
+}
+
+bool LiteScript::Character::operator==(const LiteScript::String& str) const {
+    return (String(this->str[i]) == str);
+}
+bool LiteScript::Character::operator!=(const LiteScript::String& str) const {
+    return (String(this->str[i]) != str);
+}
+bool LiteScript::Character::operator>(const LiteScript::String& str) const {
+    return (String(this->str[i]) > str);
+}
+bool LiteScript::Character::operator<(const LiteScript::String& str) const {
+    return (String(this->str[i]) < str);
+}
+bool LiteScript::Character::operator>=(const LiteScript::String& str) const {
+    return (String(this->str[i]) >= str);
+}
+bool LiteScript::Character::operator<=(const LiteScript::String& str) const {
+    return (String(this->str[i]) <= str);
+}
+
+LiteScript::Object& LiteScript::Character::operator+=(const LiteScript::String& str) {
+    this->str.Insert(this->i + 1, str);
+    return this->obj;
+}
+LiteScript::Object& LiteScript::Character::operator*=(unsigned int nb) {
+    String res, cpy(this->str[this->i]);
+    for (unsigned int j = 0; j < nb; j++)
+        res += cpy;
+    this->str.Replace(this->i, res);
+    return this->obj;
+}

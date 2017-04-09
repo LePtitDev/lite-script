@@ -71,6 +71,8 @@ namespace LiteScript {
     public:
 
         String();
+        String(char);
+        String(char32_t);
         String(const char *);
         String(const char32_t *);
         String(const std::string&);
@@ -110,6 +112,35 @@ namespace LiteScript {
 
         char32_t& operator[](unsigned int);
         const char32_t& operator[](unsigned int) const;
+
+    };
+
+    class Character {
+
+        Object& obj;
+        String& str;
+        unsigned int i;
+
+    public:
+
+        Character(Object&, unsigned int);
+
+        operator char32_t() const;
+
+        String operator=(const String&);
+
+        String operator+(const String&) const;
+        String operator*(unsigned int) const;
+
+        bool operator==(const String&) const;
+        bool operator!=(const String&) const;
+        bool operator>(const String&) const;
+        bool operator<(const String&) const;
+        bool operator>=(const String&) const;
+        bool operator<=(const String&) const;
+
+        Object& operator+=(const String&);
+        Object& operator*=(unsigned int);
 
     };
 
