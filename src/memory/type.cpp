@@ -28,10 +28,6 @@ const char * LiteScript::Type::GetName() const {
     return this->name.c_str();
 }
 
-LiteScript::Object LiteScript::Type::Convert(const Object&, const Type & type) const { return LiteScript::Type::NIL.CreateObject(); }
-
-LiteScript::Object& LiteScript::Type::AssignObject(Object & obj) { obj.Reassign(*this, 0); }
-
 bool LiteScript::Type::operator==(const Type & t) const {
     return (this->id == t.id);
 }
@@ -39,6 +35,10 @@ bool LiteScript::Type::operator==(const Type & t) const {
 bool LiteScript::Type::operator!=(const Type & t) const {
     return (this->id != t.id);
 }
+
+LiteScript::Object LiteScript::Type::Convert(const Object&, const Type & type) const { return LiteScript::Type::NIL.CreateObject(); }
+
+LiteScript::Object& LiteScript::Type::AssignObject(Object & obj) { obj.Reassign(*this, 0); }
 
 void LiteScript::Type::ODestroy(Object& obj) {}
 
