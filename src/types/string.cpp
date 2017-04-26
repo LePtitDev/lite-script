@@ -2,7 +2,7 @@
 
 LiteScript::_Type_STRING LiteScript::_type_string;
 
-LiteScript::_Type_STRING::_Type_STRING() : Type("String") {};
+LiteScript::_Type_STRING::_Type_STRING() : Type("STRING") {};
 
 LiteScript::Object LiteScript::_Type_STRING::CreateObject() {
     Object res(*this, sizeof(String) + sizeof(Object));

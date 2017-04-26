@@ -2,7 +2,7 @@
 
 LiteScript::_Type_BOOLEAN LiteScript::_type_boolean;
 
-LiteScript::_Type_BOOLEAN::_Type_BOOLEAN() : Type("Boolean") {}
+LiteScript::_Type_BOOLEAN::_Type_BOOLEAN() : Type("BOOLEAN") {}
 
 LiteScript::Object LiteScript::_Type_BOOLEAN::CreateObject() {
     Object res(Type::BOOLEAN, sizeof(bool));

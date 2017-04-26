@@ -1,8 +1,10 @@
 #include "object.hpp"
 
+#include "../types/undefined.hpp"
+
 std::allocator<char> LiteScript::ObjectAllocator;
 
-LiteScript::Object LiteScript::Object::UNDEFINED = Type::NIL.CreateObject();
+LiteScript::Object LiteScript::Object::UNDEFINED = _type_undefined.CreateObject();
 
 LiteScript::Object::Object() :
     type(&Type::NIL), size(0), data(nullptr)

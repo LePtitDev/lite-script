@@ -2,7 +2,7 @@
 
 LiteScript::_Type_NUMBER LiteScript::_type_number;
 
-LiteScript::_Type_NUMBER::_Type_NUMBER() : Type("Number") {}
+LiteScript::_Type_NUMBER::_Type_NUMBER() : Type("NUMBER") {}
 
 LiteScript::Object LiteScript::_Type_NUMBER::CreateObject() {
     Object res(Type::NUMBER, sizeof(Number));

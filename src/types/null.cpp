@@ -2,7 +2,7 @@
 
 LiteScript::_Type_NIL LiteScript::_type_nil;
 
-LiteScript::_Type_NIL::_Type_NIL() : Type("Null") {}
+LiteScript::_Type_NIL::_Type_NIL() : Type("NULL") {}
 
 LiteScript::Object LiteScript::_Type_NIL::CreateObject() {
     return Object(*this, 0);

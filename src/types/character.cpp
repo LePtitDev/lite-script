@@ -2,7 +2,7 @@
 
 LiteScript::_Type_CHARACTER LiteScript::_type_character;
 
-LiteScript::_Type_CHARACTER::_Type_CHARACTER() : Type("Character") {}
+LiteScript::_Type_CHARACTER::_Type_CHARACTER() : Type("CHARACTER") {}
 
 LiteScript::Object LiteScript::_Type_CHARACTER::CreateObject() {
     return Type::NIL.CreateObject();

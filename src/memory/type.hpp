@@ -95,6 +95,12 @@ namespace LiteScript {
          * @return True if equal and false otherwise
          */
         bool operator==(const Type&) const;
+
+        /**
+         * Determines whether the types are different (compare the IDs)
+         *
+         * @return True if equal and false otherwise
+         */
         bool operator!=(const Type&) const;
 
 
