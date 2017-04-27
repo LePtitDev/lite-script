@@ -80,8 +80,8 @@ LiteScript::Object& LiteScript::Type::OSubstractAndAssign(LiteScript::Object& x,
 LiteScript::Object& LiteScript::Type::OMultiplyAndAssign(LiteScript::Object& x, const LiteScript::Object&) const { return x; }
 LiteScript::Object& LiteScript::Type::ODivideAndAssign(LiteScript::Object& x, const LiteScript::Object&) const { return x; }
 
-LiteScript::Object& LiteScript::Type::OArray(LiteScript::Object& x, const LiteScript::Object&) const { return x; }
-LiteScript::Object& LiteScript::Type::OMember(LiteScript::Object& x, const char *) const { return x; }
+LiteScript::Object& LiteScript::Type::OArray(LiteScript::Object& x, const LiteScript::Object&) const { return Object::UNDEFINED; }
+LiteScript::Object& LiteScript::Type::OMember(LiteScript::Object& x, const char *) const { return Object::UNDEFINED; }
 
 LiteScript::Object LiteScript::Type::OCall(LiteScript::Object&, std::vector<std::unique_ptr<LiteScript::Object>>&) const { return LiteScript::Type::NIL.CreateObject(); }
 

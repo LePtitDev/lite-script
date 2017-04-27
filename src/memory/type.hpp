@@ -32,15 +32,15 @@ namespace LiteScript {
         ////// STATIC ATTRIBUTES //////
         ///////////////////////////////
 
-        // Type "null"
+        // Type "nullptr"
         static Type& NIL;
-        // Type "boolean"
+        // Type "bool"
         static Type& BOOLEAN;
-        // Type "number"
+        // Type "LiteScript::Number"
         static Type& NUMBER;
-        // Type "char" (only for string)
+        // Type "LiteScript::Character" (only for string)
         static Type& CHARACTER;
-        // Type "string"
+        // Type "LiteScript::String"
         static Type& STRING;
 
     private:
@@ -115,6 +115,15 @@ namespace LiteScript {
          * @return An empty object
          */
         virtual Object CreateObject() = 0;
+
+
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // !!!!!! If the operation can't be applied on the object, !!!!!!
+        // !!!!!! the object returned is typed "null"              !!!!!!
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+        // !!!!!!!!!!!!!!!!!!!!!!!!! FROM HERE !!!!!!!!!!!!!!!!!!!!!!!!!!
+
 
         /**
          * Convert an object to an other object on referenced type format
@@ -440,7 +449,18 @@ namespace LiteScript {
         virtual Object& ODivideAndAssign(Object& object_target, const Object& object_src) const;
 
 
+        // !!!!!!!!!!!!!!!!!!!!!!!!!! TO HERE !!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
         ////// ACCESS OPERATIONS //////
+
+
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // !!!!!! If the operation can't be applied on the object, !!!!!!
+        // !!!!!! the object returned is typed "undefined"         !!!!!!
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+        // !!!!!!!!!!!!!!!!!!!!!!!!! FROM HERE !!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
         /**
@@ -462,7 +482,18 @@ namespace LiteScript {
         virtual Object& OMember(Object& object_src, const char * member_name) const;
 
 
+        // !!!!!!!!!!!!!!!!!!!!!!!!!! TO HERE !!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
         ////// CALLING OPERATION //////
+
+
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // !!!!!! If the operation can't be applied on the object, !!!!!!
+        // !!!!!! the object returned is typed "null"              !!!!!!
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+        // !!!!!!!!!!!!!!!!!!!!!!!!! FROM HERE !!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
         /**
@@ -473,6 +504,9 @@ namespace LiteScript {
          * @return The return result of calling operation
          */
         virtual Object OCall(Object& object, std::vector<std::unique_ptr<Object>>& args) const;
+
+
+        // !!!!!!!!!!!!!!!!!!!!!!!!!! TO HERE !!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
         ////// STRING CONVERSION //////

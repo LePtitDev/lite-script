@@ -123,6 +123,15 @@ namespace LiteScript {
         template<typename T>
         const T& GetData() const { return *(T*)this->data; }
 
+
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // !!!!!! If the operation can't be applied on the object, !!!!!!
+        // !!!!!! the object returned is typed "null"              !!!!!!
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+        // !!!!!!!!!!!!!!!!!!!!!!!!! FROM HERE !!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
         /**
          * Try to convert an object by an other typed object
          *
@@ -367,7 +376,7 @@ namespace LiteScript {
          * Apply addition and assignation operation
          *
          * @param object The second operand object
-         * @return The result of operation
+         * @return This object
          */
         Object& operator+=(const Object& object);
 
@@ -375,7 +384,7 @@ namespace LiteScript {
          * Apply substraction and assignation operation
          *
          * @param object The second operand object
-         * @return The result of operation
+         * @return This object
          */
         Object& operator-=(const Object& object);
 
@@ -383,7 +392,7 @@ namespace LiteScript {
          * Apply multipilcation and assignation operation
          *
          * @param object The second operand object
-         * @return The result of operation
+         * @return This object
          */
         Object& operator*=(const Object& object);
 
@@ -391,11 +400,24 @@ namespace LiteScript {
          * Apply division and assignation operation
          *
          * @param object The second operand object
-         * @return The result of operation
+         * @return This object
          */
         Object& operator/=(const Object& object);
 
+
+        // !!!!!!!!!!!!!!!!!!!!!!!!!! TO HERE !!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
         ////// ACCESS OPERATIONS //////
+
+
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // !!!!!! If the operation can't be applied on the object, !!!!!!
+        // !!!!!! the object returned is typed "undefined"         !!!!!!
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+        // !!!!!!!!!!!!!!!!!!!!!!!!! FROM HERE !!!!!!!!!!!!!!!!!!!!!!!!!!
+
 
         /**
          * Apply array access
@@ -413,7 +435,20 @@ namespace LiteScript {
          */
         Object& GetMember(const char * name);
 
+
+        // !!!!!!!!!!!!!!!!!!!!!!!!!! TO HERE !!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
         ////// CALLING OPERATION //////
+
+
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // !!!!!! If the operation can't be applied on the object, !!!!!!
+        // !!!!!! the object returned is typed "null"              !!!!!!
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+        // !!!!!!!!!!!!!!!!!!!!!!!!! FROM HERE !!!!!!!!!!!!!!!!!!!!!!!!!!
+
 
         /**
          * Apply calling operation
@@ -422,6 +457,10 @@ namespace LiteScript {
          * @return The result of operation
          */
         Object operator()(std::vector<std::unique_ptr<Object>>& args);
+
+
+        // !!!!!!!!!!!!!!!!!!!!!!!!!! TO HERE !!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 
         ////// STRING CONVERSION //////
 

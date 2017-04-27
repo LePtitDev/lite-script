@@ -235,6 +235,7 @@ LiteScript::String::String(const String& data) : str(data.str) {}
 
 unsigned int LiteScript::String::GetLength() const { return this->str.size(); }
 std::u32string& LiteScript::String::GetData() { return this->str; }
+const std::u32string& LiteScript::String::GetData() const { return this->str; }
 
 void LiteScript::String::Clear() { this->str.clear(); }
 void LiteScript::String::Insert(unsigned int i, const LiteScript::String& data) { this->str.insert(i, data.str); }
