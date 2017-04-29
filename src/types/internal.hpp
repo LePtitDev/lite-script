@@ -297,7 +297,7 @@ namespace LiteScript {
          * Apply addition and assignation operation
          *
          * @param number The second operand number
-         * @return This object
+         * @return This number
          */
         Number& operator+=(const Number& number);
 
@@ -305,7 +305,7 @@ namespace LiteScript {
          * Apply substraction and assignation operation
          *
          * @param number The second operand number
-         * @return This object
+         * @return This number
          */
         Number& operator-=(const Number& number);
 
@@ -313,7 +313,7 @@ namespace LiteScript {
          * Apply multiplication and assignation operation
          *
          * @param number The second operand number
-         * @return This object
+         * @return This number
          */
         Number& operator*=(const Number& number);
 
@@ -321,7 +321,7 @@ namespace LiteScript {
          * Apply division and assignation operation
          *
          * @param number The second operand number
-         * @return This object
+         * @return This number
          */
         Number& operator/=(const Number& number);
 
@@ -481,29 +481,143 @@ namespace LiteScript {
         ////// OPERATORS OVERLOADING //////
         ///////////////////////////////////
 
+        /**
+         * Convert the content to a string in UTF-8 format
+         */
         operator std::string() const;
+
+        /**
+         * Convert the content to a string in UNICODE format
+         */
         operator std::u32string() const;
 
-        static std::string ConvertToUTF8(const std::u32string&);
+        /**
+         * Convert a string in UNICODE format to a string in UTF-8 format
+         *
+         * @param str The string to be converted
+         * @return The string in UTF-8 format
+         */
+        static std::string ConvertToUTF8(const std::u32string& str);
+
+        /**
+         * Convert a string in UTF-8 format to a string in UNICODE format
+         *
+         * @param str The string to be converted
+         * @return The string in UNICODE format
+         */
         static std::u32string ConvertToUnicode(const std::string&);
 
-        String& operator=(const String&);
+        /**
+         * Assign the string by an other string
+         *
+         * @param str The other string
+         * @return This string
+         */
+        String& operator=(const String& str);
 
-        String operator+(const String&) const;
-        String operator*(unsigned int) const;
+        ////// ARITHMETIC OPERATIONS //////
 
-        bool operator==(const String&) const;
-        bool operator!=(const String&) const;
-        bool operator>(const String&) const;
-        bool operator<(const String&) const;
-        bool operator>=(const String&) const;
-        bool operator<=(const String&) const;
+        /**
+         * Apply addition operation
+         *
+         * @param str The second operand string
+         * @return The result of the operation
+         */
+        String operator+(const String& str) const;
 
-        String& operator+=(const String&);
-        String& operator*=(unsigned int);
+        /**
+         * Apply multiplication operation
+         *
+         * @param x The second operand integer
+         * @return The result of the operation
+         */
+        String operator*(unsigned int x) const;
 
-        char32_t& operator[](unsigned int);
-        const char32_t& operator[](unsigned int) const;
+        ////// COMPARISON OPERATIONS //////
+
+        /**
+         * Apply equality comparison
+         *
+         * @param str The second operand string
+         * @return The result of operation
+         */
+        bool operator==(const String& str) const;
+
+        /**
+         * Apply inequality comparison
+         *
+         * @param str The second operand string
+         * @return The result of operation
+         */
+        bool operator!=(const String& str) const;
+
+        /**
+         * Apply superiority comparison
+         *
+         * @param str The second operand string
+         * @return The result of operation
+         */
+        bool operator>(const String& str) const;
+
+        /**
+         * Apply inferiority comparison
+         *
+         * @param str The second operand string
+         * @return The result of operation
+         */
+        bool operator<(const String& str) const;
+
+        /**
+         * Apply superiority or equality comparison
+         *
+         * @param str The second operand string
+         * @return The result of operation
+         */
+        bool operator>=(const String& str) const;
+
+        /**
+         * Apply inferiority or equality comparison
+         *
+         * @param str The second operand string
+         * @return The result of operation
+         */
+        bool operator<=(const String& str) const;
+
+        ////// DIRECT MODIFICATION OPERATIONS //////
+
+        /**
+         * Apply addition and assignation operation
+         *
+         * @param str The second operand string
+         * @return This string
+         */
+        String& operator+=(const String& str);
+
+        /**
+         * Apply addition and assignation operation
+         *
+         * @param str The second operand integer
+         * @return This string
+         */
+        String& operator*=(unsigned int x);
+
+        ////// ACCESS OPERATIONS //////
+
+        /**
+         * Get the character at the position indicated
+         *
+         * @param index The index of the character
+         * @return The character reference
+         */
+        char32_t& operator[](unsigned int index);
+
+        /**
+         * Get the character at the position indicated (constant)
+         *
+         * @param index The index of the character
+         * @return The character reference (constant)
+         */
+        const char32_t& operator[](unsigned int index) const;
 
     };
 
@@ -513,32 +627,138 @@ namespace LiteScript {
     //////////////////////////////////
 
 
+    // Content of a character
     class Character {
 
+        ////////////////////////
+        ////// ATTRIBUTES //////
+        ////////////////////////
+
+        // The object which contain the string
         Object& obj;
+
+        // The referenced string
         String& str;
+
+        // The index of the character in the string
         unsigned int i;
 
     public:
 
-        Character(Object&, unsigned int);
+        /////////////////////////
+        ////// CONSTRUCTOR //////
+        /////////////////////////
 
+        /**
+         * Basic constructor of a character (only for the string type class)
+         *
+         * @param object The object that contain the string
+         * @param index The index of the character in the string
+         */
+        Character(Object& object, unsigned int index);
+
+        ///////////////////////////////////
+        ////// OPERATORS OVERLOADING //////
+        ///////////////////////////////////
+
+        /**
+         * Convert the content to a UNICODE character
+         */
         operator char32_t() const;
 
-        String operator=(const String&);
+        /**
+         * Assign the character by a string
+         *
+         * @param str The other string
+         * @return This string
+         */
+        String operator=(const String& str);
 
-        String operator+(const String&) const;
-        String operator*(unsigned int) const;
+        ////// ARITHMETIC OPERATIONS //////
 
-        bool operator==(const String&) const;
-        bool operator!=(const String&) const;
-        bool operator>(const String&) const;
-        bool operator<(const String&) const;
-        bool operator>=(const String&) const;
-        bool operator<=(const String&) const;
+        /**
+         * Apply addition operation
+         *
+         * @param str The second operand string
+         * @return The result of the operation
+         */
+        String operator+(const String& str) const;
 
-        Object& operator+=(const String&);
-        Object& operator*=(unsigned int);
+        /**
+         * Apply multiplication operation
+         *
+         * @param x The second operand integer
+         * @return The result of the operation
+         */
+        String operator*(unsigned int x) const;
+
+        ////// COMPARISON OPERATIONS //////
+
+        /**
+         * Apply equality comparison
+         *
+         * @param str The second operand string
+         * @return The result of operation
+         */
+        bool operator==(const String& str) const;
+
+        /**
+         * Apply inequality comparison
+         *
+         * @param str The second operand string
+         * @return The result of operation
+         */
+        bool operator!=(const String& str) const;
+
+        /**
+         * Apply superiority comparison
+         *
+         * @param str The second operand string
+         * @return The result of operation
+         */
+        bool operator>(const String& str) const;
+
+        /**
+         * Apply inferiority comparison
+         *
+         * @param str The second operand string
+         * @return The result of operation
+         */
+        bool operator<(const String& str) const;
+
+        /**
+         * Apply superiority or equality comparison
+         *
+         * @param str The second operand string
+         * @return The result of operation
+         */
+        bool operator>=(const String& str) const;
+
+        /**
+         * Apply inferiority or equality comparison
+         *
+         * @param str The second operand string
+         * @return The result of operation
+         */
+        bool operator<=(const String& str) const;
+
+        ////// DIRECT MODIFICATION OPERATIONS //////
+
+        /**
+         * Apply addition and assignation operation
+         *
+         * @param str The second operand string
+         * @return The string of the character
+         */
+        Object& operator+=(const String& str);
+
+        /**
+         * Apply multiplication and assignation operation
+         *
+         * @param str The second operand integer
+         * @return The string of the character
+         */
+        Object& operator*=(unsigned int x);
 
     };
 
