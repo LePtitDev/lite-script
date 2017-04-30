@@ -15,6 +15,7 @@ int main(int argc, char * argv[]) {
 
     obj1[obj2] = Object(obj1);
     std::cout << (obj1) << std::endl;
+    std::cout << (obj1.GetMember("length")) << std::endl;
 
     return 0;
 }

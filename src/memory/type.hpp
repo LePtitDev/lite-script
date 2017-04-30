@@ -38,8 +38,6 @@ namespace LiteScript {
         static Type& BOOLEAN;
         // Type "LiteScript::Number"
         static Type& NUMBER;
-        // Type "LiteScript::Character" (only for string)
-        static Type& CHARACTER;
         // Type "LiteScript::String"
         static Type& STRING;
 

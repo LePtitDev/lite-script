@@ -1,5 +1,7 @@
 #include "internal.hpp"
 
+#include "character.hpp"
+
 /**************************/
 /****** CLASS NUMBER ******/
 /**************************/
@@ -350,15 +352,32 @@ LiteScript::String& LiteScript::String::operator*=(unsigned int nb) {
     return *this;
 }
 
-char32_t& LiteScript::String::operator[](unsigned int i) { return this->str[i]; }
-const char32_t& LiteScript::String::operator[](unsigned int i) const { return this->str[i]; }
+char32_t & LiteScript::String::operator[](unsigned int index) { return this->str[index]; }
+const char32_t & LiteScript::String::operator[](unsigned int index) const { return this->str[index]; }
+
+LiteScript::Object& LiteScript::String::GetChar(unsigned int i) {
+    this->tmp_obj.Reassign(_type_character, sizeof(Character));
+    ObjectAllocator.construct(&this->tmp_obj.GetData<Character>(), *this, i);
+    return this->tmp_obj;
+}
+
+LiteScript::Object& LiteScript::String::GetMember(const char * name) {
+    if (strcmp(name, "length") == 0) {
+        this->tmp_obj.Reassign(Type::NUMBER, sizeof(Number));
+        ObjectAllocator.construct(&this->tmp_obj.GetData<Number>(), (int)this->str.size());
+        return this->tmp_obj;
+    }
+    else {
+        return Object::UNDEFINED;
+    }
+}
 
 
 /*****************************/
 /****** CLASS CHARACTER ******/
 /*****************************/
 
-LiteScript::Character::Character(Object& obj, unsigned int i) : obj(obj), str(obj.GetData<String>()), i(i) {}
+LiteScript::Character::Character(String& str, unsigned int i) : str(str), i(i) {}
 
 LiteScript::Character::operator char32_t() const {
     return this->str[i];
@@ -400,14 +419,14 @@ bool LiteScript::Character::operator<=(const LiteScript::String& str) const {
     return (String(this->str[i]) <= str);
 }
 
-LiteScript::Object& LiteScript::Character::operator+=(const LiteScript::String& str) {
+LiteScript::String& LiteScript::Character::operator+=(const LiteScript::String& str) {
     this->str.Insert(this->i + 1, str);
-    return this->obj;
+    return this->str;
 }
-LiteScript::Object& LiteScript::Character::operator*=(unsigned int nb) {
+LiteScript::String& LiteScript::Character::operator*=(unsigned int nb) {
     String res, cpy(this->str[this->i]);
     for (unsigned int j = 0; j < nb; j++)
         res += cpy;
     this->str.Replace(this->i, res);
-    return this->obj;
+    return this->str;
 }

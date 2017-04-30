@@ -91,6 +91,11 @@ namespace LiteScript {
         /////////////////////
 
         /**
+         * Clear the contant of the object
+         */
+        void Clear();
+
+        /**
          * Get the type of the object
          *
          * @return The type of the object

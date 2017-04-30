@@ -343,6 +343,9 @@ namespace LiteScript {
         // Datas content of the string coded in UNICODE
         std::u32string str;
 
+        // Temporary object for stock character/member
+        Object tmp_obj;
+
     public:
 
         //////////////////////////
@@ -607,7 +610,7 @@ namespace LiteScript {
          * Get the character at the position indicated
          *
          * @param index The index of the character
-         * @return The character reference
+         * @return The character
          */
         char32_t& operator[](unsigned int index);
 
@@ -615,9 +618,25 @@ namespace LiteScript {
          * Get the character at the position indicated (constant)
          *
          * @param index The index of the character
-         * @return The character reference (constant)
+         * @return The character (constant)
          */
         const char32_t& operator[](unsigned int index) const;
+
+        /**
+         * Get the object character at the position indicated
+         *
+         * @param index The index of the character
+         * @return The object that contain the character
+         */
+        Object& GetChar(unsigned int index);
+
+        /**
+         * Get the object member with the specified name
+         *
+         * @param name The member's name
+         * @return The member object if exist and an undefined object otherwise
+         */
+        Object& GetMember(const char * name);
 
     };
 
@@ -633,9 +652,6 @@ namespace LiteScript {
         ////////////////////////
         ////// ATTRIBUTES //////
         ////////////////////////
-
-        // The object which contain the string
-        Object& obj;
 
         // The referenced string
         String& str;
@@ -655,7 +671,7 @@ namespace LiteScript {
          * @param object The object that contain the string
          * @param index The index of the character in the string
          */
-        Character(Object& object, unsigned int index);
+        Character(String& str, unsigned int index);
 
         ///////////////////////////////////
         ////// OPERATORS OVERLOADING //////
@@ -750,7 +766,7 @@ namespace LiteScript {
          * @param str The second operand string
          * @return The string of the character
          */
-        Object& operator+=(const String& str);
+        String& operator+=(const String& str);
 
         /**
          * Apply multiplication and assignation operation
@@ -758,7 +774,7 @@ namespace LiteScript {
          * @param str The second operand integer
          * @return The string of the character
          */
-        Object& operator*=(unsigned int x);
+        String& operator*=(unsigned int x);
 
     };
 

@@ -128,20 +128,28 @@ LiteScript::Object LiteScript::_Type_CHARACTER::OLessOrEqual(const LiteScript::O
 LiteScript::Object& LiteScript::_Type_CHARACTER::OAddAndAssign(LiteScript::Object& obj1, const LiteScript::Object& obj2) const {
     if (obj2.GetType() != Type::STRING) {
         Object tmp = obj2.Convert(Type::STRING);
-        if (tmp.GetType() == Type::STRING)
-            return obj1.GetData<Character>() += tmp.GetData<String>();
-        return obj1.GetData<Character>() += String("");
+        if (tmp.GetType() == Type::STRING) {
+            obj1.GetData<Character>() += tmp.GetData<String>();
+            return obj1;
+        }
+        obj1.GetData<Character>() += String("");
+        return obj1;
     }
-    return obj1.GetData<Character>() += obj2.GetData<String>();
+    obj1.GetData<Character>() += obj2.GetData<String>();
+    return obj1;
 }
 LiteScript::Object& LiteScript::_Type_CHARACTER::OMultiplyAndAssign(LiteScript::Object& obj1, const LiteScript::Object& obj2) const {
     if (obj2.GetType() != Type::NUMBER) {
         Object tmp = obj2.Convert(Type::NUMBER);
-        if (tmp.GetType() == Type::NUMBER)
-            return obj1.GetData<Character>() *= (unsigned int)(int)tmp.GetData<Number>();
-        return obj1.GetData<Character>() += String("");
+        if (tmp.GetType() == Type::NUMBER) {
+            obj1.GetData<Character>() *= (unsigned int) (int) tmp.GetData<Number>();
+            return obj1;
+        }
+        obj1.GetData<Character>() += String("");
+        return obj1;
     }
-    return obj1.GetData<Character>() *= (unsigned int)(int)obj2.GetData<Number>();
+    obj1.GetData<Character>() *= (unsigned int)(int)obj2.GetData<Number>();
+    return obj1;
 }
 
 std::string LiteScript::_Type_CHARACTER::ToString(const LiteScript::Object& obj) const {

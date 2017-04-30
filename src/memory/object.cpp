@@ -34,6 +34,10 @@ LiteScript::Object::~Object() {
     }
 }
 
+void LiteScript::Object::Clear() {
+    this->Reassign(Type::NIL, 0);
+}
+
 LiteScript::Type & LiteScript::Object::GetType() const {
     return *this->type;
 }
