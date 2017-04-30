@@ -29,7 +29,7 @@ namespace LiteScript {
         /////////////////////////
 
         /**
-         * Basic constructor of a null object
+         * Basic constructor of the null type
          */
         _Type_NIL();
 

@@ -29,7 +29,7 @@ namespace LiteScript {
         /////////////////////////
 
         /**
-         * Basic contructor of the type
+         * Basic contructor of the undefined type
          */
         _Type_UNDEFINED();
 

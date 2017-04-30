@@ -30,7 +30,7 @@ namespace LiteScript {
         /////////////////////////
 
         /**
-         * Basic constructor of a boolean object
+         * Basic constructor of the boolean type
          */
         _Type_BOOLEAN();
 
