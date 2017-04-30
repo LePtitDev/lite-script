@@ -19,7 +19,7 @@ LiteScript::Number::Number(int v) :
 LiteScript::Number::Number(float v) {
     if (roundf(v) == v) {
         this->numeric_type = 0;
-        this->value.integer = v;
+        this->value.integer = (int)v;
     }
     else {
         this->numeric_type = 1;
@@ -235,7 +235,7 @@ LiteScript::String::String(const std::string& data) : str(String::ConvertToUnico
 LiteScript::String::String(const std::u32string& data) : str(data) {}
 LiteScript::String::String(const String& data) : str(data.str) {}
 
-unsigned int LiteScript::String::GetLength() const { return this->str.size(); }
+unsigned int LiteScript::String::GetLength() const { return (unsigned int)this->str.size(); }
 std::u32string& LiteScript::String::GetData() { return this->str; }
 const std::u32string& LiteScript::String::GetData() const { return this->str; }
 
@@ -254,7 +254,7 @@ LiteScript::String::operator std::u32string() const { return this->str; }
 
 std::string LiteScript::String::ConvertToUTF8(const std::u32string& str) {
     std::string res;
-    for (unsigned int i = 0, sz = str.size(); i < sz; i++) {
+    for (unsigned int i = 0, sz = (unsigned int)str.size(); i < sz; i++) {
         if (str[i] < 0x80) {
             //1 byte
             res.push_back((unsigned char)(str[i]));
@@ -282,8 +282,8 @@ std::string LiteScript::String::ConvertToUTF8(const std::u32string& str) {
 }
 std::u32string LiteScript::String::ConvertToUnicode(const std::string& str) {
     std::u32string res;
-    for (unsigned int i = 0, sz = str.size(); i < sz; i++) {
-        std::bitset<4> header(((unsigned char)str[i] & 0b11110000) >> 4);
+    for (unsigned int i = 0, sz = (unsigned int)str.size(); i < sz; i++) {
+        std::bitset<4> header(((unsigned char)str[i] & (unsigned char)0b11110000) >> 4);
         if (header[3] == 0) {
             //1 byte
             res.push_back((unsigned char)str[i]);
@@ -318,11 +318,12 @@ std::u32string LiteScript::String::ConvertToUnicode(const std::string& str) {
 
 LiteScript::String& LiteScript::String::operator=(const LiteScript::String& string) {
     this->str = string.str;
+    return *this;
 }
 
 LiteScript::String LiteScript::String::operator+(const LiteScript::String& string) const {
     String res(*this);
-    for (unsigned int i = 0, sz = string.str.size(); i < sz; i++)
+    for (unsigned int i = 0, sz = (unsigned int)string.str.size(); i < sz; i++)
         res.str += string.str[i];
     return res;
 }

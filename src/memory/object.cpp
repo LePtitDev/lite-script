@@ -57,6 +57,7 @@ LiteScript::Object& LiteScript::Object::Reassign(Type& type, unsigned int size) 
     this->type = &type;
     if (size > 0)
         this->data = ObjectAllocator.allocate(size);
+    return *this;
 }
 
 LiteScript::Object& LiteScript::Object::operator=(const LiteScript::Object& obj) {
@@ -175,6 +176,6 @@ LiteScript::Object::operator std::string() const {
 }
 
 std::ostream& operator<<(std::ostream& stream, const LiteScript::Object& obj) {
-    stream << (std::string)obj;
+    stream << std::string(obj);
     return stream;
 }

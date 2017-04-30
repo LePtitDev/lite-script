@@ -33,6 +33,7 @@ LiteScript::Object LiteScript::_Type_NUMBER::Convert(const LiteScript::Object& o
 LiteScript::Object& LiteScript::_Type_NUMBER::AssignObject(LiteScript::Object& obj) {
     obj.Reassign(*this, sizeof(Number));
     obj.GetData<Number>() = Number(0);
+    return obj;
 }
 
 std::string LiteScript::_Type_NUMBER::ToString(const Object & obj) const {

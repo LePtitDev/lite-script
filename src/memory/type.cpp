@@ -3,7 +3,6 @@
 #include "../types/null.hpp"
 #include "../types/boolean.hpp"
 #include "../types/number.hpp"
-#include "../types/character.hpp"
 #include "../types/string.hpp"
 
 LiteScript::Type& LiteScript::Type::NIL(LiteScript::_type_nil);
@@ -37,7 +36,7 @@ bool LiteScript::Type::operator!=(const Type & t) const {
 
 LiteScript::Object LiteScript::Type::Convert(const Object&, const Type & type) const { return LiteScript::Type::NIL.CreateObject(); }
 
-LiteScript::Object& LiteScript::Type::AssignObject(Object & obj) { obj.Reassign(*this, 0); }
+LiteScript::Object& LiteScript::Type::AssignObject(Object & obj) { obj.Reassign(*this, 0); return obj; }
 
 void LiteScript::Type::ODestroy(Object& obj) {}
 

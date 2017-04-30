@@ -11,13 +11,13 @@ LiteScript::Object LiteScript::_Type_NIL::CreateObject() {
 LiteScript::Object LiteScript::_Type_NIL::Convert(const LiteScript::Object& obj, const LiteScript::Type& type) const {
     if (type == Type::STRING) {
         Object res = Type::STRING.CreateObject();
-        res.GetData<String>() = String((std::string)obj);
+        res.GetData<String>() = String(std::string(obj));
         return res;
     }
     return obj;
 }
 LiteScript::Object& LiteScript::_Type_NIL::AssignObject(LiteScript::Object& obj) {
-    obj.Reassign(*this, 0);
+    return obj.Reassign(*this, 0);
 }
 
 std::string LiteScript::_Type_NIL::ToString(const Object &) const {

@@ -33,6 +33,7 @@ LiteScript::Object LiteScript::_Type_BOOLEAN::Convert(const LiteScript::Object& 
 LiteScript::Object& LiteScript::_Type_BOOLEAN::AssignObject(LiteScript::Object& obj) {
     obj.Reassign(*this, sizeof(bool));
     obj.GetData<bool>() = false;
+    return obj;
 }
 
 std::string LiteScript::_Type_BOOLEAN::ToString(const Object & obj) const {
