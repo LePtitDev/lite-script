@@ -5,18 +5,42 @@
 
 namespace LiteScript {
 
+    // The derived type UNDEFINED (hidden)
     class _Type_UNDEFINED : public Type {
 
     public:
 
+        /////////////////////////
+        ////// CONSTRUCTOR //////
+        /////////////////////////
+
+        /**
+         * Basic contructor of the type
+         */
         _Type_UNDEFINED();
 
+        /////////////////////////////
+        ////// DERIVED METHODS //////
+        /////////////////////////////
+
+        /**
+         * Create an undefined object
+         *
+         * @return The undefined object
+         */
         Object CreateObject() override;
 
-        std::string ToString(const Object&) const override;
+        /**
+         * Create a string that contain "undefined"
+         *
+         * @param object An object typed UNDEFINED (not used)
+         * @return The string
+         */
+        std::string ToString(const Object& object) const override;
 
     };
 
+    // An internal variable that contain the type UNDEFINED
     extern _Type_UNDEFINED _type_undefined;
 
 }

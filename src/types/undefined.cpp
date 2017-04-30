@@ -9,5 +9,5 @@ LiteScript::Object LiteScript::_Type_UNDEFINED::CreateObject() {
 }
 
 std::string LiteScript::_Type_UNDEFINED::ToString(const LiteScript::Object& obj) const {
-    return "";
+    return "undefined";
 }

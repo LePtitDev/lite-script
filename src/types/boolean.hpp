@@ -5,30 +5,114 @@
 
 namespace LiteScript {
 
+    // The derived type BOOLEAN
     class _Type_BOOLEAN : public Type {
 
     public:
 
+        /////////////////////////
+        ////// CONSTRUCTOR //////
+        /////////////////////////
+
+        /**
+         * Basic constructor of a boolean object
+         */
         _Type_BOOLEAN();
 
+        /////////////////////////////
+        ////// DERIVED METHODS //////
+        /////////////////////////////
+
+        /**
+         * Create a boolean object (false is the default assigned value)
+         *
+         * @return The boolean object
+         */
         Object CreateObject() override;
 
-        Object Convert(const Object&, const Type&) const override;
-        Object& AssignObject(Object&) override;
+        /**
+         * Convert the referenced object to an other typed object
+         *
+         * @param object The referenced object
+         * @param type The type of the converted object
+         * @return The converted object if success and a null object otherwise
+         */
+        Object Convert(const Object& object, const Type& type) const override;
 
-        Object& OAssign(Object&, const Object&) const override;
+        /**
+         * Assign the referenced object by a boolean object
+         *
+         * @param object The referenced object
+         * @return The same object assigned
+         */
+        Object& AssignObject(Object& object) override;
 
-        Object OEqual(const Object&, const Object&) const override;
-        Object ONotEqual(const Object&, const Object&) const override;
+        ////// OPERATIONS //////
 
-        Object OLogicalNot(const Object&) const override;
-        Object OLogicalAnd(const Object&, const Object&) const override;
-        Object OLogicalOr(const Object&, const Object&) const override;
+        /**
+         * Assign an object type boolean by an other object
+         *
+         * @param obj1 The boolean object
+         * @param obj2 The other object
+         * @return The assigned object
+         */
+        Object& OAssign(Object& obj1, const Object& obj2) const override;
 
-        std::string ToString(const Object&) const override;
+        /**
+         * Apply equality comparison between two objects
+         *
+         * @param obj1 The first operand (boolean object)
+         * @param obj2 The second operand
+         * @return The result of the operation (boolean object)
+         */
+        Object OEqual(const Object& obj1, const Object& obj2) const override;
+
+        /**
+         * Apply inequality comparison between two objects
+         *
+         * @param obj1 The first operand (boolean object)
+         * @param obj2 The second operand
+         * @return The result of the operation (boolean object)
+         */
+        Object ONotEqual(const Object& obj1, const Object& obj2) const override;
+
+        /**
+         * Apply logical not operation on an object
+         *
+         * @param obj1 The object (boolean object)
+         * @return The result of the operation (boolean object)
+         */
+        Object OLogicalNot(const Object& object) const override;
+
+        /**
+         * Apply logical and operation between two objects
+         *
+         * @param obj1 The first operand (boolean object)
+         * @param obj2 The second operand
+         * @return The result of the operation (boolean object)
+         */
+        Object OLogicalAnd(const Object& obj1, const Object& obj2) const override;
+
+        /**
+         * Apply logical or operation between two objects
+         *
+         * @param obj1 The first operand (boolean object)
+         * @param obj2 The second operand
+         * @return The result of the operation (boolean object)
+         */
+        Object OLogicalOr(const Object& obj1, const Object& obj2) const override;
+
+        /**
+         * Create a string that contain the value of the boolean object ("true" or "false")
+         *
+         * @param object An object typed BOOLEAN
+         * @return The string
+         */
+        std::string ToString(const Object& object) const override;
 
     };
 
+    // An internal variable that contain the type BOOLEAN
     extern _Type_BOOLEAN _type_boolean;
 
 }
