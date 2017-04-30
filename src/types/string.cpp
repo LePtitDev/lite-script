@@ -177,7 +177,7 @@ LiteScript::Object& LiteScript::_Type_STRING::OArray(LiteScript::Object& obj1, c
     if (tmp.GetType() != Type::NUMBER)
         return Object::UNDEFINED;
     if ((unsigned int)(int)tmp.GetData<Number>() >= obj1.GetData<String>().GetLength())
-        tmp.GetData<Number>() = Number(0);
+        return Object::UNDEFINED;
     return obj1.GetData<String>().GetChar((unsigned int)(int)tmp.GetData<Number>());
 }
 LiteScript::Object& LiteScript::_Type_STRING::OMember(LiteScript::Object& obj, const char * name) const {
