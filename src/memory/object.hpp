@@ -91,7 +91,7 @@ namespace LiteScript {
         /////////////////////
 
         /**
-         * Clear the contant of the object
+         * Clear the content of the object
          */
         void Clear();
 
