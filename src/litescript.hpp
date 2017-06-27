@@ -20,6 +20,7 @@
 
 #include <iostream>
 #include <bitset>
+#include <array>
 #include <vector>
 #include <string>
 #include <memory>
@@ -36,6 +37,8 @@ namespace LiteScript {
 
 #include "memory/type.hpp"
 #include "memory/object.hpp"
+#include "memory/memory.hpp"
+#include "memory/variable.hpp"
 
 #include "types/internal.hpp"
 

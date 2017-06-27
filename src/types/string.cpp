@@ -20,7 +20,8 @@ LiteScript::_Type_STRING::_Type_STRING() : Type("STRING") {};
 
 LiteScript::Object LiteScript::_Type_STRING::CreateObject() {
     Object res(*this, sizeof(String));
-    ObjectAllocator.construct(&res.GetData<String>());
+    std::allocator<String> allocator;
+    allocator.construct(&res.GetData<String>());
     return res;
 }
 
@@ -36,7 +37,8 @@ LiteScript::Object LiteScript::_Type_STRING::Convert(const LiteScript::Object& o
 }
 LiteScript::Object& LiteScript::_Type_STRING::AssignObject(LiteScript::Object& obj) {
     obj.Reassign(*this, sizeof(String));
-    ObjectAllocator.construct(&obj.GetData<String>());
+    std::allocator<String> allocator;
+    allocator.construct(&obj.GetData<String>());
     return obj;
 }
 

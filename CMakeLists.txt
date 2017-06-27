@@ -12,9 +12,14 @@ set(SOURCE_FILES
         src/memory/object.hpp src/memory/object.cpp
 
         src/types/internal.hpp src/types/internal.cpp
+        src/types/undefined.hpp src/types/undefined.cpp
         src/types/null.hpp src/types/null.cpp
         src/types/boolean.hpp src/types/boolean.cpp
         src/types/number.hpp src/types/number.cpp
-        src/types/string.hpp src/types/string.cpp src/types/character.hpp src/types/character.cpp src/types/undefined.hpp src/types/undefined.cpp)
+        src/types/string.hpp src/types/string.cpp
+        src/types/character.hpp src/types/character.cpp
+
+        src/memory/memory.hpp
+        src/memory/variable.hpp src/memory/variable.cpp)
 
 add_executable(LiteScript ${SOURCE_FILES})
