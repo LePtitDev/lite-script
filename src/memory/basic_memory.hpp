@@ -12,46 +12,35 @@
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
-#ifndef LITESCRIPT_LITESCRIPT_HPP
+#ifndef LITESCRIPT_BASIC_MEMORY_HPP
+#define LITESCRIPT_BASIC_MEMORY_HPP
+
+#define LITESCRIPT_MEMORY_1_MAXCOUNT 65536
 
 #include "../litescript.hpp"
 
-#else
-
-#ifndef LITESCRIPT_MEMORY_MEMORY_HPP
-#define LITESCRIPT_MEMORY_MEMORY_HPP
-
-#define LITESCRIPT_MEMORY_SIZE 256
-#define LITESCRIPT_MEMORY_MAXCOUNT 16777216
-
 namespace LiteScript {
 
-    // Class Memory that contain objects
-    class Memory {
+    // Internal element of memory
+    class _BasicMemory_1 {
 
         ////////////////////////
         ////// ATTRIBUTES //////
         ////////////////////////
 
-        // Array of internal memories
-        std::array<void *, LITESCRIPT_MEMORY_SIZE> arr;
-
-        // Array of not full index
-        std::array<short, LITESCRIPT_MEMORY_SIZE> nfull;
-
-        // The first not full block
-        short first_nfull;
-
-        // Count of objects in the memory
+        // The object counter
         unsigned int count;
 
     public:
 
-        //////////////////////
-        ////// ACCESSOR //////
-        //////////////////////
+        // The main memory
+        Memory& memory;
 
-        // Public accessor of the objects counter
+        ///////////////////////
+        ////// ACCESSORS //////
+        ///////////////////////
+
+        // Public accessor of the object counter
         const unsigned int& Count;
 
         //////////////////////////
@@ -59,14 +48,16 @@ namespace LiteScript {
         //////////////////////////
 
         /**
-         * Basic constructor of a memory
+         * Basic constructor of the basic memory
+         *
+         * @param memory The main memory
          */
-        Memory();
+        _BasicMemory_1(Memory& memory);
 
         /**
-         * Destructor of a memory
+         * Destructor of the memory
          */
-        ~Memory();
+        ~_BasicMemory_1();
 
         /////////////////////
         ////// METHODS //////
@@ -75,7 +66,7 @@ namespace LiteScript {
         /**
          * Indicate if the memory is full
          */
-        inline bool isFull() const { return this->count == LITESCRIPT_MEMORY_MAXCOUNT; }
+        inline bool isFull() const { return this->count == LITESCRIPT_MEMORY_1_MAXCOUNT; }
 
         /**
          * Create a null object
@@ -96,19 +87,12 @@ namespace LiteScript {
          * Get a variable that refer to an object
          *
          * @param id The ID of the object
-         * @return The variable if success and null otherwise
+         * @return The variable
          */
         Nullable<Variable> GetVariable(unsigned int id);
-
-        /**
-         * Execute the garbage collector
-         */
-        void GarbageCollector();
 
     };
 
 }
 
-#endif //LITESCRIPT_MEMORY_HPP
-
-#endif
+#endif //LITESCRIPT_BASIC_MEMORY_HPP

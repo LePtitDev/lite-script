@@ -35,10 +35,12 @@ namespace LiteScript {
 
 }
 
+#include "nullable.hpp"
+
 #include "memory/type.hpp"
 #include "memory/object.hpp"
-#include "memory/memory.hpp"
 #include "memory/variable.hpp"
+#include "memory/memory.hpp"
 
 #include "types/internal.hpp"
 

@@ -29,17 +29,6 @@ namespace LiteScript {
     // Basic class of an object
     class Object {
 
-    public:
-
-        ///////////////////////////////
-        ////// STATIC ATTRIBUTES //////
-        ///////////////////////////////
-
-        // Object of undefined type
-        static Object UNDEFINED;
-
-    private:
-
         ///////////////////////////////
         ////// OBJECT ATTRIBUTES //////
         ///////////////////////////////
@@ -55,6 +44,12 @@ namespace LiteScript {
 
     public:
 
+        // The ID of the object
+        const unsigned int ID;
+
+        // The memory that contain the object
+        Memory& memory;
+
         //////////////////////////
         ////// CONSTRUCTORS //////
         //////////////////////////
@@ -62,16 +57,11 @@ namespace LiteScript {
         /**
          * Basic constructor of an object
          * The type of this object is "null"
-         */
-        Object();
-
-        /**
-         * Constructor of an object by type and datas size
          *
-         * @param type The type of the object
-         * @param size The size of internal datas
+         * @param mem The memory that contain the object
+         * @param id The ID of the object
          */
-        Object(Type& type, unsigned int size);
+        Object(Memory& mem, unsigned int id);
 
         /**
          * Constructor of an object by copy
@@ -128,23 +118,6 @@ namespace LiteScript {
         template<typename T>
         const T& GetData() const { return *(T*)this->data; }
 
-
-        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        // !!!!!! If the operation can't be applied on the object, !!!!!!
-        // !!!!!! the object returned is typed "null"              !!!!!!
-        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-        // !!!!!!!!!!!!!!!!!!!!!!!!! FROM HERE !!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
-        /**
-         * Try to convert an object by an other typed object
-         *
-         * @param type The type for convertion
-         * @return An object converted or a null object
-         */
-        Object Convert(const Type& type) const;
-
         /**
          * Reassign datas and type
          * Destroy and reallocate datas and type
@@ -154,338 +127,9 @@ namespace LiteScript {
          */
         Object& Reassign(Type& type, unsigned int size);
 
-        ///////////////////////////////////
-        ////// OPERATORS OVERLOADING //////
-        ///////////////////////////////////
-
-        /**
-         * Assign the object by an other object
-         *
-         * @param object The other object
-         * @return This object
-         */
-        Object& operator=(const Object& object);
-
-        ////// ARITHMETIC OPERATIONS //////
-
-        /**
-         * Apply unary plus operation
-         *
-         * @return The result of operation
-         */
-        Object operator+() const;
-
-        /**
-         * Apply unary minus operation
-         *
-         * @return The result of operation
-         */
-        Object operator-() const;
-
-        /**
-         * Apply pre-increment operation
-         *
-         * @return This object
-         */
-        Object& operator++();
-
-        /**
-         * Apply post-increment operation
-         *
-         * @return The result of operation
-         */
-        Object operator++(int);
-
-        /**
-         * Apply pre-decrement operation
-         *
-         * @return This object
-         */
-        Object& operator--();
-
-        /**
-         * Apply post-decrement operation
-         *
-         * @return The result of operation
-         */
-        Object operator--(int);
-
-
-        /**
-         * Apply addition operation
-         *
-         * @param object The second operand object
-         * @return The result of operation
-         */
-        Object operator+(const Object& object) const;
-
-        /**
-         * Apply substraction operation
-         *
-         * @param object The second operand object
-         * @return The result of operation
-         */
-        Object operator-(const Object& object) const;
-
-        /**
-         * Apply multiplication operation
-         *
-         * @param object The second operand object
-         * @return The result of operation
-         */
-        Object operator*(const Object& object) const;
-
-        /**
-         * Apply division operation
-         *
-         * @param object The second operand object
-         * @return The result of operation
-         */
-        Object operator/(const Object& object) const;
-
-        /**
-         * Apply modulo operation
-         *
-         * @param object The second operand object
-         * @return The result of operation
-         */
-        Object operator%(const Object& object) const;
-
-        ////// COMPARISON OPERATIONS //////
-
-        /**
-         * Apply equality comparison
-         *
-         * @param object The second operand object
-         * @return The result of operation
-         */
-        Object operator==(const Object& object) const;
-
-        /**
-         * Apply inequality comparison
-         *
-         * @param object The second operand object
-         * @return The result of operation
-         */
-        Object operator!=(const Object& object) const;
-
-        /**
-         * Apply superiority comparison
-         *
-         * @param object The second operand object
-         * @return The result of operation
-         */
-        Object operator>(const Object& object) const;
-
-        /**
-         * Apply inferiority comparison
-         *
-         * @param object The second operand object
-         * @return The result of operation
-         */
-        Object operator<(const Object& object) const;
-
-        /**
-         * Apply superiority or equality comparison
-         *
-         * @param object The second operand object
-         * @return The result of operation
-         */
-        Object operator>=(const Object& object) const;
-
-        /**
-         * Apply inferiority or equality comparison
-         *
-         * @param object The second operand object
-         * @return The result of operation
-         */
-        Object operator<=(const Object& object) const;
-
-        ////// LOGICAL OPERATIONS //////
-
-        /**
-         * Apply logical not operation
-         *
-         * @return The result of operation
-         */
-        Object operator!() const;
-
-        /**
-         * Apply logical and operation
-         *
-         * @param object The second operand object
-         * @return The result of operation
-         */
-        Object operator&&(const Object& object) const;
-
-        /**
-         * Apply logical or operation
-         *
-         * @param object The second operand object
-         * @return The result of operation
-         */
-        Object operator||(const Object& object) const;
-
-        ////// BINARY OPERATIONS //////
-
-        /**
-         * Apply binary not operation
-         *
-         * @return The result of operation
-         */
-        Object operator~() const;
-
-        /**
-         * Apply binary and operation
-         *
-         * @param object The second operand object
-         * @return The result of operation
-         */
-        Object operator&(const Object& object) const;
-
-        /**
-         * Apply binary or operation
-         *
-         * @param object The second operand object
-         * @return The result of operation
-         */
-        Object operator|(const Object& object) const;
-
-        /**
-         * Apply binary xor operation
-         *
-         * @param object The second operand object
-         * @return The result of operation
-         */
-        Object operator^(const Object& object) const;
-
-        /**
-         * Apply left shift operation
-         *
-         * @param object The second operand object
-         * @return The result of operation
-         */
-        Object operator<<(const Object& object) const;
-
-        /**
-         * Apply right shift operation
-         *
-         * @param object The second operand object
-         * @return The result of operation
-         */
-        Object operator>>(const Object& object) const;
-
-        ////// DIRECT MODIFICATION OPERATIONS //////
-
-        /**
-         * Apply addition and assignation operation
-         *
-         * @param object The second operand object
-         * @return This object
-         */
-        Object& operator+=(const Object& object);
-
-        /**
-         * Apply substraction and assignation operation
-         *
-         * @param object The second operand object
-         * @return This object
-         */
-        Object& operator-=(const Object& object);
-
-        /**
-         * Apply multipilcation and assignation operation
-         *
-         * @param object The second operand object
-         * @return This object
-         */
-        Object& operator*=(const Object& object);
-
-        /**
-         * Apply division and assignation operation
-         *
-         * @param object The second operand object
-         * @return This object
-         */
-        Object& operator/=(const Object& object);
-
-
-        // !!!!!!!!!!!!!!!!!!!!!!!!!! TO HERE !!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
-        ////// ACCESS OPERATIONS //////
-
-
-        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        // !!!!!! If the operation can't be applied on the object, !!!!!!
-        // !!!!!! the object returned is typed "undefined"         !!!!!!
-        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-        // !!!!!!!!!!!!!!!!!!!!!!!!! FROM HERE !!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
-        /**
-         * Apply array access
-         *
-         * @param object The second operand object
-         * @return The result of operation
-         */
-        Object& operator[](const Object& object);
-
-        /**
-         * Apply member access
-         *
-         * @param name The name of member
-         * @return The result of operation
-         */
-        Object& GetMember(const char * name);
-
-
-        // !!!!!!!!!!!!!!!!!!!!!!!!!! TO HERE !!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
-        ////// CALLING OPERATION //////
-
-
-        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        // !!!!!! If the operation can't be applied on the object, !!!!!!
-        // !!!!!! the object returned is typed "null"              !!!!!!
-        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-        // !!!!!!!!!!!!!!!!!!!!!!!!! FROM HERE !!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
-        /**
-         * Apply calling operation
-         *
-         * @param args The argument list
-         * @return The result of operation
-         */
-        Object operator()(std::vector<std::unique_ptr<Object>>& args);
-
-
-        // !!!!!!!!!!!!!!!!!!!!!!!!!! TO HERE !!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
-        ////// STRING CONVERSION //////
-
-        /**
-         * Return a string that describe the content of the object
-         */
-        operator std::string() const;
-
     };
 
 }
-
-/**
- * Send the content of the object in the stream
- *
- * @param stream The stream
- * @param object The object
- * @return The stream
- */
-std::ostream& operator<<(std::ostream& stream, const LiteScript::Object& object);
 
 #endif //LITESCRIPT_MEMORY_VARIABLE_HPP
 

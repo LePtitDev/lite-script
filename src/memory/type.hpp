@@ -110,9 +110,9 @@ namespace LiteScript {
         /**
          * Create an empty object formated by this type
          *
-         * @return An empty object
+         * @param object An empty object
          */
-        virtual Object CreateObject() = 0;
+        virtual void CreateObject(Object& obj) = 0;
 
 
         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -130,7 +130,7 @@ namespace LiteScript {
          * @param type The type of conversion
          * @return A new object converted if success, or a new null object otherwise
          */
-        virtual Object Convert(const Object& object, const Type& type) const;
+        virtual Variable Convert(const Variable& object, const Type& type) const;
 
         /**
          * Try to assign the objet referenced with default values of this type
@@ -158,7 +158,7 @@ namespace LiteScript {
          * @param object_src The object which must be copied
          * @return The object assigned referenced
          */
-        virtual Object& OAssign(Object& object_target, const Object& object_src) const;
+        virtual Variable OAssign(Variable& object_target, const Variable& object_src) const;
 
 
         ////// ARITHMETIC OPERATIONS //////
@@ -170,7 +170,7 @@ namespace LiteScript {
          * @param object The object operand
          * @return The result of operation (null object if the type doesn't permit this operation)
          */
-        virtual Object OUnaryPlus(const Object& object) const;
+        virtual Variable OUnaryPlus(const Variable& object) const;
 
         /**
          * Create the result object of unary minus operation
@@ -178,7 +178,7 @@ namespace LiteScript {
          * @param object The object operand
          * @return The result of operation (null object if the type doesn't permit this operation)
          */
-        virtual Object OUnaryMinus(const Object& object) const;
+        virtual Variable OUnaryMinus(const Variable& object) const;
 
         /**
          * Apply an increment operation and return referenced object
@@ -186,7 +186,7 @@ namespace LiteScript {
          * @param object The object operand
          * @return The object referenced
          */
-        virtual Object& OPreIncrement(Object& object) const;
+        virtual Variable OPreIncrement(Variable& object) const;
 
         /**
          * Create an object copy of the referenced object and apply an increment operation on the
@@ -195,7 +195,7 @@ namespace LiteScript {
          * @param object The object operand
          * @return The object copy
          */
-        virtual Object OPostIncrement(Object& object) const;
+        virtual Variable OPostIncrement(Variable& object) const;
 
         /**
          * Apply a decrement operation and return referenced object
@@ -203,7 +203,7 @@ namespace LiteScript {
          * @param object The object operand
          * @return The object referenced
          */
-        virtual Object& OPreDecrement(Object& object) const;
+        virtual Variable OPreDecrement(Variable& object) const;
 
         /**
          * Create an object copy of the referenced object and apply a decrement operation on the
@@ -212,7 +212,7 @@ namespace LiteScript {
          * @param object The object operand
          * @return The object copy
          */
-        virtual Object OPostDecrement(Object& object) const;
+        virtual Variable OPostDecrement(Variable& object) const;
 
 
 
@@ -223,7 +223,7 @@ namespace LiteScript {
          * @param object_2 The second object operand
          * @return The result of operation (null object if the type doesn't permit this operation)
          */
-        virtual Object OAdd(const Object& object_1, const Object& object_2) const;
+        virtual Variable OAdd(const Variable& object_1, const Variable& object_2) const;
 
         /**
          * Create the result object of substraction operation
@@ -232,7 +232,7 @@ namespace LiteScript {
          * @param object_2 The second object operand
          * @return The result of operation (null object if the type doesn't permit this operation)
          */
-        virtual Object OSubstract(const Object& object_1, const Object& object_2) const;
+        virtual Variable OSubstract(const Variable& object_1, const Variable& object_2) const;
 
         /**
          * Create the result object of multiplication operation
@@ -241,7 +241,7 @@ namespace LiteScript {
          * @param object_2 The second object operand
          * @return The result of operation (null object if the type doesn't permit this operation)
          */
-        virtual Object OMultiply(const Object& object_1, const Object& object_2) const;
+        virtual Variable OMultiply(const Variable& object_1, const Variable& object_2) const;
 
         /**
          * Create the result object of division operation
@@ -250,7 +250,7 @@ namespace LiteScript {
          * @param object_2 The second object operand
          * @return The result of operation (null object if the type doesn't permit this operation)
          */
-        virtual Object ODivide(const Object& object_1, const Object& object_2) const;
+        virtual Variable ODivide(const Variable& object_1, const Variable& object_2) const;
 
         /**
          * Create the result object of modulo operation
@@ -259,7 +259,7 @@ namespace LiteScript {
          * @param object_2 The second object operand
          * @return The result of operation (null object if the type doesn't permit this operation)
          */
-        virtual Object OModulo(const Object& object_1, const Object& object_2) const;
+        virtual Variable OModulo(const Variable& object_1, const Variable& object_2) const;
 
 
         ////// COMPARISON OPERATIONS //////
@@ -272,7 +272,7 @@ namespace LiteScript {
          * @param object_2 The second object operand
          * @return The result of operation as boolean object
          */
-        virtual Object OEqual(const Object& object_1, const Object& object_2) const;
+        virtual Variable OEqual(const Variable& object_1, const Variable& object_2) const;
 
         /**
          * Create the result object of inequality comparison
@@ -281,7 +281,7 @@ namespace LiteScript {
          * @param object_2 The second object operand
          * @return The result of operation as boolean object
          */
-        virtual Object ONotEqual(const Object& object_1, const Object& object_2) const;
+        virtual Variable ONotEqual(const Variable& object_1, const Variable& object_2) const;
 
         /**
          * Create the result object of superiority comparison
@@ -290,7 +290,7 @@ namespace LiteScript {
          * @param object_2 The second object operand
          * @return The result of operation as boolean object
          */
-        virtual Object OGreater(const Object& object_1, const Object& object_2) const;
+        virtual Variable OGreater(const Variable& object_1, const Variable& object_2) const;
 
         /**
          * Create the result object of inferiority comparison
@@ -299,7 +299,7 @@ namespace LiteScript {
          * @param object_2 The second object operand
          * @return The result of operation as boolean object
          */
-        virtual Object OLess(const Object& object_1, const Object& object_2) const;
+        virtual Variable OLess(const Variable& object_1, const Variable& object_2) const;
 
         /**
          * Create the result object of superiority or equality comparison
@@ -308,7 +308,7 @@ namespace LiteScript {
          * @param object_2 The second object operand
          * @return The result of operation as boolean object
          */
-        virtual Object OGreaterOrEqual(const Object& object_1, const Object& object_2) const;
+        virtual Variable OGreaterOrEqual(const Variable& object_1, const Variable& object_2) const;
 
         /**
          * Create the result object of inferiority or equality comparison
@@ -317,7 +317,7 @@ namespace LiteScript {
          * @param object_2 The second object operand
          * @return The result of operation as boolean object
          */
-        virtual Object OLessOrEqual(const Object& object_1, const Object& object_2) const;
+        virtual Variable OLessOrEqual(const Variable& object_1, const Variable& object_2) const;
 
 
         ////// LOGICAL OPERATIONS //////
@@ -329,7 +329,7 @@ namespace LiteScript {
          * @param object The object operand
          * @return The result of operation as boolean object
          */
-        virtual Object OLogicalNot(const Object& object) const;
+        virtual Variable OLogicalNot(const Variable& object) const;
 
         /**
          * Create the result object of logical and operation
@@ -338,7 +338,7 @@ namespace LiteScript {
          * @param object_2 The second object operand
          * @return The result of operation as boolean object
          */
-        virtual Object OLogicalAnd(const Object& object_1, const Object& object_2) const;
+        virtual Variable OLogicalAnd(const Variable& object_1, const Variable& object_2) const;
 
         /**
          * Create the result object of logical or operation
@@ -347,7 +347,7 @@ namespace LiteScript {
          * @param object_2 The second object operand
          * @return The result of operation as boolean object
          */
-        virtual Object OLogicalOr(const Object& object_1, const Object& object_2) const;
+        virtual Variable OLogicalOr(const Variable& object_1, const Variable& object_2) const;
 
 
         ////// BINARY OPERATIONS //////
@@ -359,7 +359,7 @@ namespace LiteScript {
          * @param object The object operand
          * @return The result of operation (null object if the type doesn't permit this operation)
          */
-        virtual Object OBitwiseNot(const Object& object) const;
+        virtual Variable OBitwiseNot(const Variable& object) const;
 
         /**
          * Create the result object of binary and operation
@@ -368,7 +368,7 @@ namespace LiteScript {
          * @param object_2 The second object operand
          * @return The result of operation (null object if the type doesn't permit this operation)
          */
-        virtual Object OBitwiseAnd(const Object& object_1, const Object& object_2) const;
+        virtual Variable OBitwiseAnd(const Variable& object_1, const Variable& object_2) const;
 
         /**
          * Create the result object of binary or operation
@@ -377,7 +377,7 @@ namespace LiteScript {
          * @param object_2 The second object operand
          * @return The result of operation (null object if the type doesn't permit this operation)
          */
-        virtual Object OBitwiseOr(const Object& object_1, const Object& object_2) const;
+        virtual Variable OBitwiseOr(const Variable& object_1, const Variable& object_2) const;
 
         /**
          * Create the result object of binary xor operation
@@ -386,7 +386,7 @@ namespace LiteScript {
          * @param object_2 The second object operand
          * @return The result of operation (null object if the type doesn't permit this operation)
          */
-        virtual Object OBitwiseXor(const Object& object_1, const Object& object_2) const;
+        virtual Variable OBitwiseXor(const Variable& object_1, const Variable& object_2) const;
 
         /**
          * Create the result object of left shift operation
@@ -395,7 +395,7 @@ namespace LiteScript {
          * @param object_2 The second object operand
          * @return The result of operation (null object if the type doesn't permit this operation)
          */
-        virtual Object OLeftShift(const Object& object_1, const Object& object_2) const;
+        virtual Variable OLeftShift(const Variable& object_1, const Variable& object_2) const;
 
         /**
          * Create the result object of right shift operation
@@ -404,7 +404,7 @@ namespace LiteScript {
          * @param object_2 The second object operand
          * @return The result of operation (null object if the type doesn't permit this operation)
          */
-        virtual Object ORightShift(const Object& object_1, const Object& object_2) const;
+        virtual Variable ORightShift(const Variable& object_1, const Variable& object_2) const;
 
 
         ////// DIRECT MODIFICATION OPERATIONS //////
@@ -417,7 +417,7 @@ namespace LiteScript {
          * @param object_src The source object
          * @return The target object referenced
          */
-        virtual Object& OAddAndAssign(Object& object_target, const Object& object_src) const;
+        virtual Variable OAddAndAssign(Variable& object_target, const Variable& object_src) const;
 
         /**
          * Substract the source object to the target object and return it
@@ -426,7 +426,7 @@ namespace LiteScript {
          * @param object_src The source object
          * @return The target object referenced
          */
-        virtual Object& OSubstractAndAssign(Object& object_target, const Object& object_src) const;
+        virtual Variable OSubstractAndAssign(Variable& object_target, const Variable& object_src) const;
 
         /**
          * Multiply the source object to the target object and return it
@@ -435,7 +435,7 @@ namespace LiteScript {
          * @param object_src The source object
          * @return The target object referenced
          */
-        virtual Object& OMultiplyAndAssign(Object& object_target, const Object& object_src) const;
+        virtual Variable OMultiplyAndAssign(Variable& object_target, const Variable& object_src) const;
 
         /**
          * Divide the source object to the target object and return it
@@ -444,7 +444,7 @@ namespace LiteScript {
          * @param object_src The source object
          * @return The target object referenced
          */
-        virtual Object& ODivideAndAssign(Object& object_target, const Object& object_src) const;
+        virtual Variable ODivideAndAssign(Variable& object_target, const Variable& object_src) const;
 
 
         // !!!!!!!!!!!!!!!!!!!!!!!!!! TO HERE !!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -468,7 +468,7 @@ namespace LiteScript {
          * @param object_key The object key
          * @return The object contained in the object source if success or the undefined object otherwise
          */
-        virtual Object& OArray(Object& object_src, const Object& object_key) const;
+        virtual Variable OArray(Variable& object_src, const Variable& object_key) const;
 
         /**
          * Return the object contained in the object source and identified by the member name
@@ -477,7 +477,7 @@ namespace LiteScript {
          * @param member_name The member name
          * @return The object contained in the object source if success or the undefined object otherwise
          */
-        virtual Object& OMember(Object& object_src, const char * member_name) const;
+        virtual Variable OMember(Variable& object_src, const char * member_name) const;
 
 
         // !!!!!!!!!!!!!!!!!!!!!!!!!! TO HERE !!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -501,7 +501,7 @@ namespace LiteScript {
          * @param args The argument list
          * @return The return result of calling operation
          */
-        virtual Object OCall(Object& object, std::vector<std::unique_ptr<Object>>& args) const;
+        virtual Variable OCall(Variable& object, std::vector<Variable>& args) const;
 
 
         // !!!!!!!!!!!!!!!!!!!!!!!!!! TO HERE !!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -516,7 +516,7 @@ namespace LiteScript {
          * @param object The object to describe
          * @return A description string
          */
-        virtual std::string ToString(const Object& object) const;
+        virtual std::string ToString(const Variable& object) const;
 
     };
 

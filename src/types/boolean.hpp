@@ -39,11 +39,11 @@ namespace LiteScript {
         /////////////////////////////
 
         /**
-         * Create a boolean object (false is the default assigned value)
+         * Create an empty object formated by this type
          *
-         * @return The boolean object
+         * @param object An empty object
          */
-        Object CreateObject() override;
+        void CreateObject(Object& obj) override;
 
         /**
          * Convert the referenced object to an other typed object
@@ -52,7 +52,7 @@ namespace LiteScript {
          * @param type The type of the converted object
          * @return The converted object if success and a null object otherwise
          */
-        Object Convert(const Object& object, const Type& type) const override;
+        Variable Convert(const Variable& object, const Type& type) const override;
 
         /**
          * Assign the referenced object by a boolean object
@@ -71,7 +71,7 @@ namespace LiteScript {
          * @param obj2 The other object
          * @return The assigned object
          */
-        Object& OAssign(Object& obj1, const Object& obj2) const override;
+        Variable OAssign(Variable& obj1, const Variable& obj2) const override;
 
         /**
          * Apply equality comparison between two objects
@@ -80,7 +80,7 @@ namespace LiteScript {
          * @param obj2 The second operand
          * @return The result of the operation (boolean object)
          */
-        Object OEqual(const Object& obj1, const Object& obj2) const override;
+        Variable OEqual(const Variable& obj1, const Variable& obj2) const override;
 
         /**
          * Apply inequality comparison between two objects
@@ -89,7 +89,7 @@ namespace LiteScript {
          * @param obj2 The second operand
          * @return The result of the operation (boolean object)
          */
-        Object ONotEqual(const Object& obj1, const Object& obj2) const override;
+        Variable ONotEqual(const Variable& obj1, const Variable& obj2) const override;
 
         /**
          * Apply logical not operation on an object
@@ -97,7 +97,7 @@ namespace LiteScript {
          * @param obj1 The object (boolean object)
          * @return The result of the operation (boolean object)
          */
-        Object OLogicalNot(const Object& object) const override;
+        Variable OLogicalNot(const Variable& object) const override;
 
         /**
          * Apply logical and operation between two objects
@@ -106,7 +106,7 @@ namespace LiteScript {
          * @param obj2 The second operand
          * @return The result of the operation (boolean object)
          */
-        Object OLogicalAnd(const Object& obj1, const Object& obj2) const override;
+        Variable OLogicalAnd(const Variable& obj1, const Variable& obj2) const override;
 
         /**
          * Apply logical or operation between two objects
@@ -115,7 +115,7 @@ namespace LiteScript {
          * @param obj2 The second operand
          * @return The result of the operation (boolean object)
          */
-        Object OLogicalOr(const Object& obj1, const Object& obj2) const override;
+        Variable OLogicalOr(const Variable& obj1, const Variable& obj2) const override;
 
         /**
          * Create a string that contain the value of the boolean object ("true" or "false")
@@ -123,7 +123,7 @@ namespace LiteScript {
          * @param object An object typed BOOLEAN
          * @return The string
          */
-        std::string ToString(const Object& object) const override;
+        std::string ToString(const Variable& object) const override;
 
     };
 

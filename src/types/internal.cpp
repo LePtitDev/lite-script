@@ -16,6 +16,8 @@
 
 #include "character.hpp"
 
+#include "../types/undefined.hpp"
+
 /**************************/
 /****** CLASS NUMBER ******/
 /**************************/
@@ -249,7 +251,7 @@ LiteScript::String::String(const std::string& data) : str(String::ConvertToUnico
 LiteScript::String::String(const std::u32string& data) : str(data) {}
 LiteScript::String::String(const String& data) : str(data.str) {}
 
-unsigned int LiteScript::String::GetLength() const { return (unsigned int)this->str.size(); }
+unsigned int LiteScript::String::GetLength() const { return this->str.size(); }
 std::u32string& LiteScript::String::GetData() { return this->str; }
 const std::u32string& LiteScript::String::GetData() const { return this->str; }
 
@@ -268,7 +270,7 @@ LiteScript::String::operator std::u32string() const { return this->str; }
 
 std::string LiteScript::String::ConvertToUTF8(const std::u32string& str) {
     std::string res;
-    for (unsigned int i = 0, sz = (unsigned int)str.size(); i < sz; i++) {
+    for (unsigned int i = 0, sz = str.size(); i < sz; i++) {
         if (str[i] < 0x80) {
             //1 byte
             res.push_back((unsigned char)(str[i]));
@@ -296,7 +298,7 @@ std::string LiteScript::String::ConvertToUTF8(const std::u32string& str) {
 }
 std::u32string LiteScript::String::ConvertToUnicode(const std::string& str) {
     std::u32string res;
-    for (unsigned int i = 0, sz = (unsigned int)str.size(); i < sz; i++) {
+    for (unsigned int i = 0, sz = str.size(); i < sz; i++) {
         std::bitset<4> header(((unsigned char)str[i] & (unsigned char)0b11110000) >> 4);
         if (header[3] == 0) {
             //1 byte
@@ -337,7 +339,7 @@ LiteScript::String& LiteScript::String::operator=(const LiteScript::String& stri
 
 LiteScript::String LiteScript::String::operator+(const LiteScript::String& string) const {
     String res(*this);
-    for (unsigned int i = 0, sz = (unsigned int)string.str.size(); i < sz; i++)
+    for (unsigned int i = 0, sz = string.str.size(); i < sz; i++)
         res.str += string.str[i];
     return res;
 }
@@ -370,20 +372,22 @@ LiteScript::String& LiteScript::String::operator*=(unsigned int nb) {
 char32_t & LiteScript::String::operator[](unsigned int index) { return this->str[index]; }
 const char32_t & LiteScript::String::operator[](unsigned int index) const { return this->str[index]; }
 
-LiteScript::Object& LiteScript::String::GetChar(unsigned int i) {
-    this->tmp_obj.Reassign(_type_character, sizeof(Character));
-    ObjectAllocator.construct(&this->tmp_obj.GetData<Character>(), *this, i);
-    return this->tmp_obj;
+LiteScript::Variable LiteScript::String::GetChar(LiteScript::Memory& memory, unsigned int i) {
+    Variable result = memory.Create(_type_character);
+    std::allocator<Character> allocator;
+    allocator.construct(&result->GetData<Character>(), *this, i);
+    return result;
 }
 
-LiteScript::Object& LiteScript::String::GetMember(const char * name) {
+LiteScript::Variable LiteScript::String::GetMember(LiteScript::Memory& memory, const char * name) {
     if (strcmp(name, "length") == 0) {
-        this->tmp_obj.Reassign(Type::NUMBER, sizeof(Number));
-        ObjectAllocator.construct(&this->tmp_obj.GetData<Number>(), (int)this->str.size());
-        return this->tmp_obj;
+        Variable result = memory.Create(_type_character);
+        std::allocator<Character> allocator;
+        allocator.construct(&result->GetData<Number>(), (int)this->str.size());
+        return result;
     }
     else {
-        return Object::UNDEFINED;
+        return memory.Create(_type_undefined);
     }
 }
 

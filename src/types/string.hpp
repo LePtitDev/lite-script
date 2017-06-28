@@ -38,11 +38,11 @@ namespace LiteScript {
         /////////////////////////////
 
         /**
-         * Create a string object
+         * Create an empty object formated by this type
          *
-         * @return The string object
+         * @param object An empty object
          */
-        Object CreateObject() override;
+        void CreateObject(Object& obj) override;
 
         /**
          * Convert the referenced object to an other typed object
@@ -51,7 +51,7 @@ namespace LiteScript {
          * @param type The type of the converted object
          * @return The converted object if success and a null object otherwise
          */
-        Object Convert(const Object& object, const Type& type) const override;
+        Variable Convert(const Variable& object, const Type& type) const override;
 
         /**
          * Assign the referenced object by a string object
@@ -70,7 +70,7 @@ namespace LiteScript {
          * @param obj2 The other object
          * @return The assigned object
          */
-        Object& OAssign(Object& obj1, const Object& obj2) const override;
+        Variable OAssign(Variable& obj1, const Variable& obj2) const override;
 
         /**
          * Apply addition operation between two objects
@@ -79,7 +79,7 @@ namespace LiteScript {
          * @param obj2 The second operand
          * @return The result of the operation
          */
-        Object OAdd(const Object& obj1, const Object& obj2) const override;
+        Variable OAdd(const Variable& obj1, const Variable& obj2) const override;
 
         /**
          * Apply multiplication operation between two objects
@@ -88,7 +88,7 @@ namespace LiteScript {
          * @param obj2 The second operand
          * @return The result of the operation
          */
-        Object OMultiply(const Object& obj1, const Object& obj2) const override;
+        Variable OMultiply(const Variable& obj1, const Variable& obj2) const override;
 
         /**
          * Apply equality comparison between two objects
@@ -97,7 +97,7 @@ namespace LiteScript {
          * @param obj2 The second operand
          * @return The result of the operation (boolean object)
          */
-        Object OEqual(const Object& obj1, const Object& obj2) const override;
+        Variable OEqual(const Variable& obj1, const Variable& obj2) const override;
 
         /**
          * Apply inequality comparison between two objects
@@ -106,7 +106,7 @@ namespace LiteScript {
          * @param obj2 The second operand
          * @return The result of the operation (boolean object)
          */
-        Object ONotEqual(const Object& obj1, const Object& obj2) const override;
+        Variable ONotEqual(const Variable& obj1, const Variable& obj2) const override;
 
         /**
          * Apply superiority comparison between two objects
@@ -115,7 +115,7 @@ namespace LiteScript {
          * @param obj2 The second operand
          * @return The result of the operation (boolean object)
          */
-        Object OGreater(const Object& obj1, const Object& obj2) const override;
+        Variable OGreater(const Variable& obj1, const Variable& obj2) const override;
 
         /**
          * Apply inferiority comparison between two objects
@@ -124,7 +124,7 @@ namespace LiteScript {
          * @param obj2 The second operand
          * @return The result of the operation (boolean object)
          */
-        Object OLess(const Object& obj1, const Object& obj2) const override;
+        Variable OLess(const Variable& obj1, const Variable& obj2) const override;
 
         /**
          * Apply superiority or equality comparison between two objects
@@ -133,7 +133,7 @@ namespace LiteScript {
          * @param obj2 The second operand
          * @return The result of the operation (boolean object)
          */
-        Object OGreaterOrEqual(const Object& obj1, const Object& obj2) const override;
+        Variable OGreaterOrEqual(const Variable& obj1, const Variable& obj2) const override;
 
         /**
          * Apply inferiority or equality comparison between two objects
@@ -142,7 +142,7 @@ namespace LiteScript {
          * @param obj2 The second operand
          * @return The result of the operation (boolean object)
          */
-        Object OLessOrEqual(const Object& obj1, const Object& obj2) const override;
+        Variable OLessOrEqual(const Variable& obj1, const Variable& obj2) const override;
 
         /**
          * Apply addition and assign operation between two objects
@@ -151,7 +151,7 @@ namespace LiteScript {
          * @param obj2 The second operand
          * @return The first operand
          */
-        Object& OAddAndAssign(Object& obj1, const Object& obj2) const override;
+        Variable OAddAndAssign(Variable& obj1, const Variable& obj2) const override;
 
         /**
          * Apply multiplication and assign operation between two objects
@@ -160,7 +160,7 @@ namespace LiteScript {
          * @param obj2 The second operand
          * @return The first operand
          */
-        Object& OMultiplyAndAssign(Object& obj1, const Object& obj2) const override;
+        Variable OMultiplyAndAssign(Variable& obj1, const Variable& obj2) const override;
 
         /**
          * Get the character object at the indicated position
@@ -169,7 +169,7 @@ namespace LiteScript {
          * @param obj2 The second operand
          * @return The character object if success and UNDEFINED object otherwise
          */
-        Object& OArray(Object& obj1, const Object& obj2) const override;
+        Variable OArray(Variable& obj1, const Variable& obj2) const override;
 
         /**
          * Get the member object contained on the referenced object
@@ -178,7 +178,7 @@ namespace LiteScript {
          * @param name The name of the member
          * @return The member object if exist and UNDEFINED object otherwise
          */
-        Object& OMember(Object& object, const char * name) const override;
+        Variable OMember(Variable& object, const char * name) const override;
 
         /**
          * Create a string that contain the value of the string object
@@ -186,7 +186,7 @@ namespace LiteScript {
          * @param object An object typed STRING
          * @return The string
          */
-        std::string ToString(const Object& object) const override;
+        std::string ToString(const Variable& object) const override;
 
     };
 

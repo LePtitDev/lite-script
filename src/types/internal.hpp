@@ -343,9 +343,6 @@ namespace LiteScript {
         // Datas content of the string coded in UNICODE
         std::u32string str;
 
-        // Temporary object for stock character/member
-        Object tmp_obj;
-
     public:
 
         //////////////////////////
@@ -625,18 +622,20 @@ namespace LiteScript {
         /**
          * Get the object character at the position indicated
          *
+         * @param memory The main memory
          * @param index The index of the character
-         * @return The object that contain the character
+         * @return The variable that contain the character
          */
-        Object& GetChar(unsigned int index);
+        Variable GetChar(Memory& memory, unsigned int index);
 
         /**
          * Get the object member with the specified name
          *
+         * @param memory The main memory
          * @param name The member's name
-         * @return The member object if exist and an undefined object otherwise
+         * @return The member variable if exist and an undefined object otherwise
          */
-        Object& GetMember(const char * name);
+        Variable GetMember(Memory& memory, const char * name);
 
     };
 

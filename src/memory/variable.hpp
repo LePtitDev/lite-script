@@ -25,12 +25,6 @@ namespace LiteScript {
 
     class Variable {
 
-        // The memory that contain the object
-        Memory& memory;
-
-        // The ID of the object
-        unsigned int id;
-
         // The object
         Object& obj;
 
@@ -47,27 +41,347 @@ namespace LiteScript {
          * Basic constructor of a variable
          *
          * @param memory The memory that contain the object
-         * @param id The ID of the object
          * @param obj The object
          * @param nb_ref The counter of variables that refer to this object
          */
-        Variable(Memory& memory, unsigned int id, Object& obj, unsigned int& nb_ref);
+        Variable(Object& obj, unsigned int& nb_ref);
+
+        /**
+         * Copy constructor
+         *
+         * @param v The variable to copy
+         */
+        Variable(const Variable& v);
 
         /**
          * Destructor of a variable
          */
         ~Variable();
 
-        /////////////////////
-        ////// METHODS //////
-        /////////////////////
+        //////////////////////////////
+        ////// ACCESS OPERATORS //////
+        //////////////////////////////
 
         // Pointer operator to an object
         Object* operator->();
 
+        // Pointer operator to an object (constant)
+        const Object* operator->() const;
+
+        // Pointer operator to an object
+        Object& operator*();
+
+        // Pointer operator to an object (constant)
+        const Object& operator*() const;
+
+        ///////////////////////////////////
+        ////// OPERATORS OVERLOADING //////
+        ///////////////////////////////////
+
+        /**
+         * Try to convert an object by an other typed object
+         *
+         * @param type The type for convertion
+         * @return An object converted or a null object
+         */
+        Variable Convert(const Type& type) const;
+
+        /**
+         * Assign the object by an other object
+         *
+         * @param object The other object
+         * @return This object
+         */
+        Variable operator=(const Variable& object);
+
+        ////// ARITHMETIC OPERATIONS //////
+
+        /**
+         * Apply unary plus operation
+         *
+         * @return The result of operation
+         */
+        Variable operator+() const;
+
+        /**
+         * Apply unary minus operation
+         *
+         * @return The result of operation
+         */
+        Variable operator-() const;
+
+        /**
+         * Apply pre-increment operation
+         *
+         * @return This object
+         */
+        Variable operator++();
+
+        /**
+         * Apply post-increment operation
+         *
+         * @return The result of operation
+         */
+        Variable operator++(int);
+
+        /**
+         * Apply pre-decrement operation
+         *
+         * @return This object
+         */
+        Variable operator--();
+
+        /**
+         * Apply post-decrement operation
+         *
+         * @return The result of operation
+         */
+        Variable operator--(int);
+
+        /**
+         * Apply addition operation
+         *
+         * @param object The second operand object
+         * @return The result of operation
+         */
+        Variable operator+(const Variable& object) const;
+
+        /**
+         * Apply substraction operation
+         *
+         * @param object The second operand object
+         * @return The result of operation
+         */
+        Variable operator-(const Variable& object) const;
+
+        /**
+         * Apply multiplication operation
+         *
+         * @param object The second operand object
+         * @return The result of operation
+         */
+        Variable operator*(const Variable& object) const;
+
+        /**
+         * Apply division operation
+         *
+         * @param object The second operand object
+         * @return The result of operation
+         */
+        Variable operator/(const Variable& object) const;
+
+        /**
+         * Apply modulo operation
+         *
+         * @param object The second operand object
+         * @return The result of operation
+         */
+        Variable operator%(const Variable& object) const;
+
+        ////// COMPARISON OPERATIONS //////
+
+        /**
+         * Apply equality comparison
+         *
+         * @param object The second operand object
+         * @return The result of operation
+         */
+        Variable operator==(const Variable& object) const;
+
+        /**
+         * Apply inequality comparison
+         *
+         * @param object The second operand object
+         * @return The result of operation
+         */
+        Variable operator!=(const Variable& object) const;
+
+        /**
+         * Apply superiority comparison
+         *
+         * @param object The second operand object
+         * @return The result of operation
+         */
+        Variable operator>(const Variable& object) const;
+
+        /**
+         * Apply inferiority comparison
+         *
+         * @param object The second operand object
+         * @return The result of operation
+         */
+        Variable operator<(const Variable& object) const;
+
+        /**
+         * Apply superiority or equality comparison
+         *
+         * @param object The second operand object
+         * @return The result of operation
+         */
+        Variable operator>=(const Variable& object) const;
+
+        /**
+         * Apply inferiority or equality comparison
+         *
+         * @param object The second operand object
+         * @return The result of operation
+         */
+        Variable operator<=(const Variable& object) const;
+
+        ////// LOGICAL OPERATIONS //////
+
+        /**
+         * Apply logical not operation
+         *
+         * @return The result of operation
+         */
+        Variable operator!() const;
+
+        /**
+         * Apply logical and operation
+         *
+         * @param object The second operand object
+         * @return The result of operation
+         */
+        Variable operator&&(const Variable& object) const;
+
+        /**
+         * Apply logical or operation
+         *
+         * @param object The second operand object
+         * @return The result of operation
+         */
+        Variable operator||(const Variable& object) const;
+
+        ////// BINARY OPERATIONS //////
+
+        /**
+         * Apply binary not operation
+         *
+         * @return The result of operation
+         */
+        Variable operator~() const;
+
+        /**
+         * Apply binary and operation
+         *
+         * @param object The second operand object
+         * @return The result of operation
+         */
+        Variable operator&(const Variable& object) const;
+
+        /**
+         * Apply binary or operation
+         *
+         * @param object The second operand object
+         * @return The result of operation
+         */
+        Variable operator|(const Variable& object) const;
+
+        /**
+         * Apply binary xor operation
+         *
+         * @param object The second operand object
+         * @return The result of operation
+         */
+        Variable operator^(const Variable& object) const;
+
+        /**
+         * Apply left shift operation
+         *
+         * @param object The second operand object
+         * @return The result of operation
+         */
+        Variable operator<<(const Variable& object) const;
+
+        /**
+         * Apply right shift operation
+         *
+         * @param object The second operand object
+         * @return The result of operation
+         */
+        Variable operator>>(const Variable& object) const;
+
+        ////// DIRECT MODIFICATION OPERATIONS //////
+
+        /**
+         * Apply addition and assignation operation
+         *
+         * @param object The second operand object
+         * @return This object
+         */
+        Variable operator+=(const Variable& object);
+
+        /**
+         * Apply substraction and assignation operation
+         *
+         * @param object The second operand object
+         * @return This object
+         */
+        Variable operator-=(const Variable& object);
+
+        /**
+         * Apply multipilcation and assignation operation
+         *
+         * @param object The second operand object
+         * @return This object
+         */
+        Variable operator*=(const Variable& object);
+
+        /**
+         * Apply division and assignation operation
+         *
+         * @param object The second operand object
+         * @return This object
+         */
+        Variable operator/=(const Variable& object);
+
+
+        /**
+         * Apply array access
+         *
+         * @param object The second operand object
+         * @return The result of operation
+         */
+        Variable operator[](const Variable& object);
+
+        /**
+         * Apply member access
+         *
+         * @param name The name of member
+         * @return The result of operation
+         */
+        Variable GetMember(const char * name);
+
+        ////// CALLING OPERATION //////
+
+        /**
+         * Apply calling operation
+         *
+         * @param args The argument list
+         * @return The result of operation
+         */
+        Variable operator()(std::vector<Variable>& args);
+
+        ////// STRING CONVERSION //////
+
+        /**
+         * Return a string that describe the content of the object
+         */
+        operator std::string() const;
+
     };
 
 }
+
+/**
+ * Send the content of the object in the stream
+ *
+ * @param stream The stream
+ * @param object The object
+ * @return The stream
+ */
+std::ostream& operator<<(std::ostream& stream, const LiteScript::Variable& object);
 
 #endif //LITESCRIPT_MEMORY_VARIABLE_HPP
 

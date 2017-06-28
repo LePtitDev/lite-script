@@ -7,6 +7,7 @@ set(SOURCE_FILES
         main.cpp
 
         src/litescript.hpp
+        src/nullable.hpp
 
         src/memory/type.hpp src/memory/type.cpp
         src/memory/object.hpp src/memory/object.cpp
@@ -19,7 +20,8 @@ set(SOURCE_FILES
         src/types/string.hpp src/types/string.cpp
         src/types/character.hpp src/types/character.cpp
 
-        src/memory/memory.hpp
-        src/memory/variable.hpp src/memory/variable.cpp)
+        src/memory/memory.hpp src/memory/memory.cpp
+        src/memory/variable.hpp src/memory/variable.cpp
+        src/memory/basic_memory.hpp src/memory/basic_memory.cpp)
 
 add_executable(LiteScript ${SOURCE_FILES})

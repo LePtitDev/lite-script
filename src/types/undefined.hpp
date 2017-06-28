@@ -38,11 +38,11 @@ namespace LiteScript {
         /////////////////////////////
 
         /**
-         * Create an undefined object
+         * Create an empty object formated by this type
          *
-         * @return The undefined object
+         * @param object An empty object
          */
-        Object CreateObject() override;
+        void CreateObject(Object& obj) override;
 
         /**
          * Create a string that contain "undefined"
@@ -50,7 +50,7 @@ namespace LiteScript {
          * @param object An object typed UNDEFINED (not used)
          * @return The string
          */
-        std::string ToString(const Object& object) const override;
+        std::string ToString(const Variable& object) const override;
 
     };
 
