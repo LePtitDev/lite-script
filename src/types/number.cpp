@@ -61,7 +61,7 @@ LiteScript::Variable LiteScript::_Type_NUMBER::OAssign(LiteScript::Variable& src
     else {
         src->GetData<Number>() = dest->GetData<Number>();
     }
-    return src;
+    return Variable(src);
 }
 
 LiteScript::Variable LiteScript::_Type_NUMBER::OUnaryPlus(const LiteScript::Variable& obj) const {

@@ -34,6 +34,14 @@ LiteScript::Object& LiteScript::_Type_NIL::AssignObject(LiteScript::Object& obj)
     return obj.Reassign(*this, 0);
 }
 
+LiteScript::Variable LiteScript::_Type_NIL::OAssign(Variable &src, const Variable &dest) const {
+    if (dest->GetType() != *this) {
+        dest->GetType().AssignObject(*src);
+        src->GetType().OAssign(src, dest);
+    }
+    return Variable(src);
+}
+
 std::string LiteScript::_Type_NIL::ToString(const Variable &) const {
     return "null";
 }

@@ -72,7 +72,7 @@ namespace LiteScript {
          * Destructor of the nullable value
          */
         ~Nullable() {
-            if (this->isNull) {
+            if (!this->isNull) {
                 std::allocator<T> allocator;
                 allocator.destroy((T *)this->data);
             }

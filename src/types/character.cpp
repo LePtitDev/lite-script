@@ -37,13 +37,13 @@ LiteScript::Variable LiteScript::_Type_CHARACTER::OAssign(LiteScript::Variable& 
     if (dest->GetType() != Type::STRING) {
         Variable tmp = dest.Convert(Type::STRING);
         if (tmp->GetType() != Type::STRING)
-            return src;
+            return Variable(src);
         src->GetData<Character>() = tmp->GetData<String>();
     }
     else {
         src->GetData<Character>() = dest->GetData<String>();
     }
-    return src;
+    return Variable(src);
 }
 
 LiteScript::Variable LiteScript::_Type_CHARACTER::OAdd(const LiteScript::Variable& obj1, const LiteScript::Variable& obj2) const {

@@ -51,7 +51,7 @@ LiteScript::Variable LiteScript::_Type_STRING::OAssign(LiteScript::Variable& src
     else {
         src->GetData<String>() = dest->GetData<String>();
     }
-    return src;
+    return Variable(src);
 }
 
 LiteScript::Variable LiteScript::_Type_STRING::OAdd(const LiteScript::Variable& obj1, const LiteScript::Variable& obj2) const {

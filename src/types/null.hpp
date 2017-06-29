@@ -62,6 +62,15 @@ namespace LiteScript {
         Object& AssignObject(Object& object) override;
 
         /**
+         * Assign an object with the content of an other object
+         *
+         * @param object_target The object which must be assign
+         * @param object_src The object which must be copied
+         * @return The object assigned referenced
+         */
+        Variable OAssign(Variable& object_target, const Variable& object_src) const override;
+
+        /**
          * Create a string that contain "null"
          *
          * @param object An object typed NULL (not used)

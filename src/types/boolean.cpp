@@ -61,7 +61,7 @@ LiteScript::Variable LiteScript::_Type_BOOLEAN::OAssign(LiteScript::Variable& sr
     else {
         src->GetData<bool>() = dest->GetData<bool>();
     }
-    return src;
+    return Variable(src);
 }
 
 LiteScript::Variable LiteScript::_Type_BOOLEAN::OEqual(const LiteScript::Variable& obj1, const LiteScript::Variable& obj2) const {
