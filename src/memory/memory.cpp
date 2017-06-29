@@ -23,7 +23,7 @@ LiteScript::Variable LiteScript::Memory::Create(Type &type) {
     if (this->arr[this->first_nfull] == nullptr)
         this->arr[this->first_nfull] = (void *)(new LiteScript::_BasicMemory_1(*this));
     // On crée l'objet
-    Variable result = ((LiteScript::_BasicMemory_1 *)(this->arr[this->first_nfull]))->Create(type);
+    Variable result = ((LiteScript::_BasicMemory_1 *)(this->arr[this->first_nfull]))->Create(type, ((unsigned int)this->first_nfull) << 16);
     // Si le premier non plein devient plein, on passe au suivant
     if (((LiteScript::_BasicMemory_1 *)(this->arr[this->first_nfull]))->isFull())
         this->first_nfull = this->nfull[this->first_nfull];
@@ -45,7 +45,8 @@ void LiteScript::Memory::Remove(unsigned int id) {
             this->first_nfull = (short)block;
         }
         // Si le nombre d'objet à diminué, on décrémente le compteur
-        this->count -= (nb - ((LiteScript::_BasicMemory_1 *) (this->arr[block]))->Count);
+        if (nb != ((LiteScript::_BasicMemory_1 *) (this->arr[block]))->Count)
+            this->count--;
     }
 }
 

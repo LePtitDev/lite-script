@@ -15,20 +15,127 @@
 #ifndef LITESCRIPT_BASIC_MEMORY_HPP
 #define LITESCRIPT_BASIC_MEMORY_HPP
 
+#define LITESCRIPT_MEMORY_0_SIZE 256
+#define LITESCRIPT_MEMORY_0_MAXCOUNT 256
+#define LITESCRIPT_MEMORY_1_SIZE 256
 #define LITESCRIPT_MEMORY_1_MAXCOUNT 65536
 
 #include "../litescript.hpp"
 
 namespace LiteScript {
 
-    // Internal element of memory
+    // Internal element of memory level 0
+    class _BasicMemory_0 {
+
+        ////////////////////////
+        ////// ATTRIBUTES //////
+        ////////////////////////
+
+        // The object array
+        unsigned char arr[LITESCRIPT_MEMORY_0_SIZE * sizeof(Object)];
+
+        // The reference counters array
+        std::array<unsigned int, LITESCRIPT_MEMORY_0_SIZE> ref_cpt;
+
+        // The free blocks array
+        std::array<short, LITESCRIPT_MEMORY_0_SIZE> free;
+
+        // The first free block
+        short first_free;
+
+        // The count of objects
+        unsigned int count;
+
+        // Object allocator
+        std::allocator<Object> allocator;
+
+    public:
+
+        // The main memory
+        Memory& memory;
+
+        /////////////////////
+        ////// ACESSOR //////
+        /////////////////////
+
+        // Public accessor to the objects counter
+        const unsigned int& Count;
+
+        //////////////////////////
+        ////// CONSTRUCTORS //////
+        //////////////////////////
+
+        /**
+         * Basic constructor of a bassic memory L0
+         *
+         * @param mem The main memory
+         */
+        _BasicMemory_0(Memory& mem);
+
+        /**
+         * Destructor of the basic memory
+         */
+        ~_BasicMemory_0();
+
+        /////////////////////
+        ////// METHODS //////
+        /////////////////////
+
+        /**
+         * Indicate if the memory is full
+         */
+        inline bool isFull() const { return this->count == LITESCRIPT_MEMORY_0_MAXCOUNT; }
+
+        /**
+         * Create a null object
+         *
+         * @param type The type of the object
+         * @param id The ID of the object
+         * @return The variable that refer to the object
+         */
+        Variable Create(Type& type, unsigned int id);
+
+        /**
+         * Remove an object
+         *
+         * @param id The ID of the object
+         */
+        void Remove(unsigned int id);
+
+        /**
+         * Get a variable that refer to an object
+         *
+         * @param id The ID of the object
+         * @return The variable
+         */
+        Nullable<Variable> GetVariable(unsigned int id);
+
+    private:
+
+        // Operator for access to a variable
+        inline Object& operator[](unsigned int index) {
+            return ((Object *)this->arr)[index];
+        }
+
+    };
+
+    // Internal element of memory level 1
     class _BasicMemory_1 {
 
         ////////////////////////
         ////// ATTRIBUTES //////
         ////////////////////////
 
-        // The object counter
+        // Array of internal memories
+        std::array<LiteScript::_BasicMemory_0 *, LITESCRIPT_MEMORY_1_SIZE> arr;
+
+        // Array of not full index
+        std::array<short, LITESCRIPT_MEMORY_1_SIZE> nfull;
+
+        // The first not full block
+        short first_nfull;
+
+        // Count of objects in the memory
         unsigned int count;
 
     public:
@@ -36,9 +143,9 @@ namespace LiteScript {
         // The main memory
         Memory& memory;
 
-        ///////////////////////
-        ////// ACCESSORS //////
-        ///////////////////////
+        //////////////////////
+        ////// ACCESSOR //////
+        //////////////////////
 
         // Public accessor of the object counter
         const unsigned int& Count;
@@ -48,7 +155,7 @@ namespace LiteScript {
         //////////////////////////
 
         /**
-         * Basic constructor of the basic memory
+         * Basic constructor of the basic memory L1
          *
          * @param memory The main memory
          */
@@ -72,9 +179,10 @@ namespace LiteScript {
          * Create a null object
          *
          * @param type The type of the object
+         * @param id The ID of the object
          * @return The variable that refer to the object
          */
-        Variable Create(Type& type = Type::NIL);
+        Variable Create(Type& type, unsigned int id);
 
         /**
          * Remove an object
