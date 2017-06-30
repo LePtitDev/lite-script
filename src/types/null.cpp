@@ -42,6 +42,28 @@ LiteScript::Variable LiteScript::_Type_NIL::OAssign(Variable &src, const Variabl
     return Variable(src);
 }
 
+LiteScript::Variable LiteScript::_Type_NIL::OEqual(const Variable &obj1, const Variable &obj2) const {
+    Variable res = obj1->memory.Create(Type::BOOLEAN);
+    res->GetData<bool>() = (obj2->GetType() == *this);
+    return res;
+}
+
+LiteScript::Variable LiteScript::_Type_NIL::ONotEqual(const Variable &obj1, const Variable &obj2) const {
+    Variable res = obj1->memory.Create(Type::BOOLEAN);
+    res->GetData<bool>() = (obj2->GetType() != *this);
+    return res;
+}
+
+LiteScript::Variable LiteScript::_Type_NIL::OLogicalNot(const Variable &object) const {
+    Variable res = object->memory.Create(Type::BOOLEAN);
+    res->GetData<bool>() = true;
+    return res;
+}
+
+LiteScript::Variable LiteScript::_Type_NIL::OBitwiseOr(const Variable &obj1, const Variable &obj2) const {
+    return Variable(obj2);
+}
+
 std::string LiteScript::_Type_NIL::ToString(const Variable &) const {
     return "null";
 }

@@ -19,6 +19,7 @@ set(SOURCE_FILES
         src/types/number.hpp src/types/number.cpp
         src/types/string.hpp src/types/string.cpp
         src/types/character.hpp src/types/character.cpp
+        src/types/callback.hpp src/types/callback.cpp
 
         src/memory/memory.hpp src/memory/memory.cpp
         src/memory/variable.hpp src/memory/variable.cpp

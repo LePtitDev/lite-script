@@ -11,27 +11,20 @@
 */
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
 
-#ifndef LITESCRIPT_TYPES_UNDEFINED_HPP
-#define LITESCRIPT_TYPES_UNDEFINED_HPP
+#ifndef LITESCRIPT_TYPES_CALLBACK_HPP
+#define LITESCRIPT_TYPES_CALLBACK_HPP
 
 #include "../litescript.hpp"
 
 namespace LiteScript {
 
-    // The derived type UNDEFINED (hidden)
-    class _Type_UNDEFINED : public Type {
+    class _Type_CALLBACK : public Type {
 
     public:
 
-        /////////////////////////
-        ////// CONSTRUCTOR //////
-        /////////////////////////
-
-        /**
-         * Basic contructor of the undefined type
-         */
-        _Type_UNDEFINED();
+        _Type_CALLBACK();
 
         /////////////////////////////
         ////// DERIVED METHODS //////
@@ -45,13 +38,32 @@ namespace LiteScript {
         void CreateObject(Object& obj) override;
 
         /**
-         * Assign an object with the content of an other object
+         * Convert the referenced object to an other typed object
          *
-         * @param object_target The object which must be assign
-         * @param object_src The object which must be copied
-         * @return The object assigned referenced
+         * @param object The referenced object
+         * @param type The type of the converted object
+         * @return The converted object if success and a null object otherwise
          */
-        Variable OAssign(Variable& object_target, const Variable& object_src) const override;
+        Variable Convert(const Variable& object, const Type& type) const override;
+
+        /**
+         * Assign the referenced object by a callback object
+         *
+         * @param object The referenced object
+         * @return The same object assigned
+         */
+        Object& AssignObject(Object& object) override;
+
+        ////// OPERATIONS //////
+
+        /**
+         * Assign an object type callback by an other object
+         *
+         * @param obj1 The callback object
+         * @param obj2 The other object
+         * @return The assigned object
+         */
+        Variable OAssign(Variable& obj1, const Variable& obj2) const override;
 
         /**
          * Apply equality comparison between two objects
@@ -72,7 +84,7 @@ namespace LiteScript {
         Variable ONotEqual(const Variable& obj1, const Variable& obj2) const override;
 
         /**
-         * Apply logical not operation on an object (always true)
+         * Apply logical not operation on an object (always false)
          *
          * @param obj1 The object
          * @return The result of the operation (boolean object)
@@ -84,23 +96,25 @@ namespace LiteScript {
          *
          * @param obj1 The first operand
          * @param obj2 The second operand
-         * @return The result of the operation
+         * @return The result of the operation (boolean object)
          */
         Variable OBitwiseOr(const Variable& obj1, const Variable& obj2) const override;
 
+        // !!!!!! AJOUTER L'OPERATEUR OCall !!!!!!
+
         /**
-         * Create a string that contain "undefined"
+         * Create a string that contain the reference of the callback object
          *
-         * @param object An object typed UNDEFINED (not used)
+         * @param object An object typed CALLBACK
          * @return The string
          */
         std::string ToString(const Variable& object) const override;
 
     };
 
-    // An internal variable that contain the type UNDEFINED
-    extern _Type_UNDEFINED _type_undefined;
+    // An internal variable that contain the type CALLBACK
+    extern _Type_CALLBACK _type_callback;
 
 }
 
-#endif //LITESCRIPT_UNDEFINED_HPP
+#endif //LITESCRIPT_CALLBACK_HPP

@@ -30,6 +30,28 @@ LiteScript::Variable LiteScript::_Type_UNDEFINED::OAssign(Variable &src, const V
     return Variable(src);
 }
 
+LiteScript::Variable LiteScript::_Type_UNDEFINED::OEqual(const Variable &obj1, const Variable &obj2) const {
+    Variable res = obj1->memory.Create(Type::BOOLEAN);
+    res->GetData<bool>() = (obj2->GetType() == *this);
+    return res;
+}
+
+LiteScript::Variable LiteScript::_Type_UNDEFINED::ONotEqual(const Variable &obj1, const Variable &obj2) const {
+    Variable res = obj1->memory.Create(Type::BOOLEAN);
+    res->GetData<bool>() = (obj2->GetType() != *this);
+    return res;
+}
+
+LiteScript::Variable LiteScript::_Type_UNDEFINED::OLogicalNot(const Variable &object) const {
+    Variable res = object->memory.Create(Type::BOOLEAN);
+    res->GetData<bool>() = true;
+    return res;
+}
+
+LiteScript::Variable LiteScript::_Type_UNDEFINED::OBitwiseOr(const Variable &obj1, const Variable &obj2) const {
+    return Variable(obj2);
+}
+
 std::string LiteScript::_Type_UNDEFINED::ToString(const LiteScript::Variable& obj) const {
     return "undefined";
 }

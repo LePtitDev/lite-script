@@ -32,6 +32,7 @@ namespace LiteScript {
     class Object;
     class Variable;
     class Memory;
+    class State;
 
 }
 

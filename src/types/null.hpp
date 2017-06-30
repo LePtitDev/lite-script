@@ -71,6 +71,41 @@ namespace LiteScript {
         Variable OAssign(Variable& object_target, const Variable& object_src) const override;
 
         /**
+         * Apply equality comparison between two objects
+         *
+         * @param obj1 The first operand
+         * @param obj2 The second operand
+         * @return The result of the operation (boolean object)
+         */
+        Variable OEqual(const Variable& obj1, const Variable& obj2) const override;
+
+        /**
+         * Apply inequality comparison between two objects
+         *
+         * @param obj1 The first operand
+         * @param obj2 The second operand
+         * @return The result of the operation (boolean object)
+         */
+        Variable ONotEqual(const Variable& obj1, const Variable& obj2) const override;
+
+        /**
+         * Apply logical not operation on an object (always true)
+         *
+         * @param obj1 The object
+         * @return The result of the operation (boolean object)
+         */
+        Variable OLogicalNot(const Variable& object) const override;
+
+        /**
+         * Apply logical or operation between two objects
+         *
+         * @param obj1 The first operand
+         * @param obj2 The second operand
+         * @return The result of the operation
+         */
+        Variable OBitwiseOr(const Variable& obj1, const Variable& obj2) const override;
+
+        /**
          * Create a string that contain "null"
          *
          * @param object An object typed NULL (not used)

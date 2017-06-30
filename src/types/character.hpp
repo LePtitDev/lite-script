@@ -12,8 +12,8 @@
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
-#ifndef LITESCRIPT_CHARACTER_HPP
-#define LITESCRIPT_CHARACTER_HPP
+#ifndef LITESCRIPT_TYPES_CHARACTER_HPP
+#define LITESCRIPT_TYPES_CHARACTER_HPP
 
 #include "../litescript.hpp"
 

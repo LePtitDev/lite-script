@@ -40,6 +40,8 @@ namespace LiteScript {
         static Type& NUMBER;
         // Type "LiteScript::String"
         static Type& STRING;
+        // Type "LiteScript::Callback"
+        static Type& CALLBACK;
 
     private:
 

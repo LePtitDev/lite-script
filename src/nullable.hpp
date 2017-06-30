@@ -30,10 +30,13 @@ namespace LiteScript {
         // The internal data of the nullable value
         char data[sizeof(T)];
 
+        // Indicate if the value is null
+        bool is_null;
+
     public:
 
         // Indicate if the value is null
-        const bool isNull;
+        const bool& isNull;
 
         /////////////////////////
         ////// CONSTRUCTORS /////
@@ -42,15 +45,15 @@ namespace LiteScript {
         /**
          * Null constructor
          */
-        Nullable() : isNull(true) {}
+        Nullable() : is_null(true), isNull(is_null) {}
 
         /**
          * Not null constructor
          *
          * @param t The value
          */
-        Nullable(const T& t) : isNull(false) {
-            if (!this->isNull) {
+        Nullable(const T& t) : is_null(false), isNull(is_null) {
+            if (!this->is_null) {
                 std::allocator<T> allocator;
                 allocator.construct((T *)this->data, t);
             }
@@ -61,8 +64,8 @@ namespace LiteScript {
          *
          * @param v The nullable copy
          */
-        Nullable(const Nullable<T>& v) : isNull(v.isNull) {
-            if (!this->isNull) {
+        Nullable(const Nullable<T>& v) : is_null(v.is_null), isNull(is_null) {
+            if (!this->is_null) {
                 std::allocator<T> allocator;
                 allocator.construct((T *)this->data, *(const T *)v.data);
             }
@@ -72,20 +75,53 @@ namespace LiteScript {
          * Destructor of the nullable value
          */
         ~Nullable() {
-            if (!this->isNull) {
-                std::allocator<T> allocator;
-                allocator.destroy((T *)this->data);
-            }
+            this->Nullify();
         }
 
         /////////////////////
         ////// METHODS //////
         /////////////////////
 
-        // The converter operator
-        operator T() {
-            return T(*(const T *)this->data);
+        void Nullify() {
+            if (!this->is_null) {
+                std::allocator<T> allocator;
+                allocator.destroy((T *)this->data);
+            }
+            this->is_null = true;
         }
+
+        // The assign operator
+        Nullable<T>& operator=(const T& t) {
+            this->Nullify();
+            if (!(this->is_null = false)) {
+                std::allocator<T> allocator;
+                allocator.construct((T *)this->data, t);
+            }
+        }
+
+        // The assign operator
+        Nullable<T>& operator=(const Nullable<T>& v) {
+            this->Nullify();
+            if (!(this->is_null = v.is_null)) {
+                std::allocator<T> allocator;
+                allocator.construct((T *)this->data, *(const T *)v.data);
+            }
+        }
+
+        // The converter operator
+        operator T() { return T(*(const T *)this->data); }
+
+        // The pointer operator
+        T& operator*() { return *(T *)this->data; }
+
+        // The pointer operator
+        const T& operator*() const { return *(T *)this->data; }
+
+        // The pointer operator
+        T* operator->() { return (T *)this->data; }
+
+        // The pointer operator
+        const T* operator->() const { return (T *)this->data; }
 
     };
 

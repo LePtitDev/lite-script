@@ -449,3 +449,59 @@ LiteScript::String& LiteScript::Character::operator*=(unsigned int nb) {
     this->str.Replace(this->i, res);
     return this->str;
 }
+
+
+/****************************/
+/****** CLASS CALLBACK ******/
+/****************************/
+
+LiteScript::Callback::Callback() : state(nullptr) {}
+
+LiteScript::Callback::Callback(const Callback &c) :
+    state(c.state), intrl_idx(c.intrl_idx), line_num(c.line_num), call_ptr(c.call_ptr)
+{
+
+}
+
+LiteScript::Callback::Callback(LiteScript::State &s, unsigned int i, unsigned int l) :
+    call_ptr(nullptr), state(&s), intrl_idx(i), line_num(l)
+{
+
+}
+
+LiteScript::Callback::Callback(State &s, Variable (* cptr)(State &, std::vector<Variable>&)) :
+    state(&s), call_ptr(cptr)
+{
+
+}
+
+bool LiteScript::Callback::isAssigned() const {
+    return this->state != nullptr;
+}
+
+LiteScript::Callback & LiteScript::Callback::operator=(const Callback &c) {
+    this->state = c.state;
+    this->intrl_idx = c.intrl_idx;
+    this->line_num = c.line_num;
+    this->call_ptr = c.call_ptr;
+}
+
+bool LiteScript::Callback::operator==(const Callback &c) const {
+    if (this->state != c.state)
+        return false;
+    else if (this->state == nullptr)
+        return true;
+    else if (this->call_ptr == nullptr)
+        return (this->intrl_idx == c.intrl_idx && this->line_num == c.line_num);
+    else
+        return (this->call_ptr == c.call_ptr);
+}
+
+bool LiteScript::Callback::operator!=(const Callback &c) const {
+    return !(*this == c);
+}
+
+LiteScript::Variable LiteScript::Callback::operator()(std::vector<Variable> &args) {
+    // A COMPLETER
+    return this->call_ptr(*this->state, args); // A SUPPRIMER
+}

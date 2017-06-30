@@ -777,6 +777,81 @@ namespace LiteScript {
 
     };
 
+    // Content of callback
+    class Callback {
+
+        ////////////////////////
+        ////// ATTRIBUTES //////
+        ////////////////////////
+
+        // The state of the script
+        State * state;
+
+        // The instructions list index
+        unsigned int intrl_idx;
+
+        // The line number of the callback beginning
+        unsigned int line_num;
+
+        // The internal callback
+        Variable (* call_ptr)(State&, std::vector<Variable>&);
+
+    public:
+
+        //////////////////////////
+        ////// CONSTRUCTORS //////
+        //////////////////////////
+
+        /**
+         * Basic constructor
+         */
+        Callback();
+
+        /**
+         * Constructor for script callback
+         *
+         * @param s The state of the script
+         * @param i The instructions list index in the state
+         * @param l The line number of the callback beginning
+         */
+        Callback(State& s, unsigned int i, unsigned int l);
+
+        /**
+         * Constructor for internal callback
+         *
+         * @param s The state of the script
+         * @param cptr The internal fonction pointer
+         */
+        Callback(State& s, Variable (* cptr)(State&, std::vector<Variable>&));
+
+        /**
+         * Copy constructor
+         */
+        Callback(const Callback& c);
+
+        /////////////////////
+        ////// METHODS //////
+        /////////////////////
+
+        /**
+         * Indicate if the callback is assigned
+         */
+        bool isAssigned() const;
+
+        // The assign operator
+        Callback& operator=(const Callback& c);
+
+        // The equal comparison
+        bool operator==(const Callback& c) const;
+
+        // The not equal comparison
+        bool operator!=(const Callback& c) const;
+
+        // The calling operator
+        Variable operator()(std::vector<Variable>& args);
+
+    };
+
 }
 
 #endif //LITESCRIPT_INTERNAL_HPP
