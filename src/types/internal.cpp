@@ -600,3 +600,63 @@ LiteScript::Variable LiteScript::VObject::operator[](const char *name) {
     this->named.push_back({ std::string(name), this->memory.Create(Type::UNDEFINED) });
     return Variable(this->named.end()->second);
 }
+
+/*************************/
+/****** CLASS CLASS ******/
+/*************************/
+
+LiteScript::Class::Class() {}
+
+LiteScript::Class::Class(const Class &c) {}
+
+/*****************************/
+/****** CLASS NAMESPACE ******/
+/*****************************/
+
+LiteScript::Namespace::Namespace(Memory &mem) : memory(mem) {}
+
+LiteScript::Namespace::Namespace(const Namespace &nsp) : memory(nsp.memory), vars(nsp.vars) {}
+
+bool LiteScript::Namespace::DefineVariable(const char *name, const Variable &var) {
+    for (unsigned int i = 0, sz = this->vars.size(); i < sz; i++) {
+        if (this->vars[i].first == name)
+            return false;
+    }
+    this->vars.push_back({ std::string(name), Variable(var) });
+    return true;
+}
+
+unsigned int LiteScript::Namespace::Count() const {
+    return this->vars.size();
+}
+
+const char * LiteScript::Namespace::GetKey(unsigned int idx) const {
+    if (idx < this->vars.size())
+        return this->vars[idx].first.c_str();
+    else
+        return nullptr;
+}
+
+LiteScript::Variable LiteScript::Namespace::GetVariable(unsigned int idx) const {
+    if (idx < this->vars.size())
+        return Variable(this->vars[idx].second);
+    else
+        return this->memory.Create(Type::UNDEFINED);
+}
+
+int LiteScript::Namespace::IndexOf(const char *name) const {
+    for (unsigned int i = 0, sz = this->vars.size(); i < sz; i++) {
+        if (this->vars[i].first == name)
+            return (int)i;
+    }
+
+    return -1;
+}
+
+LiteScript::Variable LiteScript::Namespace::operator[](const char *name) const {
+    for (unsigned int i = 0, sz = this->vars.size(); i < sz; i++) {
+        if (this->vars[i].first == name)
+            return Variable(this->vars[i].second);
+    }
+    return this->memory.Create(Type::UNDEFINED);
+}

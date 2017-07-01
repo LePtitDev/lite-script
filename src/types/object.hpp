@@ -119,6 +119,7 @@ namespace LiteScript {
 
     };
 
+    // An internal variable that contain the type OBJECT
     extern _Type_OBJECT _type_object;
 
 }

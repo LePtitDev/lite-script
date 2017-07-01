@@ -46,6 +46,10 @@ namespace LiteScript {
         static Type& CALLBACK;
         // Type "LiteScript::VObject"
         static Type& OBJECT;
+        // Type "LiteScript::Class"
+
+        // Type "LiteScript::Namespace"
+        static Type& NAMESPACE;
 
     private:
 

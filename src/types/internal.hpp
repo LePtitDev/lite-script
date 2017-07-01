@@ -961,6 +961,82 @@ namespace LiteScript {
 
     };
 
+    // Content of a class object
+    class Class {
+
+    public:
+
+        Class();
+        Class(const Class& c);
+
+    };
+
+    // Content of a namespace object
+    class Namespace {
+
+        // The variables list
+        std::vector<std::pair<std::string, Variable>> vars;
+
+    public:
+
+        // The main memory
+        Memory& memory;
+
+        //////////////////////////
+        ////// CONSTRUCTORS //////
+        //////////////////////////
+
+        /**
+         * Basic constructor of a namespace
+         */
+        Namespace(Memory& mem);
+
+        /**
+         * Copy constructor
+         */
+        Namespace(const Namespace& nsp);
+
+        /////////////////////
+        ////// METHODS //////
+        /////////////////////
+
+        /**
+         * Define a variable in the namespace
+         */
+        bool DefineVariable(const char * name, const Variable& var);
+
+        /**
+         * Get the variable count in the namespace
+         */
+        unsigned int Count() const;
+
+        /**
+         * Get the name/key of the variable
+         *
+         * @param idx The index of the variable
+         */
+        const char * GetKey(unsigned int idx) const;
+
+        /**
+         * Get a variable
+         *
+         * @param idx The index of the variable
+         */
+        Variable GetVariable(unsigned int idx) const;
+
+        /**
+         * Get the index of a variable by its name
+         *
+         * @param name The name of the variable
+         * @return The index if exists and -1 otherwise
+         */
+        int IndexOf(const char * name) const;;
+
+        // The access operator
+        Variable operator[](const char * name) const;
+
+    };
+
 }
 
 #endif //LITESCRIPT_INTERNAL_HPP

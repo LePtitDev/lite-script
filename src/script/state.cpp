@@ -17,7 +17,7 @@
 
 LiteScript::State::State(Memory &memory) :
     instr_index(0), line_num(0), memory(memory),
-    global_nsp(memory.Create(Type::OBJECT)),
+    global_nsp(memory.Create(Type::NAMESPACE)),
     current_nsp(Variable(global_nsp)),
     CurrentInstructions(instr_index), CurrentLine(line_num),
     NamespaceGlobal(global_nsp), NamespaceCurrent(current_nsp)
@@ -27,7 +27,7 @@ LiteScript::State::State(Memory &memory) :
 
 LiteScript::State::State(Memory &memory, std::vector<Instruction> instrs) :
     memory(memory),
-    global_nsp(memory.Create(Type::OBJECT)),
+    global_nsp(memory.Create(Type::NAMESPACE)),
     current_nsp(Variable(global_nsp)),
     CurrentInstructions(instr_index), CurrentLine(line_num),
     NamespaceGlobal(global_nsp), NamespaceCurrent(current_nsp)

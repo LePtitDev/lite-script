@@ -22,6 +22,8 @@
 #include "../types/callback.hpp"
 #include "../types/object.hpp"
 
+#include "../types/namespace.hpp"
+
 LiteScript::Type& LiteScript::Type::UNDEFINED(LiteScript::_type_undefined);
 LiteScript::Type& LiteScript::Type::NIL(LiteScript::_type_nil);
 LiteScript::Type& LiteScript::Type::BOOLEAN(LiteScript::_type_boolean);
@@ -29,6 +31,8 @@ LiteScript::Type& LiteScript::Type::NUMBER(LiteScript::_type_number);
 LiteScript::Type& LiteScript::Type::STRING(LiteScript::_type_string);
 LiteScript::Type& LiteScript::Type::CALLBACK(LiteScript::_type_callback);
 LiteScript::Type& LiteScript::Type::OBJECT(LiteScript::_type_object);
+
+LiteScript::Type& LiteScript::Type::NAMESPACE(LiteScript::_type_namespace);
 
 unsigned int litescript_type_id_iterator = 0;
 

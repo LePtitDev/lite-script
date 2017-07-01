@@ -27,6 +27,6 @@ set(SOURCE_FILES
         src/memory/basic_memory.hpp src/memory/basic_memory.cpp
 
         src/script/instruction.hpp
-        src/script/state.hpp src/script/state.cpp)
+        src/script/state.hpp src/script/state.cpp src/types/namespace.hpp src/types/namespace.cpp)
 
 add_executable(LiteScript ${SOURCE_FILES})

@@ -98,8 +98,9 @@ std::string LiteScript::_Type_OBJECT::ToString(const Variable &object) const {
     if (obj.UnamedCount() > 0)
         ss << ",";
     for (unsigned int i = 0, sz = obj.NamedCount(); i < sz; i++) {
-        if (obj.ExistUnamed(i)) {
-            ss << "[" << i << "]:" << ((std::string) (obj.GetNamedVariable(i))).c_str();
+        Variable v = obj.GetNamedVariable(i);
+        if (v->GetType() != Type::UNDEFINED) {
+            ss << "[" << obj.GetNamedKey(i) << "]:" << ((std::string) (v)).c_str();
             if (i < sz - 1)
                 ss << ",";
         }

@@ -21,6 +21,7 @@ The objective is to create an alternative of current script engines and integrat
 * **string** (and **character** but it's hidden)
 * **callback** (need to complete le calling operator)
 * **object**
+* **namespace**
 
 ## In future
 
@@ -33,7 +34,6 @@ The objective is to create an alternative of current script engines and integrat
 *Types to define :*
 
 * **class**
-* **namespace**
 
 ## Example of Javascript like script
 
