@@ -32,6 +32,7 @@ namespace LiteScript {
     class Object;
     class Variable;
     class Memory;
+    struct Instruction;
     class State;
 
 }
@@ -42,6 +43,9 @@ namespace LiteScript {
 #include "memory/object.hpp"
 #include "memory/variable.hpp"
 #include "memory/memory.hpp"
+
+#include "script/instruction.hpp"
+#include "script/state.hpp"
 
 #include "types/internal.hpp"
 

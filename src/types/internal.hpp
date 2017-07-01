@@ -852,6 +852,115 @@ namespace LiteScript {
 
     };
 
+    // Content of an object value
+    class VObject {
+
+        ////////////////////////
+        ////// ATTRIBUTES //////
+        ////////////////////////
+
+        // Named members
+        std::vector<std::pair<std::string, Variable>> named;
+
+        // Unamed members
+        std::vector<Variable> unamed;
+
+    public:
+
+        // The main memory
+        Memory& memory;
+
+        //////////////////////////
+        ////// CONSTRUCTORS //////
+        //////////////////////////
+
+        /**
+         * Basic constructor of a value object
+         *
+         * @param mem The main memory
+         */
+        VObject(Memory& mem);
+
+        /**
+         * Copy constructor
+         */
+        VObject(const VObject& o);
+
+        /////////////////////
+        ////// METHODS //////
+        /////////////////////
+
+        /**
+         * Get the count of named members
+         */
+        unsigned int NamedCount() const;
+
+        /**
+         * Get the count of unamed members
+         */
+        unsigned int UnamedCount() const;
+
+        /**
+         * Get the name/key of a named member
+         *
+         * @param idx The index of the named member in the vector
+         */
+        const char * GetNamedKey(unsigned int idx) const;
+
+        /**
+         * Get the variable of a named member
+         *
+         * @param idx The index of the names member in the vector
+         */
+        Variable GetNamedVariable(unsigned int idx) const;
+
+        /**
+         * Find the index of the named member exists
+         *
+         * @param name The name of the member
+         * @return The index if exists and -1 otherwise
+         */
+        int IndexOfNamed(const char * name) const;
+
+        /**
+         * Indicate if the named member exists
+         *
+         * @param name The name of the member
+         */
+        int ExistNamed(const char * name) const;
+
+        /**
+         * Indicate if the unamed member exists
+         *
+         * @param idx The index of the member
+         */
+        int ExistUnamed(unsigned int idx) const;
+
+        /**
+         * The access operator for unamed members without creation
+         *
+         * @param idx The index of the member
+         */
+        Variable ConstantGet(unsigned int idx) const;
+
+        /**
+         * The access operator for named members without creation
+         *
+         * @param name The name of the member
+         */
+        Variable ConstantGet(const char * name) const;
+
+        // The assign operator
+        VObject& operator=(const VObject& obj);
+
+        // The access operator for unamed members (create it if not exist)
+        Variable operator[](unsigned int idx);
+
+        // The access operator for named members (create it if not exist)
+        Variable operator[](const char * name);
+
+    };
+
 }
 
 #endif //LITESCRIPT_INTERNAL_HPP

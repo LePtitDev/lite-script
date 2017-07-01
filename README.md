@@ -19,6 +19,8 @@ The objective is to create an alternative of current script engines and integrat
 * **boolean**
 * **number**
 * **string** (and **character** but it's hidden)
+* **callback** (need to complete le calling operator)
+* **object**
 
 ## In future
 
@@ -36,8 +38,8 @@ This example is the objective for the javascript like object-oriented language.
 // Person inherits Alive and Human
 class Person : Alive, Human {
 
-	// Attributes
-	var name;
+    // Attributes
+    var name;
     var age;
     var gender;
     
@@ -73,4 +75,4 @@ class Person : Alive, Human {
 }
 ```
 
-My personnal website : [leptitdev.com](http://leptitdev.com).
+My personnal website : [leptitdev.com](http://leptitdev.com) (french website).

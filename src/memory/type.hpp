@@ -32,6 +32,8 @@ namespace LiteScript {
         ////// STATIC ATTRIBUTES //////
         ///////////////////////////////
 
+        // Type "undefined"
+        static Type& UNDEFINED;
         // Type "nullptr"
         static Type& NIL;
         // Type "bool"
@@ -42,6 +44,8 @@ namespace LiteScript {
         static Type& STRING;
         // Type "LiteScript::Callback"
         static Type& CALLBACK;
+        // Type "LiteScript::VObject"
+        static Type& OBJECT;
 
     private:
 

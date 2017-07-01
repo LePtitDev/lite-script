@@ -20,9 +20,13 @@ set(SOURCE_FILES
         src/types/string.hpp src/types/string.cpp
         src/types/character.hpp src/types/character.cpp
         src/types/callback.hpp src/types/callback.cpp
+        src/types/object.hpp src/types/object.cpp
 
         src/memory/memory.hpp src/memory/memory.cpp
         src/memory/variable.hpp src/memory/variable.cpp
-        src/memory/basic_memory.hpp src/memory/basic_memory.cpp)
+        src/memory/basic_memory.hpp src/memory/basic_memory.cpp
+
+        src/script/instruction.hpp
+        src/script/state.hpp)
 
 add_executable(LiteScript ${SOURCE_FILES})
