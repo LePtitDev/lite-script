@@ -25,10 +25,15 @@ The objective is to create an alternative of current script engines and integrat
 ## In future
 
 * class/structure **Instruction** (a reduced instruction)
-* class **State** (contain)
+* class **State** (contain the script/assembler state)
 * Garbage collector *mark and sweep* (**Variable**s contain also a reference counter)
 * Assembler script language
 * Javascript like object-oriented language
+
+*Types to define :*
+
+* **class**
+* **namespace**
 
 ## Example of Javascript like script
 

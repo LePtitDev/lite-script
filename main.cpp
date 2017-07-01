@@ -37,5 +37,9 @@ int main(int argc, char * argv[]) {
     else
         std::cout << "2. GetVariable non correct" << std::endl;
 
+    State state(memory);
+    std::cout << "namespace global : " << state.NamespaceGlobal->ID << std::endl;
+    std::cout << "namespace current : " << state.NamespaceCurrent->ID << std::endl;
+
     return 0;
 }

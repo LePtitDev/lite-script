@@ -19,8 +19,8 @@
 
 #else
 
-#ifndef LITESCRIPT_STATE_HPP
-#define LITESCRIPT_STATE_HPP
+#ifndef LITESCRIPT_SCRIPT_STATE_HPP
+#define LITESCRIPT_SCRIPT_STATE_HPP
 
 namespace LiteScript {
 
@@ -39,6 +39,12 @@ namespace LiteScript {
         // The current line number
         unsigned int line_num;
 
+        // The global namespace as object type
+        Variable global_nsp;
+
+        // The current namespace as object type
+        Variable current_nsp;
+
     public:
 
         // The main memory
@@ -53,6 +59,12 @@ namespace LiteScript {
 
         // The current line number
         const unsigned int& CurrentLine;
+
+        // The global namespace as object type
+        const Variable& NamespaceGlobal;
+
+        // The current namespace as object type
+        const Variable& NamespaceCurrent;
 
         //////////////////////////
         ////// CONSTRUCTORS //////
@@ -90,10 +102,10 @@ namespace LiteScript {
         /**
          * Jump to an other instruction
          *
-         * @param intr The index of instructions
+         * @param instr The index of instructions
          * @param line The line of the instruction
          */
-        void JumpTo(unsigned int intr, unsigned int line);
+        void JumpTo(unsigned int instr, unsigned int line);
 
     };
 
