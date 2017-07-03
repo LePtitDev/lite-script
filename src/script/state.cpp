@@ -17,35 +17,32 @@
 
 LiteScript::State::State(Memory &memory) :
     instr_index(0), line_num(0), memory(memory),
-    global_nsp(memory.Create(Type::NAMESPACE)),
-    current_nsp(Variable(global_nsp)),
-    CurrentInstructions(instr_index), CurrentLine(line_num),
-    NamespaceGlobal(global_nsp), NamespaceCurrent(current_nsp)
+    nsp_current(memory.Create(Type::NAMESPACE))
 {
     this->instr.push_back(std::vector<Instruction>());
+    this->nsp_major.push_back(this->nsp_current);
 }
 
 LiteScript::State::State(Memory &memory, std::vector<Instruction> instrs) :
-    memory(memory),
-    global_nsp(memory.Create(Type::NAMESPACE)),
-    current_nsp(Variable(global_nsp)),
-    CurrentInstructions(instr_index), CurrentLine(line_num),
-    NamespaceGlobal(global_nsp), NamespaceCurrent(current_nsp)
+    instr_index(0), line_num(0), memory(memory),
+    nsp_current(memory.Create(Type::NAMESPACE))
 {
     this->instr.push_back(instrs);
+    this->nsp_major.push_back(this->nsp_current);
 }
 
 void LiteScript::State::Execute() {
-
+    for (unsigned int sz = this->instr.size(); this->instr_index < sz; this->instr_index++) {
+        unsigned int nb_instr = this->instr[this->instr_index].size();
+        while (this->line_num < nb_instr)
+            this->ExecuteSingle();
+        this->line_num = 0;
+    }
+    this->instr_index--;
+    this->line_num = this->instr[this->instr_index].size();
 }
 
 void LiteScript::State::ExecuteSingle() {
 
-}
-
-void LiteScript::State::JumpTo(unsigned int intr, unsigned int line) {
-    if (intr < this->instr.size() && this->instr[intr].size() < line) {
-        this->instr_index = intr;
-        this->line_num = line;
-    }
+    this->line_num++;
 }

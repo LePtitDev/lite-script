@@ -24,11 +24,198 @@
 
 namespace LiteScript {
 
+    // Instruction codes
+    enum InstrCode {
+        // INVALID
+        INVALID,
+
+        // DEFINITIONS
+        DEFINE_VARIABLE,
+        DEFINE_ARG,
+        DEFINE_RETURN,
+
+        // VALUE CREATIONS
+        VALUE_UNDEFINED,
+        VALUE_NULL,
+        VALUE_BOOLEAN,
+        VALUE_NUMBER,
+        VALUE_STRING,
+        VALUE_CALLBACK,
+        VALUE_ARRAY,
+        VALUE_OBJECT,
+        VALUE_CLASS,
+        VALUE_NAME,
+        VALUE_ARGS,
+
+        // PILES MANAGEMENT
+        PUSH_MAJOR,
+        PUSH_MINOR,
+        PUSH_ARGS,
+        POP_MAJOR,
+        POP_MINOR,
+
+        // OPERATIONS
+        // Assignation et unary operations
+        OP_ASSIGN,
+        OP_UNARY_PLUS,
+        OP_UNARY_MINUS,
+        OP_PRE_INCR,
+        OP_POST_INCR,
+        OP_PRE_DECR,
+        OP_POST_DECR,
+
+        // Arithmetic operations
+        OP_ADD,
+        OP_SUB,
+        OP_MUL,
+        OP_DIV,
+        OP_MOD,
+
+        // Comparison
+        OP_EQU,
+        OP_DIF,
+        OP_GREAT,
+        OP_LESS,
+        OP_GREAT_EQU,
+        OP_LESS_EQU,
+
+        // Logical operation
+        OP_LOG_NOT,
+        OP_LOG_AND,
+        OP_LOG_OR,
+
+        // Binary operations
+        OP_BIT_NOT,
+        OP_BIT_AND,
+        OP_BIT_OR,
+        OP_BIT_XOR,
+        OP_LSHIFT,
+        OP_RSHIFT,
+
+        // Arithmetic and assignation
+        OP_ADD_ASSIGN,
+        OP_SUB_ASSIGN,
+        OP_MUL_ASSIGN,
+        OP_DIV_ASSIGN,
+
+        // Special operations
+        OP_ARRAY,
+        OP_MEMBER,
+        OP_CALL,
+
+        // CONTROL INSTRUCTIONS
+        JUMP_TO,
+        JUMP_IF,
+        JUMP_ELSE,
+
+        // COMPLEX VALUES COMPLETION
+        // Array
+        ARRAY_PUSH,
+
+        // Object
+        OBJECT_PUSH_NUMERIC,
+        OBJECT_PUSH_LITERAL,
+
+        // Class
+        CLASS_PUSH_STATIC,
+        CLASS_PUSH_USTATIC,
+        CLASS_INHERIT,
+
+        // NAMESPACES
+        NAMESPACE_USE,
+        NAMESPACE_RESET
+
+    };
+
     // Reduced instruction
     struct Instruction {
 
+        // Complement value type
+        enum CompType {
+            COMP_TYPE_NONE,
+            COMP_TYPE_BOOLEAN,
+            COMP_TYPE_INTEGER,
+            COMP_TYPE_FLOAT,
+            COMP_TYPE_STRING
+        };
+
+        ////////////////////////
+        ////// ATTRIBUTES //////
+        ////////////////////////
+            
         // The instruction code
-        unsigned short code;
+        unsigned char code;
+
+        // Complement value type
+        unsigned char comp_type;
+
+        // Complement value
+        union {
+            bool    v_boolean;
+            int     v_integer;
+            float   v_float;
+            char *  v_string;
+        } comp_value;
+
+        //////////////////////////
+        ////// CONSTRUCTORS //////
+        //////////////////////////
+
+    private:
+
+        // Private constructor
+        Instruction();
+
+    public:
+
+        // Basic constructor
+        Instruction(InstrCode code);
+
+        // Constructor with boolean value
+        Instruction(InstrCode code, bool val);
+
+        // Constructor with integer value
+        Instruction(InstrCode code, int val);
+
+        // Constructor with floatting value
+        Instruction(InstrCode code, float val);
+
+        // Constructor with string value
+        Instruction(InstrCode code, const char * val);
+
+        // Destructor
+        ~Instruction();
+
+        /////////////////////////////
+        ////// UNSTATIC METHOD //////
+        /////////////////////////////
+
+        /**
+         * Save the instruction in the stream
+         *
+         * @param stream The stream
+         */
+        void Save(std::ostream& stream);
+
+        ////////////////////////////
+        ////// STATIC METHODS //////
+        ////////////////////////////
+
+        /**
+         * Save an instruction in a stream
+         *
+         * @param stream The stream
+         * @param instr The instruction
+         */
+        static void Save(std::ostream& stream, Instruction instr);
+
+        /**
+         * Load an instruction from a stream
+         *
+         * @param stream The stream
+         * @return The instruction
+         */
+        static Instruction Load(std::istream& stream);
 
     };
 

@@ -39,32 +39,25 @@ namespace LiteScript {
         // The current line number
         unsigned int line_num;
 
-        // The global namespace as object type
-        Variable global_nsp;
+        // The pile of major namespaces
+        std::vector<Variable> nsp_major;
+
+        // The pile of minor namespaces
+        std::vector<Variable> nsp_minor;
 
         // The current namespace as object type
-        Variable current_nsp;
+        Variable nsp_current;
+
+        // The pile of arguments
+        std::vector<std::vector<Variable>> args;
+
+        // The pile of returns
+        std::vector<Variable> rets;
 
     public:
 
         // The main memory
         Memory& memory;
-
-        ////////////////////////
-        ////// ACCESSSORS //////
-        ////////////////////////
-
-        // The index of current instructions
-        const unsigned int& CurrentInstructions;
-
-        // The current line number
-        const unsigned int& CurrentLine;
-
-        // The global namespace as object type
-        const Variable& NamespaceGlobal;
-
-        // The current namespace as object type
-        const Variable& NamespaceCurrent;
 
         //////////////////////////
         ////// CONSTRUCTORS //////
@@ -98,14 +91,6 @@ namespace LiteScript {
          * Execute a single instruction
          */
         void ExecuteSingle();
-
-        /**
-         * Jump to an other instruction
-         *
-         * @param instr The index of instructions
-         * @param line The line of the instruction
-         */
-        void JumpTo(unsigned int instr, unsigned int line);
 
     };
 
