@@ -26,6 +26,9 @@ namespace LiteScript {
 
     class State {
 
+        // Internal friend static class for instructions execution
+        friend class LiteScript::StateExecutor;
+
         ////////////////////////
         ////// ATTRIBUTES //////
         ////////////////////////

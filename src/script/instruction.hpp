@@ -123,7 +123,10 @@ namespace LiteScript {
 
         // NAMESPACES
         NAMESPACE_USE,
-        NAMESPACE_RESET
+        NAMESPACE_RESET,
+
+        // INSTRUCTION_NUMBER
+        INSTR_NUMBER
 
     };
 

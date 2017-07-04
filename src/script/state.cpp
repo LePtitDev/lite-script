@@ -15,6 +15,8 @@
 
 #include "state.hpp"
 
+#include "executor.hpp"
+
 LiteScript::State::State(Memory &memory) :
     instr_index(0), line_num(0), memory(memory),
     nsp_current(memory.Create(Type::NAMESPACE))
@@ -43,6 +45,5 @@ void LiteScript::State::Execute() {
 }
 
 void LiteScript::State::ExecuteSingle() {
-
-    this->line_num++;
+    StateExecutor::Execute(*this, this->instr[this->instr_index][this->line_num]);
 }

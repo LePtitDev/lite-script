@@ -35,6 +35,7 @@ namespace LiteScript {
     class Memory;
     struct Instruction;
     class State;
+    class StateExecutor;
 
 }
 
