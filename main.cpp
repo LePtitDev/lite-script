@@ -41,9 +41,9 @@ int main(int argc, char * argv[]) {
         std::cout << "2. GetVariable non correct" << std::endl;
 
     State state(memory);
-    std::cout << "instruction size = " << sizeof(Instruction) << std::endl;
-
+    state.ExecuteSingle(Instruction(InstrCode::VALUE_UNDEFINED));
     state.ExecuteSingle(Instruction(InstrCode::DEFINE_VARIABLE, "ma-variable"));
+    state.ExecuteSingle(Instruction(InstrCode::VALUE_NULL));
     state.ExecuteSingle(Instruction(InstrCode::DEFINE_VARIABLE, "autre-variable"));
 
     Namespace& nsp = state.GetCurrentNamespace()->GetData<Namespace>();

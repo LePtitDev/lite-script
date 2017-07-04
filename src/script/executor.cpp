@@ -35,14 +35,13 @@ std::array<void(*)(LiteScript::State&, LiteScript::Instruction&), LiteScript::In
     LiteScript::StateExecutor::I_VALUE_STRING,
     LiteScript::StateExecutor::I_VALUE_CALLBACK,
     LiteScript::StateExecutor::I_VALUE_ARRAY,
-    LiteScript::StateExecutor::I_VALUE_OBJECT,
     LiteScript::StateExecutor::I_VALUE_CLASS,
-    LiteScript::StateExecutor::I_VALUE_NAME,
     LiteScript::StateExecutor::I_VALUE_ARGS,
     
     LiteScript::StateExecutor::I_PUSH_NSP,
     LiteScript::StateExecutor::I_PUSH_ARGS,
     LiteScript::StateExecutor::I_POP_NSP,
+    LiteScript::StateExecutor::I_POP_ARGS,
     
     LiteScript::StateExecutor::I_OP_ASSIGN,
     LiteScript::StateExecutor::I_OP_UNARY_PLUS,
@@ -88,11 +87,9 @@ std::array<void(*)(LiteScript::State&, LiteScript::Instruction&), LiteScript::In
     LiteScript::StateExecutor::I_JUMP_TO,
     LiteScript::StateExecutor::I_JUMP_IF,
     LiteScript::StateExecutor::I_JUMP_ELSE,
-    
-    LiteScript::StateExecutor::I_ARRAY_PUSH,
 
-    LiteScript::StateExecutor::I_OBJECT_PUSH_NUMERIC,
-    LiteScript::StateExecutor::I_OBJECT_PUSH_LITERAL,
+    LiteScript::StateExecutor::I_ARRAY_PUSH_NUMERIC,
+    LiteScript::StateExecutor::I_ARRAY_PUSH_LITERAL,
 
     LiteScript::StateExecutor::I_CLASS_PUSH_STATIC,
     LiteScript::StateExecutor::I_CLASS_PUSH_USTATIC,
@@ -114,33 +111,97 @@ void LiteScript::StateExecutor::I_INVALID(State& state, Instruction& instr) {
 // DEFINITIONS
 void LiteScript::StateExecutor::I_DEFINE_VARIABLE(State& state, Instruction& instr) {
     state.line_num++;
-    if (instr.comp_type != Instruction::CompType::COMP_TYPE_STRING)
+    if (state.op_lifo.size() == 0 || instr.comp_type != Instruction::CompType::COMP_TYPE_STRING)
         return;
     Nullable<Variable> v = state.GetVariable(instr.comp_value.v_string);
     if (!v.isNull)
         return;
-    state.GetCurrentNamespace()->GetData<Namespace>().DefineVariable(instr.comp_value.v_string);
+    state.GetCurrentNamespace()->GetData<Namespace>().DefineVariable(instr.comp_value.v_string, state.op_lifo.back());
+    state.op_lifo.pop_back();
 }
-void LiteScript::StateExecutor::I_DEFINE_ARG(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_DEFINE_RETURN(State& state, Instruction& instr) {}
+void LiteScript::StateExecutor::I_DEFINE_ARG(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() == 0 || state.args.size() == 0 || instr.comp_type != Instruction::CompType::COMP_TYPE_INTEGER)
+        return;
+    std::vector<Variable>& args = state.args.back();
+    while (args.size() <= instr.comp_value.v_integer)
+        args.push_back(state.memory.Create(Type::UNDEFINED));
+    args[instr.comp_value.v_integer] = state.op_lifo.back();
+    state.op_lifo.pop_back();
+}
+void LiteScript::StateExecutor::I_DEFINE_RETURN(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() == 0)
+        return;
+    state.rets.back() = state.op_lifo.back();
+    state.op_lifo.pop_back();
+}
 
 // VALUE CREATIONS
-void LiteScript::StateExecutor::I_VALUE_UNDEFINED(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_VALUE_NULL(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_VALUE_BOOLEAN(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_VALUE_NUMBER(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_VALUE_STRING(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_VALUE_CALLBACK(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_VALUE_ARRAY(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_VALUE_OBJECT(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_VALUE_CLASS(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_VALUE_NAME(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_VALUE_ARGS(State& state, Instruction& instr) {}
+void LiteScript::StateExecutor::I_VALUE_UNDEFINED(State& state, Instruction& instr) {
+    state.line_num++;
+    state.op_lifo.push_back(state.memory.Create(Type::UNDEFINED));
+}
+void LiteScript::StateExecutor::I_VALUE_NULL(State& state, Instruction& instr) {
+    state.line_num++;
+    state.op_lifo.push_back(state.memory.Create(Type::NIL));
+}
+void LiteScript::StateExecutor::I_VALUE_BOOLEAN(State& state, Instruction& instr) {
+    state.line_num++;
+    if (instr.comp_type != Instruction::CompType::COMP_TYPE_BOOLEAN)
+        return;
+    state.op_lifo.push_back(state.memory.Create(Type::BOOLEAN));
+    (*state.op_lifo.end())->GetData<bool>() = instr.comp_value.v_boolean;
+}
+void LiteScript::StateExecutor::I_VALUE_NUMBER(State& state, Instruction& instr) {
+    state.line_num++;
+    Number number;
+    if (instr.comp_type == Instruction::CompType::COMP_TYPE_INTEGER)
+        number = Number(instr.comp_value.v_integer);
+    else if (instr.comp_type == Instruction::CompType::COMP_TYPE_FLOAT)
+        number = Number(instr.comp_value.v_float);
+    else
+        return;
+    state.op_lifo.push_back(state.memory.Create(Type::NUMBER));
+    (*state.op_lifo.end())->GetData<Number>() = number;
+}
+void LiteScript::StateExecutor::I_VALUE_STRING(State& state, Instruction& instr) {
+    state.line_num++;
+    if (instr.comp_type != Instruction::CompType::COMP_TYPE_STRING)
+        return;
+    state.op_lifo.push_back(state.memory.Create(Type::STRING));
+    (*state.op_lifo.end())->GetData<String>() = String(instr.comp_value.v_string);
+}
+void LiteScript::StateExecutor::I_VALUE_CALLBACK(State& state, Instruction& instr) {
+    state.line_num++;
+    if (instr.comp_type != Instruction::CompType::COMP_TYPE_INTEGER)
+        return;
+    state.op_lifo.push_back(state.memory.Create(Type::CALLBACK));
+    (*state.op_lifo.end())->GetData<Callback>() = Callback(state, state.instr_index, (unsigned int)instr.comp_value.v_integer);
+}
+void LiteScript::StateExecutor::I_VALUE_ARRAY(State& state, Instruction& instr) {
+    state.line_num++;
+    state.op_lifo.push_back(state.memory.Create(Type::ARRAY));
+}
+void LiteScript::StateExecutor::I_VALUE_CLASS(State& state, Instruction& instr) {
+    state.line_num++;
+    state.op_lifo.push_back(state.memory.Create(Type::CLASS));
+}
+void LiteScript::StateExecutor::I_VALUE_ARGS(State& state, Instruction& instr) {
+    state.line_num++;
+    if (instr.comp_type != Instruction::CompType::COMP_TYPE_INTEGER)
+        return;
+    state.op_lifo.push_back(state.memory.Create(Type::ARRAY));
+    Array& a = state.op_lifo.back()->GetData<Array>();
+    for (unsigned int i = (unsigned int)instr.comp_value.v_integer, sz = state.GetArgsCount(); i < sz; i++)
+        a[i] = state.GetArg(i);
+}
 
 // PILES MANAGEMENT
 void LiteScript::StateExecutor::I_PUSH_NSP(State& state, Instruction& instr) {}
 void LiteScript::StateExecutor::I_PUSH_ARGS(State& state, Instruction& instr) {}
 void LiteScript::StateExecutor::I_POP_NSP(State& state, Instruction& instr) {}
+void LiteScript::StateExecutor::I_POP_ARGS(State& state, Instruction& instr) {}
 
 // OPERATIONS
 // Assignation et unary operations
@@ -198,11 +259,8 @@ void LiteScript::StateExecutor::I_JUMP_ELSE(State& state, Instruction& instr) {}
 
 // COMPLEX VALUES COMPLETION
 // Array
-void LiteScript::StateExecutor::I_ARRAY_PUSH(State& state, Instruction& instr) {}
-
-// Object
-void LiteScript::StateExecutor::I_OBJECT_PUSH_NUMERIC(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_OBJECT_PUSH_LITERAL(State& state, Instruction& instr) {}
+void LiteScript::StateExecutor::I_ARRAY_PUSH_NUMERIC(State& state, Instruction& instr) {}
+void LiteScript::StateExecutor::I_ARRAY_PUSH_LITERAL(State& state, Instruction& instr) {}
 
 // Class
 void LiteScript::StateExecutor::I_CLASS_PUSH_STATIC(State& state, Instruction& instr) {}

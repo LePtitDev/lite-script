@@ -20,7 +20,7 @@ The objective is to create an alternative of current script engines and integrat
 * **number**
 * **string** (and **character** but it's hidden)
 * **callback** (need to complete le calling operator)
-* **object**
+* **array**
 * **namespace**
 
 ## In future
@@ -33,13 +33,16 @@ The objective is to create an alternative of current script engines and integrat
 
 *Types to define :*
 
-* **class**
+* **class** (inherit, static elements, constructor and operator overloading)
 
 ## Example of Javascript like script
 
 This example is the objective for the javascript like object-oriented language.
 
 ```javascript
+// Enter in the namespace named "Game"
+namespace Game;
+
 // Person inherits Alive and Human
 class Person : Alive, Human {
 
@@ -74,10 +77,24 @@ class Person : Alive, Human {
         Console.WriteLine();
     }
     
+    // Operator overloading
+    operator add(p) {
+        return Person.Merry(this, p);
+    }
+    
+    // Static method
     static function Marry(p1, p2) {
     	return new Person(Random.Name, 0, Random.Gender);
     }
 }
+
+// Return to the original namespace
+namespace global;
+
+var Anne = new Game.Person("Anne", 21, Gender.FEMALE);
+var Henri = new Game.Person("Henri", 22, Gender.MALE);
+
+print(Anne + Henri);
 ```
 
 My personnal website : [leptitdev.com](http://leptitdev.com) (french website).

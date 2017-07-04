@@ -44,10 +44,10 @@ namespace LiteScript {
         static Type& STRING;
         // Type "LiteScript::Callback"
         static Type& CALLBACK;
-        // Type "LiteScript::VObject"
-        static Type& OBJECT;
+        // Type "LiteScript::Array"
+        static Type& ARRAY;
         // Type "LiteScript::Class"
-
+        static Type& CLASS;
         // Type "LiteScript::Namespace"
         static Type& NAMESPACE;
 

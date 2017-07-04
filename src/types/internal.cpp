@@ -510,37 +510,37 @@ LiteScript::Variable LiteScript::Callback::operator()(std::vector<Variable> &arg
 /****** CLASS CALLBACK ******/
 /****************************/
 
-LiteScript::VObject::VObject(Memory& mem) : memory(mem) {}
+LiteScript::Array::Array(Memory& mem) : memory(mem) {}
 
-LiteScript::VObject::VObject(const VObject &o) :
+LiteScript::Array::Array(const Array &o) :
     memory(o.memory), named(o.named), unamed(o.unamed)
 {
 
 }
 
-unsigned int LiteScript::VObject::NamedCount() const {
+unsigned int LiteScript::Array::NamedCount() const {
     return this->named.size();
 }
 
-unsigned int LiteScript::VObject::UnamedCount() const {
+unsigned int LiteScript::Array::UnamedCount() const {
     return this->unamed.size();
 }
 
-const char * LiteScript::VObject::GetNamedKey(unsigned int idx) const {
+const char * LiteScript::Array::GetNamedKey(unsigned int idx) const {
     if (this->named.size() <= idx)
         return nullptr;
     else
         return this->named[idx].first.c_str();
 }
 
-LiteScript::Variable LiteScript::VObject::GetNamedVariable(unsigned int idx) const {
+LiteScript::Variable LiteScript::Array::GetNamedVariable(unsigned int idx) const {
     if (this->named.size() <= idx)
         return this->memory.Create(Type::UNDEFINED);
     else
         return Variable(this->named[idx].second);
 }
 
-int LiteScript::VObject::IndexOfNamed(const char *name) const {
+int LiteScript::Array::IndexOfNamed(const char *name) const {
     for (unsigned int i = 0, sz = this->named.size(); i < sz; i++) {
         if (this->named[i].first == name)
             return (int)i;
@@ -548,7 +548,7 @@ int LiteScript::VObject::IndexOfNamed(const char *name) const {
     return -1;
 }
 
-int LiteScript::VObject::ExistNamed(const char *name) const {
+int LiteScript::Array::ExistNamed(const char *name) const {
     for (unsigned int i = 0, sz = this->named.size(); i < sz; i++) {
         if (this->named[i].first == name)
             return (this->named[i].second->GetType() != Type::UNDEFINED);
@@ -556,21 +556,21 @@ int LiteScript::VObject::ExistNamed(const char *name) const {
     return false;
 }
 
-int LiteScript::VObject::ExistUnamed(unsigned int idx) const {
+int LiteScript::Array::ExistUnamed(unsigned int idx) const {
     if (this->unamed.size() <= idx)
         return false;
     else
         return (this->unamed[idx]->GetType() != Type::UNDEFINED);
 }
 
-LiteScript::Variable LiteScript::VObject::ConstantGet(unsigned int idx) const {
+LiteScript::Variable LiteScript::Array::ConstantGet(unsigned int idx) const {
     if (this->unamed.size() <= idx)
         return this->memory.Create(Type::UNDEFINED);
     else
         return Variable(this->unamed[idx]);
 }
 
-LiteScript::Variable LiteScript::VObject::ConstantGet(const char * name) const {
+LiteScript::Variable LiteScript::Array::ConstantGet(const char * name) const {
     for (unsigned int i = 0, sz = this->named.size(); i < sz; i++) {
         if (this->named[i].first == name)
             return Variable(this->named[i].second);
@@ -578,7 +578,7 @@ LiteScript::Variable LiteScript::VObject::ConstantGet(const char * name) const {
     return this->memory.Create(Type::UNDEFINED);
 }
 
-LiteScript::VObject & LiteScript::VObject::operator=(const VObject &obj) {
+LiteScript::Array & LiteScript::Array::operator=(const Array &obj) {
     this->named.clear();
     this->unamed.clear();
     this->named = obj.named;
@@ -586,13 +586,13 @@ LiteScript::VObject & LiteScript::VObject::operator=(const VObject &obj) {
     return *this;
 }
 
-LiteScript::Variable LiteScript::VObject::operator[](unsigned int idx) {
+LiteScript::Variable LiteScript::Array::operator[](unsigned int idx) {
     while (this->unamed.size() <= idx)
         this->unamed.push_back(this->memory.Create(Type::UNDEFINED));
     return Variable(this->unamed[idx]);
 }
 
-LiteScript::Variable LiteScript::VObject::operator[](const char *name) {
+LiteScript::Variable LiteScript::Array::operator[](const char *name) {
     for (unsigned int i = 0, sz = this->named.size(); i < sz; i++) {
         if (this->named[i].first == name)
             return Variable(this->named[i].second);
@@ -623,6 +623,15 @@ bool LiteScript::Namespace::DefineVariable(const char *name) {
             return false;
     }
     this->vars.push_back({ std::string(name), this->memory.Create(Type::NIL) });
+    return true;
+}
+
+bool LiteScript::Namespace::DefineVariable(const char *name, const Variable& v) {
+    for (unsigned int i = 0, sz = this->vars.size(); i < sz; i++) {
+        if (this->vars[i].first == name)
+            return false;
+    }
+    this->vars.push_back({ std::string(name), Variable(v) });
     return true;
 }
 

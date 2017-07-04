@@ -67,15 +67,14 @@ namespace LiteScript {
         static void I_VALUE_STRING(State&, Instruction&);
         static void I_VALUE_CALLBACK(State&, Instruction&);
         static void I_VALUE_ARRAY(State&, Instruction&);
-        static void I_VALUE_OBJECT(State&, Instruction&);
         static void I_VALUE_CLASS(State&, Instruction&);
-        static void I_VALUE_NAME(State&, Instruction&);
         static void I_VALUE_ARGS(State&, Instruction&);
 
         // PILES MANAGEMENT
         static void I_PUSH_NSP(State&, Instruction&);
         static void I_PUSH_ARGS(State&, Instruction&);
         static void I_POP_NSP(State&, Instruction&);
+        static void I_POP_ARGS(State&, Instruction&);
 
         // OPERATIONS
         // Assignation et unary operations
@@ -133,11 +132,8 @@ namespace LiteScript {
 
         // COMPLEX VALUES COMPLETION
         // Array
-        static void I_ARRAY_PUSH(State&, Instruction&);
-
-        // Object
-        static void I_OBJECT_PUSH_NUMERIC(State&, Instruction&);
-        static void I_OBJECT_PUSH_LITERAL(State&, Instruction&);
+        static void I_ARRAY_PUSH_NUMERIC(State&, Instruction&);
+        static void I_ARRAY_PUSH_LITERAL(State&, Instruction&);
 
         // Class
         static void I_CLASS_PUSH_STATIC(State&, Instruction&);

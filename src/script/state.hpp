@@ -42,7 +42,7 @@ namespace LiteScript {
         // The current line number
         unsigned int line_num;
 
-        // The pile of major namespaces
+        // The LIFO of namespaces
         std::vector<Variable> nsp_list;
 
         // The global namespace
@@ -51,11 +51,17 @@ namespace LiteScript {
         // The current namespace
         Nullable<Variable> nsp_current;
 
-        // The pile of arguments
+        // The LIFO of arguments
         std::vector<std::vector<Variable>> args;
 
-        // The pile of returns
+        // The LIFO of returns
         std::vector<Variable> rets;
+
+        // The LIFO of operations
+        std::vector<Variable> op_lifo;
+
+        // The LIFO of calling
+        std::vector<Callback> call_lifo;
 
     public:
 
@@ -97,7 +103,6 @@ namespace LiteScript {
 
         /**
          * Execute a single instruction that isn't in the instructions lists
-         * (warning: need to be executed after all script execution)
          *
          * @param instr The instruction to execute
          */
@@ -117,6 +122,19 @@ namespace LiteScript {
          * Return the current namespace
          */
         Variable GetCurrentNamespace() const;
+
+        /**
+         * Return the count of args in the top of LIFO
+         */
+        unsigned int GetArgsCount() const;
+
+        /**
+         * Get an argument in the top of LIFO
+         *
+         * @param i The index of the argument
+         */
+        Variable GetArg(unsigned int i) const;
+
 
     };
 

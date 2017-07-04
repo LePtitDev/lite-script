@@ -42,15 +42,14 @@ namespace LiteScript {
         VALUE_STRING,
         VALUE_CALLBACK,
         VALUE_ARRAY,
-        VALUE_OBJECT,
         VALUE_CLASS,
-        VALUE_NAME,
         VALUE_ARGS,
 
         // PILES MANAGEMENT
         PUSH_NSP,
         PUSH_ARGS,
         POP_NSP,
+        POP_AGRS,
 
         // OPERATIONS
         // Assignation et unary operations
@@ -108,11 +107,8 @@ namespace LiteScript {
 
         // COMPLEX VALUES COMPLETION
         // Array
-        ARRAY_PUSH,
-
-        // Object
-        OBJECT_PUSH_NUMERIC,
-        OBJECT_PUSH_LITERAL,
+        ARRAY_PUSH_NUMERIC,
+        ARRAY_PUSH_LITERAL,
 
         // Class
         CLASS_PUSH_STATIC,

@@ -46,9 +46,9 @@ namespace LiteScript {
 #include "memory/variable.hpp"
 #include "memory/memory.hpp"
 
+#include "types/internal.hpp"
+
 #include "script/instruction.hpp"
 #include "script/state.hpp"
-
-#include "types/internal.hpp"
 
 #endif //LITESCRIPT_LITESCRIPT_HPP

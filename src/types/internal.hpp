@@ -852,8 +852,8 @@ namespace LiteScript {
 
     };
 
-    // Content of an object value
-    class VObject {
+    // Content of an array value
+    class Array {
 
         ////////////////////////
         ////// ATTRIBUTES //////
@@ -879,12 +879,12 @@ namespace LiteScript {
          *
          * @param mem The main memory
          */
-        VObject(Memory& mem);
+        Array(Memory& mem);
 
         /**
          * Copy constructor
          */
-        VObject(const VObject& o);
+        Array(const Array& o);
 
         /////////////////////
         ////// METHODS //////
@@ -951,7 +951,7 @@ namespace LiteScript {
         Variable ConstantGet(const char * name) const;
 
         // The assign operator
-        VObject& operator=(const VObject& obj);
+        Array& operator=(const Array& obj);
 
         // The access operator for unamed members (create it if not exist)
         Variable operator[](unsigned int idx);
@@ -1002,8 +1002,20 @@ namespace LiteScript {
 
         /**
          * Define a variable in the namespace
+         *
+         * @param name The name of the variable
+         * @return true if success
          */
         bool DefineVariable(const char * name);
+
+        /**
+         * Define a variable in the namespace
+         *
+         * @param name The name of the variable
+         * @param v The pre-exist variable
+         * @return true if success
+         */
+        bool DefineVariable(const char * name, const Variable& v);
 
         /**
          * Get the variable count in the namespace

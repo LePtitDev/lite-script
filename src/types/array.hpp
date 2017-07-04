@@ -21,7 +21,7 @@
 namespace LiteScript {
 
     // The derived type OBJECT
-    class _Type_OBJECT : public Type {
+    class _Type_ARRAY : public Type {
 
     public:
 
@@ -32,7 +32,7 @@ namespace LiteScript {
         /**
          * Basic constructor of the type
          */
-        _Type_OBJECT();
+        _Type_ARRAY();
 
         /////////////////////
         ////// METHODS //////
@@ -113,7 +113,7 @@ namespace LiteScript {
     };
 
     // An internal variable that contain the type OBJECT
-    extern _Type_OBJECT _type_object;
+    extern _Type_ARRAY _type_array;
 
 }
 

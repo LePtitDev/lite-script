@@ -23,6 +23,8 @@ LiteScript::State::State(Memory &memory) :
 {
     this->nsp_current = this->nsp_global;
     this->instr.push_back(std::vector<Instruction>());
+    this->args.push_back(std::vector<Variable>());
+    this->rets.push_back(this->memory.Create(Type::UNDEFINED));
 }
 
 LiteScript::State::State(Memory &memory, std::vector<Instruction> instrs) :
@@ -31,6 +33,8 @@ LiteScript::State::State(Memory &memory, std::vector<Instruction> instrs) :
 {
     this->nsp_current = this->nsp_global;
     this->instr.push_back(instrs);
+    this->args.push_back(std::vector<Variable>());
+    this->rets.push_back(this->memory.Create(Type::UNDEFINED));
 }
 
 void LiteScript::State::Execute() {
@@ -50,8 +54,10 @@ void LiteScript::State::ExecuteSingle() {
 
 void LiteScript::State::ExecuteSingle(const Instruction &instr) {
     Instruction in(instr);
-    if (instr.code < InstrCode::INSTR_NUMBER)
+    if (instr.code < InstrCode::INSTR_NUMBER) {
+        this->line_num--;
         StateExecutor::Execute(*this, in);
+    }
 }
 
 LiteScript::Nullable<LiteScript::Variable> LiteScript::State::GetVariable(const char *name) const {
@@ -83,4 +89,18 @@ LiteScript::Variable LiteScript::State::GetCurrentNamespace() const {
         return Variable(*this->nsp_list.end());
     else
         return Variable(*this->nsp_current);
+}
+
+unsigned int LiteScript::State::GetArgsCount() const {
+    if (this->args.size() > 0)
+        return this->args.end()->size();
+    else
+        return 0;
+}
+
+LiteScript::Variable LiteScript::State::GetArg(unsigned int i) const {
+    if (this->args.size() > 0 && this->args.end()->size() > i)
+        return Variable(this->args.end()->at(i));
+    else
+        return this->memory.Create(Type::UNDEFINED);
 }

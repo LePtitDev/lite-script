@@ -20,7 +20,8 @@ set(SOURCE_FILES
         src/types/string.hpp src/types/string.cpp
         src/types/character.hpp src/types/character.cpp
         src/types/callback.hpp src/types/callback.cpp
-        src/types/object.hpp src/types/object.cpp
+        src/types/array.hpp src/types/array.cpp
+        src/types/class.hpp src/types/class.cpp
         src/types/namespace.hpp src/types/namespace.cpp
 
         src/memory/memory.hpp src/memory/memory.cpp
