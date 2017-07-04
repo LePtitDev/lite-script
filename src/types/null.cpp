@@ -18,10 +18,6 @@ LiteScript::_Type_NIL LiteScript::_type_nil;
 
 LiteScript::_Type_NIL::_Type_NIL() : Type("NULL") {}
 
-void LiteScript::_Type_NIL::CreateObject(LiteScript::Object& obj) {
-    obj.Reassign(*this, 0);
-}
-
 LiteScript::Variable LiteScript::_Type_NIL::Convert(const LiteScript::Variable& obj, const LiteScript::Type& type) const {
     if (type == Type::STRING) {
         Variable res = obj->memory.Create(Type::STRING);

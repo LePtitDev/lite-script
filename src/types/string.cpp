@@ -18,13 +18,7 @@
 
 LiteScript::_Type_STRING LiteScript::_type_string;
 
-LiteScript::_Type_STRING::_Type_STRING() : Type("STRING") {};
-
-void LiteScript::_Type_STRING::CreateObject(LiteScript::Object& obj) {
-    obj.Reassign(*this, sizeof(String));
-    std::allocator<String> allocator;
-    allocator.construct(&obj.GetData<String>());
-}
+LiteScript::_Type_STRING::_Type_STRING() : Type("STRING") {}
 
 LiteScript::Variable LiteScript::_Type_STRING::Convert(const LiteScript::Variable& obj, const LiteScript::Type& type) const {
     if (type == Type::STRING) {

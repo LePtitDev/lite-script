@@ -117,14 +117,6 @@ namespace LiteScript {
         /////////////////////////////
 
 
-        /**
-         * Create an empty object formated by this type
-         *
-         * @param object An empty object
-         */
-        virtual void CreateObject(Object& obj) = 0;
-
-
         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         // !!!!!! If the operation can't be applied on the object, !!!!!!
         // !!!!!! the object returned is typed "null"              !!!!!!
@@ -148,7 +140,7 @@ namespace LiteScript {
          * @param object The object to assign
          * @return The same object referenced
          */
-        virtual Object& AssignObject(Object& object);
+        virtual Object& AssignObject(Object& object) = 0;
 
 
         ////// OPERATIONS //////

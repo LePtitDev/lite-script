@@ -38,13 +38,6 @@ namespace LiteScript {
         /////////////////////////////
 
         /**
-         * Create an empty object formated by this type
-         *
-         * @param object An empty object
-         */
-        void CreateObject(Object& obj) override;
-
-        /**
          * Convert the referenced object to an other typed object
          *
          * @param object The referenced object

@@ -18,16 +18,17 @@ LiteScript::_Type_UNDEFINED LiteScript::_type_undefined;
 
 LiteScript::_Type_UNDEFINED::_Type_UNDEFINED() : Type("UNDEFINED") {}
 
-void LiteScript::_Type_UNDEFINED::CreateObject(LiteScript::Object& obj) {
-    obj.Reassign(_type_undefined, 0);
-}
-
 LiteScript::Variable LiteScript::_Type_UNDEFINED::OAssign(Variable &src, const Variable &dest) const {
     if (dest->GetType() != *this) {
         dest->GetType().AssignObject(*src);
         src->GetType().OAssign(src, dest);
     }
     return Variable(src);
+}
+
+LiteScript::Object & LiteScript::_Type_UNDEFINED::AssignObject(Object &object) {
+    object.Reassign(*this, 0);
+    return object;
 }
 
 LiteScript::Variable LiteScript::_Type_UNDEFINED::OEqual(const Variable &obj1, const Variable &obj2) const {

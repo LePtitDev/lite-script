@@ -24,6 +24,9 @@ int main(int argc, char * argv[]) {
     std::cout << v3 << std::endl;
     std::cout << v4 << std::endl;
     std::cout << v5 << std::endl;
+    v3->GetData<Number>() = 2;
+    v4[v3] = v4;
+    std::cout << v4 << std::endl;
 
     Nullable<Variable> test1 = memory.GetVariable(10);
     if (test1.isNull)
@@ -39,6 +42,15 @@ int main(int argc, char * argv[]) {
 
     State state(memory);
     std::cout << "instruction size = " << sizeof(Instruction) << std::endl;
+
+    state.ExecuteSingle(Instruction(InstrCode::DEFINE_VARIABLE, "ma-variable"));
+    state.ExecuteSingle(Instruction(InstrCode::DEFINE_VARIABLE, "autre-variable"));
+
+    Namespace& nsp = state.GetCurrentNamespace()->GetData<Namespace>();
+    std::cout << "variable count = " << nsp.Count() << std::endl;
+    for (unsigned int i = 0, sz = nsp.Count(); i < sz; i++) {
+        std::cout << "> " << nsp.GetKey(i) << " = " << nsp.GetVariable(i) << std::endl;
+    }
 
     return 0;
 }

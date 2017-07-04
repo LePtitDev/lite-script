@@ -60,8 +60,6 @@ bool LiteScript::Type::operator!=(const Type & t) const {
 
 LiteScript::Variable LiteScript::Type::Convert(const Variable& obj, const Type & type) const { return obj->memory.Create(Type::NIL); }
 
-LiteScript::Object& LiteScript::Type::AssignObject(Object & obj) { obj.Reassign(*this, 0); return obj; }
-
 void LiteScript::Type::ODestroy(Object& obj) {}
 
 LiteScript::Variable LiteScript::Type::OAssign(LiteScript::Variable& x1, const LiteScript::Variable&) const { return x1; }

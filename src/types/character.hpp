@@ -38,13 +38,6 @@ namespace LiteScript {
         /////////////////////////////
 
         /**
-         * Create an empty object formated by this type
-         *
-         * @param object An empty object
-         */
-        void CreateObject(Object& obj) override;
-
-        /**
          * Convert the referenced object to an other typed object
          *
          * @param object The referenced object
@@ -52,6 +45,14 @@ namespace LiteScript {
          * @return The converted object if success and a null object otherwise
          */
         Variable Convert(const Variable& object, const Type& type) const override;
+
+        /**
+         * Assign the referenced object by a character object
+         *
+         * @param object The referenced object
+         * @return The same object assigned
+         */
+        Object& AssignObject(Object& object) override;
 
         ////// OPERATIONS //////
 

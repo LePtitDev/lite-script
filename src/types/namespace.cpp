@@ -19,10 +19,11 @@ LiteScript::_Type_NAMESPACE LiteScript::_type_namespace;
 
 LiteScript::_Type_NAMESPACE::_Type_NAMESPACE() : Type("NAMESPACE") {}
 
-void LiteScript::_Type_NAMESPACE::CreateObject(Object &obj) {
+LiteScript::Object& LiteScript::_Type_NAMESPACE::AssignObject(Object &obj) {
     obj.Reassign(*this, sizeof(Namespace));
     std::allocator<Namespace> allocator;
     allocator.construct(&obj.GetData<Namespace>(), obj.memory);
+    return obj;
 }
 
 LiteScript::Variable LiteScript::_Type_NAMESPACE::OMember(Variable &object, const char *name) const {

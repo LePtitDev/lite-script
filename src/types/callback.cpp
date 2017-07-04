@@ -19,11 +19,6 @@ LiteScript::_Type_CALLBACK LiteScript::_type_callback;
 
 LiteScript::_Type_CALLBACK::_Type_CALLBACK() : Type("CALLBACK") {}
 
-void LiteScript::_Type_CALLBACK::CreateObject(LiteScript::Object& obj) {
-    obj.Reassign(Type::CALLBACK, sizeof(bool));
-    obj.GetData<bool>() = false;
-}
-
 LiteScript::Variable LiteScript::_Type_CALLBACK::Convert(const Variable &object, const Type &type) const {
     if (type == Type::BOOLEAN) {
         Variable result = object->memory.Create(Type::BOOLEAN);

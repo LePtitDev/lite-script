@@ -19,12 +19,6 @@ LiteScript::_Type_OBJECT LiteScript::_type_object;
 
 LiteScript::_Type_OBJECT::_Type_OBJECT() : Type("OBJECT") {}
 
-void LiteScript::_Type_OBJECT::CreateObject(Object &obj) {
-    obj.Reassign(*this, sizeof(VObject));
-    std::allocator<VObject> allocator;
-    allocator.construct(&obj.GetData<VObject>(), obj.memory);
-}
-
 LiteScript::Variable LiteScript::_Type_OBJECT::Convert(const Variable &object, const Type &type) const {
     if (type == Type::STRING) {
         Variable result = object->memory.Create(Type::STRING);

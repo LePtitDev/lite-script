@@ -1003,7 +1003,7 @@ namespace LiteScript {
         /**
          * Define a variable in the namespace
          */
-        bool DefineVariable(const char * name, const Variable& var);
+        bool DefineVariable(const char * name);
 
         /**
          * Get the variable count in the namespace

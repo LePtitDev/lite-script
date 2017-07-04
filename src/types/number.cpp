@@ -18,11 +18,6 @@ LiteScript::_Type_NUMBER LiteScript::_type_number;
 
 LiteScript::_Type_NUMBER::_Type_NUMBER() : Type("NUMBER") {}
 
-void LiteScript::_Type_NUMBER::CreateObject(LiteScript::Object& obj) {
-    obj.Reassign(Type::NUMBER, sizeof(Number));
-    obj.GetData<Number>() = Number(0);
-}
-
 LiteScript::Variable LiteScript::_Type_NUMBER::Convert(const LiteScript::Variable& obj, const LiteScript::Type& type) const {
     if (type == Type::BOOLEAN) {
         Variable res = obj->memory.Create(Type::BOOLEAN);

@@ -18,11 +18,6 @@ LiteScript::_Type_BOOLEAN LiteScript::_type_boolean;
 
 LiteScript::_Type_BOOLEAN::_Type_BOOLEAN() : Type("BOOLEAN") {}
 
-void LiteScript::_Type_BOOLEAN::CreateObject(LiteScript::Object& obj) {
-    obj.Reassign(Type::BOOLEAN, sizeof(bool));
-    obj.GetData<bool>() = false;
-}
-
 LiteScript::Variable LiteScript::_Type_BOOLEAN::Convert(const LiteScript::Variable& obj, const LiteScript::Type& type) const {
     if (type == Type::BOOLEAN) {
         Variable res = obj->memory.Create(Type::BOOLEAN);
@@ -43,6 +38,7 @@ LiteScript::Variable LiteScript::_Type_BOOLEAN::Convert(const LiteScript::Variab
         return obj->memory.Create(Type::NIL);
     }
 }
+
 LiteScript::Object& LiteScript::_Type_BOOLEAN::AssignObject(LiteScript::Object& obj) {
     obj.Reassign(*this, sizeof(bool));
     obj.GetData<bool>() = false;

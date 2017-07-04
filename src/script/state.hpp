@@ -43,13 +43,13 @@ namespace LiteScript {
         unsigned int line_num;
 
         // The pile of major namespaces
-        std::vector<Variable> nsp_major;
+        std::vector<Variable> nsp_list;
 
-        // The pile of minor namespaces
-        std::vector<Variable> nsp_minor;
+        // The global namespace
+        Variable nsp_global;
 
-        // The current namespace as object type
-        Variable nsp_current;
+        // The current namespace
+        Nullable<Variable> nsp_current;
 
         // The pile of arguments
         std::vector<std::vector<Variable>> args;
@@ -94,6 +94,29 @@ namespace LiteScript {
          * Execute a single instruction
          */
         void ExecuteSingle();
+
+        /**
+         * Execute a single instruction that isn't in the instructions lists
+         * (warning: need to be executed after all script execution)
+         *
+         * @param instr The instruction to execute
+         */
+        void ExecuteSingle(const Instruction& instr);
+
+        /**
+         * Find a variable by its name, search in :
+         * - the last namespace
+         * - the current namespace
+         * - the global if different
+         *
+         * @param name The name of the variable
+         */
+        Nullable<Variable> GetVariable(const char * name) const;
+
+        /**
+         * Return the current namespace
+         */
+        Variable GetCurrentNamespace() const;
 
     };
 

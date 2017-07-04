@@ -18,8 +18,9 @@ LiteScript::_Type_CHARACTER LiteScript::_type_character;
 
 LiteScript::_Type_CHARACTER::_Type_CHARACTER() : Type("CHARACTER") {}
 
-void LiteScript::_Type_CHARACTER::CreateObject(Object& obj) {
+LiteScript::Object& LiteScript::_Type_CHARACTER::AssignObject(Object& obj) {
     obj.Reassign(*this, sizeof(Character));
+    return obj;
 }
 
 LiteScript::Variable LiteScript::_Type_CHARACTER::Convert(const LiteScript::Variable& obj, const LiteScript::Type& type) const {

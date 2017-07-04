@@ -21,15 +21,36 @@ LiteScript::Instruction::Instruction(InstrCode code) :
 LiteScript::Instruction::Instruction(InstrCode code, bool val) :
     code(code), comp_type(CompType::COMP_TYPE_BOOLEAN) { this->comp_value.v_boolean = val; }
 LiteScript::Instruction::Instruction(InstrCode code, int val) :
-        code(code), comp_type(CompType::COMP_TYPE_INTEGER) { this->comp_value.v_integer = val; }
+    code(code), comp_type(CompType::COMP_TYPE_INTEGER) { this->comp_value.v_integer = val; }
 LiteScript::Instruction::Instruction(InstrCode code, float val) :
-        code(code), comp_type(CompType::COMP_TYPE_FLOAT) { this->comp_value.v_float = val; }
+    code(code), comp_type(CompType::COMP_TYPE_FLOAT) { this->comp_value.v_float = val; }
 LiteScript::Instruction::Instruction(InstrCode code, const char * val) :
-        code(code), comp_type(CompType::COMP_TYPE_STRING)
+    code(code), comp_type(CompType::COMP_TYPE_STRING)
 {
     unsigned int len = strlen(val) + 1;
     this->comp_value.v_string = new char[len];
     memcpy(this->comp_value.v_string, val, len);
+}
+LiteScript::Instruction::Instruction(const Instruction &i) :
+    code(i.code), comp_type(i.comp_type)
+{
+    unsigned int len;
+    switch (this->comp_type) {
+        case CompType::COMP_TYPE_BOOLEAN:
+            this->comp_value.v_boolean = i.comp_value.v_boolean;
+            break;
+        case CompType::COMP_TYPE_INTEGER:
+            this->comp_value.v_integer = i.comp_value.v_integer;
+            break;
+        case CompType::COMP_TYPE_FLOAT:
+            this->comp_value.v_float = i.comp_value.v_float;
+            break;
+        case CompType::COMP_TYPE_STRING:
+            len = strlen(i.comp_value.v_string) + 1;
+            this->comp_value.v_string = new char[len];
+            memcpy(this->comp_value.v_string, i.comp_value.v_string, len);
+            break;
+    }
 }
 
 LiteScript::Instruction::~Instruction() {

@@ -48,11 +48,9 @@ namespace LiteScript {
         VALUE_ARGS,
 
         // PILES MANAGEMENT
-        PUSH_MAJOR,
-        PUSH_MINOR,
+        PUSH_NSP,
         PUSH_ARGS,
-        POP_MAJOR,
-        POP_MINOR,
+        POP_NSP,
 
         // OPERATIONS
         // Assignation et unary operations
@@ -185,6 +183,9 @@ namespace LiteScript {
 
         // Constructor with string value
         Instruction(InstrCode code, const char * val);
+
+        // Copy constructor
+        Instruction(const Instruction& i);
 
         // Destructor
         ~Instruction();

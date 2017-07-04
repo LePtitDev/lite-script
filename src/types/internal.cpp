@@ -617,12 +617,12 @@ LiteScript::Namespace::Namespace(Memory &mem) : memory(mem) {}
 
 LiteScript::Namespace::Namespace(const Namespace &nsp) : memory(nsp.memory), vars(nsp.vars) {}
 
-bool LiteScript::Namespace::DefineVariable(const char *name, const Variable &var) {
+bool LiteScript::Namespace::DefineVariable(const char *name) {
     for (unsigned int i = 0, sz = this->vars.size(); i < sz; i++) {
         if (this->vars[i].first == name)
             return false;
     }
-    this->vars.push_back({ std::string(name), Variable(var) });
+    this->vars.push_back({ std::string(name), this->memory.Create(Type::NIL) });
     return true;
 }
 

@@ -39,11 +39,12 @@ namespace LiteScript {
         /////////////////////////////
 
         /**
-         * Create an empty object formated by this type
+         * Assign the referenced object by a namespace object
          *
-         * @param object An empty object
+         * @param object The referenced object
+         * @return The same object assigned
          */
-        void CreateObject(Object& obj) override;
+        Object& AssignObject(Object& object) override;
 
         ////// OPERATIONS //////
 
