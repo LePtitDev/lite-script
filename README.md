@@ -24,6 +24,7 @@ The objective is to create an alternative of current script engines and integrat
 * **callback** (need to complete le calling operator)
 * **array**
 * **namespace**
+* **class** (inherit, static elements, constructor and operator overloading)
 
 ## In future
 
@@ -33,7 +34,6 @@ The objective is to create an alternative of current script engines and integrat
 
 *Types to define :*
 
-* **class** (inherit, static elements, constructor and operator overloading)
 * **class object** (object created by a **class**)
 
 ## Example of Javascript like script
@@ -57,9 +57,9 @@ class Person : Alive, Human {
     	// Parent constructor
     	this.Alive();
         
-    	this.name;
-        this.age;
-        this.gender;
+    	this.name = name;
+        this.age = age;
+        this.gender = gender;
     }
     
     // Destructor ?

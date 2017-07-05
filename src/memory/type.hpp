@@ -48,6 +48,8 @@ namespace LiteScript {
         static Type& ARRAY;
         // Type "LiteScript::Class"
         static Type& CLASS;
+        // Type "LiteScript::ClassObject"
+        static Type& CLASS_OBJECT;
         // Type "LiteScript::Namespace"
         static Type& NAMESPACE;
 

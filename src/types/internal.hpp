@@ -970,6 +970,9 @@ namespace LiteScript {
     // Content of a class object
     class Class {
 
+    public:
+
+        // The operator type
         enum OperatorType {
             OP_ASSIGN,
 
@@ -1013,8 +1016,12 @@ namespace LiteScript {
             OP_MEMBER,
             OP_CALL,
 
+            OP_TOSTRING,
+
             OP_NUMBER
         };
+
+    private:
 
         ////////////////////////
         ////// ATTRIBUTES //////
@@ -1024,15 +1031,17 @@ namespace LiteScript {
         std::vector<Variable> inherit;
 
         // Static members
-        std::vector<Variable> s_members;
+        std::vector<std::pair<std::string, Variable>> s_members;
 
         // Unstatic members
-        std::vector<Variable> us_members;
+        std::vector<std::pair<std::string, Variable>> us_members;
 
         // Operators overloading
         std::array<Nullable<Variable>, OperatorType::OP_NUMBER> op_members;
 
     public:
+
+        Memory& memory;
 
         //////////////////////////
         ////// CONSTRUCTORS //////
@@ -1041,7 +1050,7 @@ namespace LiteScript {
         /**
          * Basic constructor of a class
          */
-        Class();
+        Class(Memory& memory);
 
         /**
          * Copy constructor
@@ -1051,6 +1060,143 @@ namespace LiteScript {
         /////////////////////
         ////// METHODS //////
         /////////////////////
+
+        /**
+         * Inherit the class by a parent
+         *
+         * @param v The parent class
+         */
+        void Inherit(const Variable& v);
+
+        /**
+         * Add a static member
+         *
+         * @param name The name of the member
+         * @param v The variable member
+         * @return true if success
+         */
+        bool AddStatic(const char * name, const Variable& v);
+
+        /**
+         * Add an unstatic member
+         *
+         * @param name The name of the member
+         * @param v The variable member
+         * @return true if success
+         */
+        bool AddUnstatic(const char * name, const Variable& v);
+
+        /**
+         * Add an unstatic member
+         *
+         * @param op The operator type
+         * @param v The variable member
+         * @return true if success
+         */
+        bool AddOperator(Class::OperatorType op, const Variable& v);
+
+        /**
+         * Get the static member
+         *
+         * @param name The name of the member
+         */
+        Variable GetStaticMember(const char * name);
+
+        /**
+         * Get the unstatic member
+         *
+         * @param name The name of the member
+         */
+        Variable GetUnstaticMember(const char * name);
+
+        /**
+         * Get the operator member
+         *
+         * @param op The operator type
+         */
+        Variable GetOperator(Class::OperatorType op);
+
+        /**
+         * Create an element by this class
+         *
+         * @param args Constructor arguments
+         */
+        Variable CreateElement(std::vector<Variable>& args);
+
+        // The equal comparison operator
+        bool operator==(const Class& c);
+
+        // The not equal comparison operator
+        bool operator!=(const Class& c);
+
+    };
+
+    // Content of class element
+    class ClassObject {
+
+        ////////////////////////
+        ////// ATTRIBUTES //////
+        ////////////////////////
+
+        // The member list
+        std::vector<std::pair<std::string, Variable>> members;
+
+    public:
+
+        // The base class
+        Nullable<Class> ClassBase;
+
+        //////////////////////////
+        ////// CONSTRUCTORS //////
+        //////////////////////////
+
+        /**
+         * Basic constructor
+         */
+        ClassObject();
+
+        /**
+         * Copy constructor
+         */
+        ClassObject(const ClassObject& c);
+
+        /////////////////////
+        ////// METHODS //////
+        /////////////////////
+
+        /**
+         * Add a member in the object
+         *
+         * @param name The name of member
+         * @param v The variable of member
+         */
+        void AddMember(const char * name, const Variable& v);
+
+        /**
+         * Get the members count
+         */
+        unsigned int GetMemberCount() const;
+
+        /**
+         * Get the member name at a specified index
+         *
+         * @param index The index of member
+         */
+        const char * GetMemberName(unsigned int index) const;
+
+        /**
+         * Get the member variable at a specified index
+         *
+         * @param index The index of member
+         */
+        Variable GetMemberVariable(unsigned int index) const;
+
+        /**
+         * Get a member by its name
+         *
+         * @param name The name of the member
+         */
+        Variable GetMember(const char * name);
 
     };
 

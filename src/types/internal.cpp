@@ -618,9 +618,134 @@ LiteScript::Variable LiteScript::Array::operator[](const char *name) {
 /****** CLASS CLASS ******/
 /*************************/
 
-LiteScript::Class::Class() {}
+LiteScript::Class::Class(Memory& memory) : memory(memory) {}
+LiteScript::Class::Class(const Class &c) :
+    inherit(c.inherit), s_members(c.s_members), us_members(c.us_members), op_members(c.op_members),
+    memory(c.memory)
+{
 
-LiteScript::Class::Class(const Class &c) {}
+}
+
+void LiteScript::Class::Inherit(const Variable &v) {
+    if (v->GetType() != Type::CLASS || this == &v->GetData<Class>())
+        return;
+    this->inherit.push_back(Variable(v));
+    const Class& C = v->GetData<Class>();
+    for (unsigned int i = 0, sz = C.s_members.size(); i < sz; i++)
+        this->AddStatic(C.s_members[i].first.c_str(), C.s_members[i].second);
+    for (unsigned int i = 0, sz = C.us_members.size(); i < sz; i++)
+        this->AddUnstatic(C.us_members[i].first.c_str(), C.us_members[i].second);
+}
+
+bool LiteScript::Class::AddStatic(const char *name, const Variable &v) {
+    for (unsigned int i = 0, sz = this->s_members.size(); i < sz; i++) {
+        if (this->s_members[i].first == name)
+            return false;
+    }
+    this->s_members.push_back({ std::string(name), Variable(v) });
+    return true;
+}
+
+bool LiteScript::Class::AddUnstatic(const char *name, const Variable &v) {
+    for (unsigned int i = 0, sz = this->us_members.size(); i < sz; i++) {
+        if (this->us_members[i].first == name)
+            return false;
+    }
+    this->us_members.push_back({ std::string(name), Variable(v) });
+    return true;
+}
+
+bool LiteScript::Class::AddOperator(Class::OperatorType op, const Variable &v) {
+    if (!this->op_members[op].isNull || v->GetType() != Type::CALLBACK)
+        return false;
+    this->op_members[op] = Nullable<Variable>(v);
+    return true;
+}
+
+LiteScript::Variable LiteScript::Class::GetStaticMember(const char *name) {
+    for (unsigned int i = 0, sz = this->s_members.size(); i < sz; i++) {
+        if (this->s_members[i].first == name)
+            return Variable(this->s_members[i].second);
+    }
+    return this->memory.Create(Type::UNDEFINED);
+}
+
+LiteScript::Variable LiteScript::Class::GetUnstaticMember(const char *name) {
+    for (unsigned int i = 0, sz = this->us_members.size(); i < sz; i++) {
+        if (this->us_members[i].first == name)
+            return Variable(this->us_members[i].second);
+    }
+    return this->memory.Create(Type::UNDEFINED);
+}
+
+LiteScript::Variable LiteScript::Class::GetOperator(Class::OperatorType op) {
+    if (!this->op_members[op].isNull)
+        return this->memory.Create(Type::UNDEFINED);
+    else
+        return Variable(this->op_members[op]);
+}
+
+LiteScript::Variable LiteScript::Class::CreateElement(std::vector<Variable>& args) {
+    Variable v = this->memory.Create(Type::CLASS_OBJECT);
+    ClassObject co = v->GetData<ClassObject>();
+    co.ClassBase = Nullable<Class>(*this);
+    for (unsigned int i = 0, sz = this->us_members.size(); i < sz; i++) {
+        if (this->us_members[i].second->GetType() != Type::CALLBACK)
+            co.AddMember(this->us_members[i].first.c_str(), this->us_members[i].second);
+    }
+    return v;
+}
+
+bool LiteScript::Class::operator==(const Class &c) {
+    for (unsigned int i = 0, sz = this->inherit.size(); i < sz; i++) {
+        if (this->inherit[i]->GetType() == Type::CLASS && this == &this->inherit[i]->GetData<Class>())
+            return true;
+    }
+    return false;
+}
+
+bool LiteScript::Class::operator!=(const Class &c) {
+    for (unsigned int i = 0, sz = this->inherit.size(); i < sz; i++) {
+        if (this->inherit[i]->GetType() == Type::CLASS && this == &this->inherit[i]->GetData<Class>())
+            return false;
+    }
+    return true;
+}
+
+/*******************************/
+/****** CLASS CLASSOBJECT ******/
+/*******************************/
+
+LiteScript::ClassObject::ClassObject() {}
+LiteScript::ClassObject::ClassObject(const ClassObject &c) :
+    ClassBase(c.ClassBase), members(c.members)
+{
+
+}
+
+void LiteScript::ClassObject::AddMember(const char *name, const Variable &v) {
+    this->members.push_back({ std::string(name), Variable(v) });
+}
+
+unsigned int LiteScript::ClassObject::GetMemberCount() const {
+    return this->members.size();
+}
+
+const char * LiteScript::ClassObject::GetMemberName(unsigned int index) const {
+    return this->members[index].first.c_str();
+}
+
+LiteScript::Variable LiteScript::ClassObject::GetMemberVariable(unsigned int index) const {
+    return Variable(this->members[index].second);
+}
+
+LiteScript::Variable LiteScript::ClassObject::GetMember(const char *name) {
+    for (unsigned int i = 0, sz = this->members.size(); i < sz; i++) {
+        if (this->members[i].first == name)
+            return Variable(this->members[i].second);
+    }
+    return this->ClassBase->GetUnstaticMember(name);
+}
 
 /*****************************/
 /****** CLASS NAMESPACE ******/

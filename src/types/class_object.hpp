@@ -12,21 +12,22 @@
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
-#ifndef LITESCRIPT_TYPES_CLASS_HPP
-#define LITESCRIPT_TYPES_CLASS_HPP
+#ifndef LITESCRIPT_CLASS_OBJECT_HPP
+#define LITESCRIPT_CLASS_OBJECT_HPP
 
 #include "../litescript.hpp"
 
 namespace LiteScript {
 
-    class _Type_CLASS : public Type {
+    // The derived type CLASS OBJECT
+    class _Type_CLASS_OBJECT : public Type {
 
     public:
 
         /**
          * Basic constructor
          */
-        _Type_CLASS();
+        _Type_CLASS_OBJECT();
 
         /**
          * Try to assign the objet referenced with default values of this type
@@ -35,24 +36,6 @@ namespace LiteScript {
          * @return The same object referenced
          */
         Object& AssignObject(Object& obj) override;
-
-        /**
-         * Assign an object with the content of an other object
-         *
-         * @param object_target The object which must be assign
-         * @param object_src The object which must be copied
-         * @return The object assigned referenced
-         */
-        Variable OAssign(Variable& object_target, const Variable& object_src) const override;
-
-        /**
-         * Return the result of calling operation
-         *
-         * @param object The callable object
-         * @param args The argument list
-         * @return The return result of calling operation
-         */
-        void OCall(Variable& object, std::vector<Variable>& args) const override;
 
         /**
          * Return a string for describe the content of the object referenced
@@ -64,8 +47,8 @@ namespace LiteScript {
 
     };
 
-    extern _Type_CLASS _type_class;
+    extern _Type_CLASS_OBJECT _type_class_object;
 
 }
 
-#endif //LITESCRIPT_CLASS_HPP
+#endif //LITESCRIPT_CLASS_OBJECT_HPP
