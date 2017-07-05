@@ -19,22 +19,26 @@
 
 LiteScript::State::State(Memory &memory) :
     instr_index(0), line_num(0), memory(memory),
-    nsp_global(memory.Create(Type::NAMESPACE))
+    nsp_global(memory.Create(Type::NAMESPACE)),
+    InstructionIndex(instr_index), InstructionLine(line_num)
 {
     this->nsp_current = this->nsp_global;
     this->instr.push_back(std::vector<Instruction>());
     this->args.push_back(std::vector<Variable>());
-    this->rets.push_back(this->memory.Create(Type::UNDEFINED));
+    this->ths.push_back(Nullable<Variable>(this->memory.Create(Type::UNDEFINED)));
+    this->rets.push_back(Nullable<Variable>(this->memory.Create(Type::UNDEFINED)));
 }
 
 LiteScript::State::State(Memory &memory, std::vector<Instruction> instrs) :
     instr_index(0), line_num(0), memory(memory),
-    nsp_global(memory.Create(Type::NAMESPACE))
+    nsp_global(memory.Create(Type::NAMESPACE)),
+    InstructionIndex(instr_index), InstructionLine(line_num)
 {
     this->nsp_current = this->nsp_global;
     this->instr.push_back(instrs);
     this->args.push_back(std::vector<Variable>());
-    this->rets.push_back(this->memory.Create(Type::UNDEFINED));
+    this->ths.push_back(Nullable<Variable>(this->memory.Create(Type::UNDEFINED)));
+    this->rets.push_back(Nullable<Variable>(this->memory.Create(Type::UNDEFINED)));
 }
 
 void LiteScript::State::Execute() {
@@ -123,6 +127,12 @@ void LiteScript::State::UseNamespace(const char *name) {
     this->nsp_current = *v;
 }
 
+void LiteScript::State::UseNamespace(const Variable& n) {
+    if (n->GetType() != Type::NAMESPACE)
+        return;
+    this->nsp_current = n;
+}
+
 unsigned int LiteScript::State::GetArgsCount() const {
     if (this->args.size() > 0)
         return this->args.end()->size();
@@ -135,4 +145,32 @@ LiteScript::Variable LiteScript::State::GetArg(unsigned int i) const {
         return Variable(this->args.end()->at(i));
     else
         return this->memory.Create(Type::UNDEFINED);
+}
+
+LiteScript::Nullable<LiteScript::Variable>& LiteScript::State::GetThis() {
+    return this->ths.back();
+}
+
+LiteScript::Nullable<LiteScript::Variable> & LiteScript::State::GetReturn() {
+    return this->rets.back();
+}
+
+void LiteScript::State::PushCall(unsigned int index, unsigned int line) {
+    this->call_lifo.push_back({ this->instr_index, this->line_num });
+    this->instr_index = index;
+    this->line_num = line;
+}
+
+void LiteScript::State::PopCall() {
+    if (this->call_lifo.size() == 0)
+        return;
+    std::array<unsigned int, 2>& cp = this->call_lifo.back();
+    this->instr_index = cp[0];
+    this->line_num = cp[1];
+    this->call_lifo.pop_back();
+}
+
+void LiteScript::State::JumpTo(unsigned int index, unsigned int line) {
+    this->instr_index = index;
+    this->line_num = line;
 }

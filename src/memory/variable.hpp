@@ -359,9 +359,8 @@ namespace LiteScript {
          * Apply calling operation
          *
          * @param args The argument list
-         * @return The result of operation
          */
-        Variable operator()(std::vector<Variable>& args);
+        void operator()(std::vector<Variable>& args);
 
         ////// STRING CONVERSION //////
 

@@ -93,7 +93,14 @@ namespace LiteScript {
          */
         Variable OBitwiseOr(const Variable& obj1, const Variable& obj2) const override;
 
-        // !!!!!! AJOUTER L'OPERATEUR OCall !!!!!!
+        /**
+         * Return the result of calling operation
+         *
+         * @param object The callable object
+         * @param args The argument list
+         * @return The return result of calling operation
+         */
+        void OCall(Variable& object, std::vector<Variable>& args) const override;
 
         /**
          * Create a string that contain the reference of the callback object

@@ -34,6 +34,7 @@ The objective is to create an alternative of current script engines and integrat
 *Types to define :*
 
 * **class** (inherit, static elements, constructor and operator overloading)
+* **class object** (object created by a **class**)
 
 ## Example of Javascript like script
 

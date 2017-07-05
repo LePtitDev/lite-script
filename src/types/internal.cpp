@@ -457,13 +457,15 @@ LiteScript::String& LiteScript::Character::operator*=(unsigned int nb) {
 LiteScript::Callback::Callback() : state(nullptr) {}
 
 LiteScript::Callback::Callback(const Callback &c) :
-    state(c.state), intrl_idx(c.intrl_idx), line_num(c.line_num), call_ptr(c.call_ptr)
+    state(c.state), intrl_idx(c.intrl_idx), line_num(c.line_num), call_ptr(c.call_ptr),
+    nsp(Nullable<Variable>(c.nsp))
 {
 
 }
 
 LiteScript::Callback::Callback(LiteScript::State &s, unsigned int i, unsigned int l) :
-    call_ptr(nullptr), state(&s), intrl_idx(i), line_num(l)
+    call_ptr(nullptr), state(&s), intrl_idx(i), line_num(l),
+    nsp(Nullable<Variable>(s.GetCurrentNamespace()))
 {
 
 }
@@ -501,9 +503,20 @@ bool LiteScript::Callback::operator!=(const Callback &c) const {
     return !(*this == c);
 }
 
-LiteScript::Variable LiteScript::Callback::operator()(std::vector<Variable> &args) {
-    // A COMPLETER
-    return this->call_ptr(*this->state, args); // A SUPPRIMER
+void LiteScript::Callback::operator()(std::vector<Variable> &args) {
+    if (this->state == nullptr)
+        return;
+
+    this->state->ExecuteSingle(Instruction(InstrCode::PUSH_NSP));
+    if (!this->This.isNull)
+        this->state->GetThis() = this->This;
+    if (this->call_ptr == nullptr) {
+        this->state->PushCall(this->state->InstructionIndex, this->state->InstructionLine + 1);
+    }
+    else {
+        this->state->GetReturn() = Nullable<Variable>(this->call_ptr(*this->state, args));
+        this->state->ExecuteSingle(Instruction(InstrCode::POP_NSP));
+    }
 }
 
 /****************************/

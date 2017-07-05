@@ -54,19 +54,32 @@ namespace LiteScript {
         // The LIFO of arguments
         std::vector<std::vector<Variable>> args;
 
+        // The LIFO of this
+        std::vector<Nullable<Variable>> ths;
+
         // The LIFO of returns
-        std::vector<Variable> rets;
+        std::vector<Nullable<Variable>> rets;
 
         // The LIFO of operations
         std::vector<Variable> op_lifo;
 
         // The LIFO of calling
-        std::vector<Callback> call_lifo;
+        std::vector<std::array<unsigned int, 2>> call_lifo;
 
     public:
 
         // The main memory
         Memory& memory;
+
+        ///////////////////////
+        ////// ACCESSORS //////
+        ///////////////////////
+
+        // The instructions list index
+        const unsigned int& InstructionIndex;
+
+        // The line in the instructions list
+        const unsigned int& InstructionLine;
 
         //////////////////////////
         ////// CONSTRUCTORS //////
@@ -132,6 +145,13 @@ namespace LiteScript {
         void UseNamespace(const char * name = "global");
 
         /**
+         * Change the current namespace
+         *
+         * @param n The target namespace
+         */
+        void UseNamespace(const Variable& n);
+
+        /**
          * Return the count of args in the top of LIFO
          */
         unsigned int GetArgsCount() const;
@@ -142,6 +162,37 @@ namespace LiteScript {
          * @param i The index of the argument
          */
         Variable GetArg(unsigned int i) const;
+
+        /**
+         * Get the current this
+         */
+        Nullable<Variable>& GetThis();
+
+        /**
+         * Get the current return
+         */
+        Nullable<Variable>& GetReturn();
+
+        /**
+         * Push the calling LIFO
+         *
+         * @param index The index of instructions list
+         * @param line The line in the instructions list
+         */
+        void PushCall(unsigned int index, unsigned int line);
+
+        /**
+         * Pop the calling LIFO
+         */
+        void PopCall();
+
+        /**
+         * Jump to an other instruction
+         *
+         * @param index The index of instructions list
+         * @param line The line in the instructions list
+         */
+        void JumpTo(unsigned int index, unsigned int line);
 
     };
 

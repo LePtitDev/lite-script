@@ -69,6 +69,7 @@ namespace LiteScript {
         static void I_VALUE_ARRAY(State&, Instruction&);
         static void I_VALUE_CLASS(State&, Instruction&);
         static void I_VALUE_ARGS(State&, Instruction&);
+        static void I_VALUE_THIS(State&, Instruction&);
 
         // PILES MANAGEMENT
         static void I_PUSH_NSP(State&, Instruction&);
@@ -138,6 +139,7 @@ namespace LiteScript {
         // Class
         static void I_CLASS_PUSH_STATIC(State&, Instruction&);
         static void I_CLASS_PUSH_USTATIC(State&, Instruction&);
+        static void I_CLASS_PUSH_OPERATOR(State&, Instruction&);
         static void I_CLASS_INHERIT(State&, Instruction&);
 
         // NAMESPACES

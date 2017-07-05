@@ -44,6 +44,7 @@ namespace LiteScript {
         VALUE_ARRAY,
         VALUE_CLASS,
         VALUE_ARGS,
+        VALUE_THIS,
 
         // PILES MANAGEMENT
         PUSH_NSP,
@@ -113,11 +114,11 @@ namespace LiteScript {
         // Class
         CLASS_PUSH_STATIC,
         CLASS_PUSH_USTATIC,
+        CLASS_PUSH_OPERATOR,
         CLASS_INHERIT,
 
         // NAMESPACES
         NAMESPACE_USE,
-        NAMESPACE_RESET,
 
         // INSTRUCTION_NUMBER
         INSTR_NUMBER

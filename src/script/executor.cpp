@@ -14,7 +14,6 @@
 /////////////////////////////////////////////////////////////////////
 
 #include "executor.hpp"
-#include "instruction.hpp"
 
 void LiteScript::StateExecutor::Execute(State &state, Instruction &instr) {
     StateExecutor::ARRAY[instr.code](state, instr);
@@ -37,6 +36,7 @@ std::array<void(*)(LiteScript::State&, LiteScript::Instruction&), LiteScript::In
     LiteScript::StateExecutor::I_VALUE_ARRAY,
     LiteScript::StateExecutor::I_VALUE_CLASS,
     LiteScript::StateExecutor::I_VALUE_ARGS,
+    LiteScript::StateExecutor::I_VALUE_THIS,
     
     LiteScript::StateExecutor::I_PUSH_NSP,
     LiteScript::StateExecutor::I_PUSH_ARGS,
@@ -93,6 +93,7 @@ std::array<void(*)(LiteScript::State&, LiteScript::Instruction&), LiteScript::In
 
     LiteScript::StateExecutor::I_CLASS_PUSH_STATIC,
     LiteScript::StateExecutor::I_CLASS_PUSH_USTATIC,
+    LiteScript::StateExecutor::I_CLASS_PUSH_OPERATOR,
     LiteScript::StateExecutor::I_CLASS_INHERIT,
 
     LiteScript::StateExecutor::I_NAMESPACE_USE
@@ -195,11 +196,16 @@ void LiteScript::StateExecutor::I_VALUE_ARGS(State& state, Instruction& instr) {
     for (unsigned int i = (unsigned int)instr.comp_value.v_integer, sz = state.GetArgsCount(); i < sz; i++)
         a[i] = state.GetArg(i);
 }
+void LiteScript::StateExecutor::I_VALUE_THIS(State& state, Instruction& instr) {
+    state.line_num++;
+    state.op_lifo.push_back(Variable(*state.ths.back()));
+}
 
 // PILES MANAGEMENT
 void LiteScript::StateExecutor::I_PUSH_NSP(State& state, Instruction& instr) {
     state.line_num++;
     state.nsp_list.push_back(state.memory.Create(Type::NAMESPACE));
+    state.ths.push_back(state.memory.Create(Type::UNDEFINED));
     state.rets.push_back(state.memory.Create(Type::UNDEFINED));
 }
 void LiteScript::StateExecutor::I_PUSH_ARGS(State& state, Instruction& instr) {
@@ -210,6 +216,12 @@ void LiteScript::StateExecutor::I_POP_NSP(State& state, Instruction& instr) {
     state.line_num++;
     if (state.nsp_list.size() > 0)
         state.nsp_list.pop_back();
+    if (state.ths.size() > 0)
+        state.ths.pop_back();
+    if (state.rets.size() > 0) {
+        state.op_lifo.push_back(Variable(state.rets.back()));
+        state.rets.pop_back();
+    }
 }
 void LiteScript::StateExecutor::I_POP_ARGS(State& state, Instruction& instr) {
     state.line_num++;
@@ -581,8 +593,7 @@ void LiteScript::StateExecutor::I_OP_CALL(State& state, Instruction& instr) {
         return;
     Variable v1(state.op_lifo.back());
     state.op_lifo.pop_back();
-    Variable result = v1(state.args.back());
-    state.op_lifo.push_back(result);
+    v1(state.args.back());
 }
 
 // CONTROL INSTRUCTIONS
@@ -639,6 +650,7 @@ void LiteScript::StateExecutor::I_ARRAY_PUSH_LITERAL(State& state, Instruction& 
 // Class  ------ A COMPLETER ------
 void LiteScript::StateExecutor::I_CLASS_PUSH_STATIC(State& state, Instruction& instr) {state.line_num++;}
 void LiteScript::StateExecutor::I_CLASS_PUSH_USTATIC(State& state, Instruction& instr) {state.line_num++;}
+void LiteScript::StateExecutor::I_CLASS_PUSH_OPERATOR(State& state, Instruction& instr) {state.line_num++;}
 void LiteScript::StateExecutor::I_CLASS_INHERIT(State& state, Instruction& instr) {state.line_num++;}
 
 // NAMESPACES

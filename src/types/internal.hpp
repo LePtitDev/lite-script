@@ -796,7 +796,13 @@ namespace LiteScript {
         // The internal callback
         Variable (* call_ptr)(State&, std::vector<Variable>&);
 
+        // The callback namespace
+        Nullable<Variable> nsp;
+
     public:
+
+        // The current this
+        Nullable<Variable> This;
 
         //////////////////////////
         ////// CONSTRUCTORS //////
@@ -848,7 +854,7 @@ namespace LiteScript {
         bool operator!=(const Callback& c) const;
 
         // The calling operator
-        Variable operator()(std::vector<Variable>& args);
+        void operator()(std::vector<Variable>& args);
 
     };
 
@@ -964,10 +970,87 @@ namespace LiteScript {
     // Content of a class object
     class Class {
 
+        enum OperatorType {
+            OP_ASSIGN,
+
+            OP_UNARY_PLUS,
+            OP_UNARY_MINUS,
+            OP_PRE_INCR,
+            OP_POST_INCR,
+            OP_PRE_DECR,
+            OP_POST_DECR,
+
+            OP_ADD,
+            OP_SUB,
+            OP_MUL,
+            OP_DIV,
+            OP_MOD,
+
+            OP_EQU,
+            OP_DIF,
+            OP_GREAT,
+            OP_LESS,
+            OP_GREAT_EQU,
+            OP_LESS_EQU,
+
+            OP_LOG_NOT,
+            OP_LOG_AND,
+            OP_LOG_OR,
+
+            OP_BIT_NOT,
+            OP_BIT_AND,
+            OP_BIT_OR,
+            OP_BIT_XOR,
+            OP_LSHIFT,
+            OP_RSHIFT,
+
+            OP_ADD_ASSIGN,
+            OP_SUB_ASSIGN,
+            OP_MUL_ASSIGN,
+            OP_DIV_ASSIGN,
+
+            OP_ARRAY,
+            OP_MEMBER,
+            OP_CALL,
+
+            OP_NUMBER
+        };
+
+        ////////////////////////
+        ////// ATTRIBUTES //////
+        ////////////////////////
+
+        // Classes inherited
+        std::vector<Variable> inherit;
+
+        // Static members
+        std::vector<Variable> s_members;
+
+        // Unstatic members
+        std::vector<Variable> us_members;
+
+        // Operators overloading
+        std::array<Nullable<Variable>, OperatorType::OP_NUMBER> op_members;
+
     public:
 
+        //////////////////////////
+        ////// CONSTRUCTORS //////
+        //////////////////////////
+
+        /**
+         * Basic constructor of a class
+         */
         Class();
+
+        /**
+         * Copy constructor
+         */
         Class(const Class& c);
+
+        /////////////////////
+        ////// METHODS //////
+        /////////////////////
 
     };
 
