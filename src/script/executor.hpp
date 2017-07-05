@@ -142,7 +142,6 @@ namespace LiteScript {
 
         // NAMESPACES
         static void I_NAMESPACE_USE(State&, Instruction&);
-        static void I_NAMESPACE_RESET(State&, Instruction&);
 
     };
 

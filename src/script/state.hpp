@@ -124,6 +124,14 @@ namespace LiteScript {
         Variable GetCurrentNamespace() const;
 
         /**
+         * Change the current namespace (if name == "global",
+         * the current namespace begin the global)
+         *
+         * @param name The name of the target namespace
+         */
+        void UseNamespace(const char * name = "global");
+
+        /**
          * Return the count of args in the top of LIFO
          */
         unsigned int GetArgsCount() const;
@@ -134,7 +142,6 @@ namespace LiteScript {
          * @param i The index of the argument
          */
         Variable GetArg(unsigned int i) const;
-
 
     };
 

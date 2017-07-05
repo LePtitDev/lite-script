@@ -91,6 +91,38 @@ LiteScript::Variable LiteScript::State::GetCurrentNamespace() const {
         return Variable(*this->nsp_current);
 }
 
+void LiteScript::State::UseNamespace(const char *name) {
+    std::string nsp(name);
+    if (nsp == "global") {
+        this->nsp_current = this->nsp_global;
+        return;
+    }
+    Nullable<Variable> v(this->nsp_global);
+    unsigned len = nsp.size() + 1;
+    nsp.clear();
+    for (unsigned int i = 0; i < len; i++) {
+        if (name[i] == '.' || name[i] == '\0') {
+            Namespace& tmp = (*v)->GetData<Namespace>();
+            int index = tmp.IndexOf(nsp.c_str());
+            if (index < 0) {
+                v = this->memory.Create(Type::NAMESPACE);
+                tmp.DefineVariable(nsp.c_str(), *v);
+            }
+            else {
+                v = tmp.GetVariable((unsigned int)index);
+                if ((*v)->GetType() != Type::NAMESPACE) {
+                    this->UseNamespace();
+                    return;
+                }
+            }
+        }
+        else {
+            nsp += name[i];
+        }
+    }
+    this->nsp_current = *v;
+}
+
 unsigned int LiteScript::State::GetArgsCount() const {
     if (this->args.size() > 0)
         return this->args.end()->size();

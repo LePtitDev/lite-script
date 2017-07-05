@@ -95,8 +95,7 @@ std::array<void(*)(LiteScript::State&, LiteScript::Instruction&), LiteScript::In
     LiteScript::StateExecutor::I_CLASS_PUSH_USTATIC,
     LiteScript::StateExecutor::I_CLASS_INHERIT,
 
-    LiteScript::StateExecutor::I_NAMESPACE_USE,
-    LiteScript::StateExecutor::I_NAMESPACE_RESET
+    LiteScript::StateExecutor::I_NAMESPACE_USE
 });
 
 /////////////////////////////
@@ -198,75 +197,454 @@ void LiteScript::StateExecutor::I_VALUE_ARGS(State& state, Instruction& instr) {
 }
 
 // PILES MANAGEMENT
-void LiteScript::StateExecutor::I_PUSH_NSP(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_PUSH_ARGS(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_POP_NSP(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_POP_ARGS(State& state, Instruction& instr) {}
+void LiteScript::StateExecutor::I_PUSH_NSP(State& state, Instruction& instr) {
+    state.line_num++;
+    state.nsp_list.push_back(state.memory.Create(Type::NAMESPACE));
+    state.rets.push_back(state.memory.Create(Type::UNDEFINED));
+}
+void LiteScript::StateExecutor::I_PUSH_ARGS(State& state, Instruction& instr) {
+    state.line_num++;
+    state.args.push_back(std::vector<Variable>());
+}
+void LiteScript::StateExecutor::I_POP_NSP(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.nsp_list.size() > 0)
+        state.nsp_list.pop_back();
+}
+void LiteScript::StateExecutor::I_POP_ARGS(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.args.size() > 0)
+        state.args.pop_back();
+}
 
 // OPERATIONS
 // Assignation et unary operations
-void LiteScript::StateExecutor::I_OP_ASSIGN(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_OP_UNARY_PLUS(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_OP_UNARY_MINUS(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_OP_PRE_INCR(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_OP_POST_INCR(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_OP_PRE_DECR(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_OP_POST_DECR(State& state, Instruction& instr) {}
+void LiteScript::StateExecutor::I_OP_ASSIGN(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() < 2)
+        return;
+    Variable v1(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable v2(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable result = (v1 = v2);
+    state.op_lifo.push_back(result);
+}
+void LiteScript::StateExecutor::I_OP_UNARY_PLUS(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() < 1)
+        return;
+    Variable v1(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable result = +v1;
+    state.op_lifo.push_back(result);
+}
+void LiteScript::StateExecutor::I_OP_UNARY_MINUS(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() < 1)
+        return;
+    Variable v1(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable result = -v1;
+    state.op_lifo.push_back(result);
+}
+void LiteScript::StateExecutor::I_OP_PRE_INCR(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() < 1)
+        return;
+    Variable v1(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable result = ++v1;
+    state.op_lifo.push_back(result);
+}
+void LiteScript::StateExecutor::I_OP_POST_INCR(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() < 1)
+        return;
+    Variable v1(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable result = v1++;
+    state.op_lifo.push_back(result);
+}
+void LiteScript::StateExecutor::I_OP_PRE_DECR(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() < 1)
+        return;
+    Variable v1(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable result = --v1;
+    state.op_lifo.push_back(result);
+}
+void LiteScript::StateExecutor::I_OP_POST_DECR(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() < 1)
+        return;
+    Variable v1(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable result = v1--;
+    state.op_lifo.push_back(result);
+}
 
 // Arithmetic operations
-void LiteScript::StateExecutor::I_OP_ADD(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_OP_SUB(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_OP_MUL(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_OP_DIV(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_OP_MOD(State& state, Instruction& instr) {}
+void LiteScript::StateExecutor::I_OP_ADD(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() < 2)
+        return;
+    Variable v1(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable v2(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable result = v1 + v2;
+    state.op_lifo.push_back(result);
+}
+void LiteScript::StateExecutor::I_OP_SUB(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() < 2)
+        return;
+    Variable v1(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable v2(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable result = v1 - v2;
+    state.op_lifo.push_back(result);
+}
+void LiteScript::StateExecutor::I_OP_MUL(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() < 2)
+        return;
+    Variable v1(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable v2(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable result = v1 * v2;
+    state.op_lifo.push_back(result);
+}
+void LiteScript::StateExecutor::I_OP_DIV(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() < 2)
+        return;
+    Variable v1(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable v2(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable result = v1 / v2;
+    state.op_lifo.push_back(result);
+}
+void LiteScript::StateExecutor::I_OP_MOD(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() < 2)
+        return;
+    Variable v1(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable v2(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable result = v1 % v2;
+    state.op_lifo.push_back(result);
+}
 
 // Comparison
-void LiteScript::StateExecutor::I_OP_EQU(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_OP_DIF(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_OP_GREAT(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_OP_LESS(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_OP_GREAT_EQU(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_OP_LESS_EQU(State& state, Instruction& instr) {}
+void LiteScript::StateExecutor::I_OP_EQU(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() < 2)
+        return;
+    Variable v1(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable v2(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable result = (v1 == v2);
+    state.op_lifo.push_back(result);
+}
+void LiteScript::StateExecutor::I_OP_DIF(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() < 2)
+        return;
+    Variable v1(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable v2(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable result = (v1 != v2);
+    state.op_lifo.push_back(result);
+}
+void LiteScript::StateExecutor::I_OP_GREAT(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() < 2)
+        return;
+    Variable v1(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable v2(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable result = (v1 > v2);
+    state.op_lifo.push_back(result);
+}
+void LiteScript::StateExecutor::I_OP_LESS(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() < 2)
+        return;
+    Variable v1(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable v2(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable result = (v1 < v2);
+    state.op_lifo.push_back(result);
+}
+void LiteScript::StateExecutor::I_OP_GREAT_EQU(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() < 2)
+        return;
+    Variable v1(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable v2(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable result = (v1 >= v2);
+    state.op_lifo.push_back(result);
+}
+void LiteScript::StateExecutor::I_OP_LESS_EQU(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() < 2)
+        return;
+    Variable v1(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable v2(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable result = (v1 <= v2);
+    state.op_lifo.push_back(result);
+}
 
 // Logical operation
-void LiteScript::StateExecutor::I_OP_LOG_NOT(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_OP_LOG_AND(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_OP_LOG_OR(State& state, Instruction& instr) {}
+void LiteScript::StateExecutor::I_OP_LOG_NOT(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() < 1)
+        return;
+    Variable v1(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable result = (!v1);
+    state.op_lifo.push_back(result);
+}
+void LiteScript::StateExecutor::I_OP_LOG_AND(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() < 2)
+        return;
+    Variable v1(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable v2(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable result = (v1 && v2);
+    state.op_lifo.push_back(result);
+}
+void LiteScript::StateExecutor::I_OP_LOG_OR(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() < 2)
+        return;
+    Variable v1(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable v2(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable result = (v1 || v2);
+    state.op_lifo.push_back(result);
+}
 
 // Binary operations
-void LiteScript::StateExecutor::I_OP_BIT_NOT(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_OP_BIT_AND(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_OP_BIT_OR(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_OP_BIT_XOR(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_OP_LSHIFT(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_OP_RSHIFT(State& state, Instruction& instr) {}
+void LiteScript::StateExecutor::I_OP_BIT_NOT(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() < 1)
+        return;
+    Variable v1(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable result = (~v1);
+    state.op_lifo.push_back(result);
+}
+void LiteScript::StateExecutor::I_OP_BIT_AND(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() < 2)
+        return;
+    Variable v1(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable v2(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable result = (v1 & v2);
+    state.op_lifo.push_back(result);
+}
+void LiteScript::StateExecutor::I_OP_BIT_OR(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() < 2)
+        return;
+    Variable v1(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable v2(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable result = (v1 | v2);
+    state.op_lifo.push_back(result);
+}
+void LiteScript::StateExecutor::I_OP_BIT_XOR(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() < 2)
+        return;
+    Variable v1(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable v2(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable result = (v1 ^ v2);
+    state.op_lifo.push_back(result);
+}
+void LiteScript::StateExecutor::I_OP_LSHIFT(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() < 2)
+        return;
+    Variable v1(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable v2(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable result = (v1 << v2);
+    state.op_lifo.push_back(result);
+}
+void LiteScript::StateExecutor::I_OP_RSHIFT(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() < 2)
+        return;
+    Variable v1(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable v2(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable result = (v1 >> v2);
+    state.op_lifo.push_back(result);
+}
 
 // Arithmetic and assignation
-void LiteScript::StateExecutor::I_OP_ADD_ASSIGN(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_OP_SUB_ASSIGN(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_OP_MUL_ASSIGN(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_OP_DIV_ASSIGN(State& state, Instruction& instr) {}
+void LiteScript::StateExecutor::I_OP_ADD_ASSIGN(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() < 2)
+        return;
+    Variable v1(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable v2(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable result = (v1 += v2);
+    state.op_lifo.push_back(result);}
+void LiteScript::StateExecutor::I_OP_SUB_ASSIGN(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() < 2)
+        return;
+    Variable v1(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable v2(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable result = (v1 -= v2);
+    state.op_lifo.push_back(result);
+}
+void LiteScript::StateExecutor::I_OP_MUL_ASSIGN(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() < 2)
+        return;
+    Variable v1(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable v2(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable result = (v1 *= v2);
+    state.op_lifo.push_back(result);
+}
+void LiteScript::StateExecutor::I_OP_DIV_ASSIGN(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() < 2)
+        return;
+    Variable v1(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable v2(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable result = (v1 /= v2);
+    state.op_lifo.push_back(result);
+}
 
 // Special operations
-void LiteScript::StateExecutor::I_OP_ARRAY(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_OP_MEMBER(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_OP_CALL(State& state, Instruction& instr) {}
+void LiteScript::StateExecutor::I_OP_ARRAY(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() < 2)
+        return;
+    Variable v1(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable v2(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable result = v1[v2];
+    state.op_lifo.push_back(result);
+}
+void LiteScript::StateExecutor::I_OP_MEMBER(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() < 1 || instr.comp_type != Instruction::CompType::COMP_TYPE_STRING)
+        return;
+    Variable v1(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable result = v1.GetMember(instr.comp_value.v_string);
+    state.op_lifo.push_back(result);
+}
+void LiteScript::StateExecutor::I_OP_CALL(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() < 1)
+        return;
+    Variable v1(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable result = v1(state.args.back());
+    state.op_lifo.push_back(result);
+}
 
 // CONTROL INSTRUCTIONS
-void LiteScript::StateExecutor::I_JUMP_TO(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_JUMP_IF(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_JUMP_ELSE(State& state, Instruction& instr) {}
+void LiteScript::StateExecutor::I_JUMP_TO(State& state, Instruction& instr) {
+    state.line_num++;
+    if (instr.comp_type != Instruction::CompType::COMP_TYPE_INTEGER)
+        return;
+    state.line_num = (unsigned int)instr.comp_value.v_integer;
+}
+void LiteScript::StateExecutor::I_JUMP_IF(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() < 1 || instr.comp_type != Instruction::CompType::COMP_TYPE_INTEGER)
+        return;
+    Variable v1(state.op_lifo.back().Convert(Type::BOOLEAN));
+    state.op_lifo.pop_back();
+    if (v1->GetType() == Type::BOOLEAN && v1->GetData<bool>())
+        state.line_num = (unsigned int) instr.comp_value.v_integer;
+}
+void LiteScript::StateExecutor::I_JUMP_ELSE(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() < 1 || instr.comp_type != Instruction::CompType::COMP_TYPE_INTEGER)
+        return;
+    Variable v1(state.op_lifo.back().Convert(Type::BOOLEAN));
+    state.op_lifo.pop_back();
+    if (v1->GetType() == Type::BOOLEAN && !v1->GetData<bool>())
+        state.line_num = (unsigned int) instr.comp_value.v_integer;
+}
 
 // COMPLEX VALUES COMPLETION
 // Array
-void LiteScript::StateExecutor::I_ARRAY_PUSH_NUMERIC(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_ARRAY_PUSH_LITERAL(State& state, Instruction& instr) {}
+void LiteScript::StateExecutor::I_ARRAY_PUSH_NUMERIC(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() < 1 || instr.comp_type != Instruction::CompType::COMP_TYPE_INTEGER)
+        return;
+    Variable v2(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable v1(state.op_lifo.back());
+    if (v1->GetType() != Type::ARRAY)
+        return;
+    v1->GetData<Array>()[(unsigned int)instr.comp_value.v_integer] = v2;
+}
+void LiteScript::StateExecutor::I_ARRAY_PUSH_LITERAL(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() < 1 || instr.comp_type != Instruction::CompType::COMP_TYPE_STRING)
+        return;
+    Variable v2(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    Variable v1(state.op_lifo.back());
+    if (v1->GetType() != Type::ARRAY)
+        return;
+    v1->GetData<Array>()[instr.comp_value.v_string] = v2;
+}
 
-// Class
-void LiteScript::StateExecutor::I_CLASS_PUSH_STATIC(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_CLASS_PUSH_USTATIC(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_CLASS_INHERIT(State& state, Instruction& instr) {}
+// Class  ------ A COMPLETER ------
+void LiteScript::StateExecutor::I_CLASS_PUSH_STATIC(State& state, Instruction& instr) {state.line_num++;}
+void LiteScript::StateExecutor::I_CLASS_PUSH_USTATIC(State& state, Instruction& instr) {state.line_num++;}
+void LiteScript::StateExecutor::I_CLASS_INHERIT(State& state, Instruction& instr) {state.line_num++;}
 
 // NAMESPACES
-void LiteScript::StateExecutor::I_NAMESPACE_USE(State& state, Instruction& instr) {}
-void LiteScript::StateExecutor::I_NAMESPACE_RESET(State& state, Instruction& instr) {}
+void LiteScript::StateExecutor::I_NAMESPACE_USE(State& state, Instruction& instr) {
+    state.line_num++;
+    if (instr.comp_type != Instruction::CompType::COMP_TYPE_STRING)
+        return;
+    state.UseNamespace(instr.comp_value.v_string);
+}

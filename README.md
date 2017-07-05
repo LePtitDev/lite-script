@@ -11,6 +11,8 @@ The objective is to create an alternative of current script engines and integrat
 * class **Variable** (reference an **Object** in the memory)
 * class **Memory** (contain all **Object**s)
 * class **Type** (*abstract* : define all operations for every variable type)
+* class/structure **Instruction** (a reduced instruction)
+* class **State** (contain the script/assembler state)
 
 *Types currently defined :*
 
@@ -25,8 +27,6 @@ The objective is to create an alternative of current script engines and integrat
 
 ## In future
 
-* class/structure **Instruction** (a reduced instruction)
-* class **State** (contain the script/assembler state)
 * Garbage collector *mark and sweep* (**Variable**s contain also a reference counter)
 * Assembler script language
 * Javascript like object-oriented language
