@@ -666,6 +666,13 @@ bool LiteScript::Class::AddOperator(OperatorType op, const Variable &v) {
     return true;
 }
 
+bool LiteScript::Class::AddOperator(unsigned int op, const Variable &v) {
+    if (op >= OperatorType::OP_TYPE_NUMBER || !this->op_members[op].isNull || v->GetType() != Type::CALLBACK)
+        return false;
+    this->op_members[op] = Nullable<Variable>(v);
+    return true;
+}
+
 LiteScript::Variable LiteScript::Class::GetStaticMember(const char *name) const {
     for (unsigned int i = 0, sz = this->s_members.size(); i < sz; i++) {
         if (this->s_members[i].first == name)

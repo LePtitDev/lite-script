@@ -1093,6 +1093,15 @@ namespace LiteScript {
         bool AddOperator(OperatorType op, const Variable& v);
 
         /**
+         * Add an unstatic member
+         *
+         * @param op The operator type
+         * @param v The variable member
+         * @return true if success
+         */
+        bool AddOperator(unsigned int op, const Variable& v);
+
+        /**
          * Get the static member
          *
          * @param name The name of the member
