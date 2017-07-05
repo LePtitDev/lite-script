@@ -25,6 +25,7 @@ The objective is to create an alternative of current script engines and integrat
 * **array**
 * **namespace**
 * **class** (inherit, static elements, constructor and operator overloading)
+* **class object** (object created by a **class**)
 
 ## In future
 
@@ -32,9 +33,15 @@ The objective is to create an alternative of current script engines and integrat
 * Assembler script language
 * Javascript like object-oriented language
 
-*Types to define :*
+## Problems to resolve
 
-* **class object** (object created by a **class**)
+* Members copy when **class object** creation
+* The constructor **class** problem because unamed
+
+## Possible features
+
+* The type **regex**
+* **State**, **Memory** and **Instruction** saves
 
 ## Example of Javascript like script
 

@@ -31,8 +31,8 @@ LiteScript::Variable LiteScript::_Type_CLASS::OAssign(Variable &src, const Varia
     return Variable(src);
 }
 
-void LiteScript::_Type_CLASS::OCall(Variable &object, std::vector<Variable> &args) const {
-    object->GetData<Class>().CreateElement(args);
+LiteScript::Variable LiteScript::_Type_CLASS::OCall(Variable &object, std::vector<Variable> &args) const {
+    return object->GetData<Class>().CreateElement(args);
 }
 
 std::string LiteScript::_Type_CLASS::ToString(const Variable &object) const {

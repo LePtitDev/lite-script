@@ -100,7 +100,7 @@ namespace LiteScript {
          * @param args The argument list
          * @return The return result of calling operation
          */
-        void OCall(Variable& object, std::vector<Variable>& args) const override;
+        Variable OCall(Variable& object, std::vector<Variable>& args) const override;
 
         /**
          * Create a string that contain the reference of the callback object

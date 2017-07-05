@@ -60,6 +60,7 @@ namespace LiteScript {
         static void I_DEFINE_RETURN(State&, Instruction&);
 
         // VALUE CREATIONS
+        static void I_VALUE_POP(State&, Instruction&);
         static void I_VALUE_UNDEFINED(State&, Instruction&);
         static void I_VALUE_NULL(State&, Instruction&);
         static void I_VALUE_BOOLEAN(State&, Instruction&);

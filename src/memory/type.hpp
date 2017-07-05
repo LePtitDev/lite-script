@@ -505,7 +505,7 @@ namespace LiteScript {
          * @param args The argument list
          * @return The return result of calling operation
          */
-        virtual void OCall(Variable& object, std::vector<Variable>& args) const;
+        virtual Variable OCall(Variable& object, std::vector<Variable>& args) const;
 
 
         // !!!!!!!!!!!!!!!!!!!!!!!!!! TO HERE !!!!!!!!!!!!!!!!!!!!!!!!!!!

@@ -503,25 +503,29 @@ bool LiteScript::Callback::operator!=(const Callback &c) const {
     return !(*this == c);
 }
 
-void LiteScript::Callback::operator()(std::vector<Variable> &args) {
+LiteScript::Variable LiteScript::Callback::operator()(std::vector<Variable> &args) {
     if (this->state == nullptr)
-        return;
+        return this->state->memory.Create(Type::UNDEFINED);
 
-    this->state->ExecuteSingle(Instruction(InstrCode::PUSH_NSP));
+    this->state->ExecuteSingle(Instruction(InstrCode::INSTR_PUSH_NSP));
     if (!this->This.isNull)
         this->state->GetThis() = this->This;
     if (this->call_ptr == nullptr) {
         this->state->PushCall(this->state->InstructionIndex, this->state->InstructionLine + 1);
+        return this->state->memory.Create(Type::UNDEFINED);
     }
     else {
-        this->state->GetReturn() = Nullable<Variable>(this->call_ptr(*this->state, args));
-        this->state->ExecuteSingle(Instruction(InstrCode::POP_NSP));
+        Variable result = this->call_ptr(*this->state, args);
+        this->state->ExecuteSingle(Instruction(InstrCode::INSTR_VALUE_UNDEFINED));
+        this->state->ExecuteSingle(Instruction(InstrCode::INSTR_POP_NSP));
+        this->state->ExecuteSingle(Instruction(InstrCode::INSTR_VALUE_POP));
+        return result;
     }
 }
 
-/****************************/
-/****** CLASS CALLBACK ******/
-/****************************/
+/*************************/
+/****** CLASS ARRAY ******/
+/*************************/
 
 LiteScript::Array::Array(Memory& mem) : memory(mem) {}
 
@@ -655,14 +659,14 @@ bool LiteScript::Class::AddUnstatic(const char *name, const Variable &v) {
     return true;
 }
 
-bool LiteScript::Class::AddOperator(Class::OperatorType op, const Variable &v) {
+bool LiteScript::Class::AddOperator(OperatorType op, const Variable &v) {
     if (!this->op_members[op].isNull || v->GetType() != Type::CALLBACK)
         return false;
     this->op_members[op] = Nullable<Variable>(v);
     return true;
 }
 
-LiteScript::Variable LiteScript::Class::GetStaticMember(const char *name) {
+LiteScript::Variable LiteScript::Class::GetStaticMember(const char *name) const {
     for (unsigned int i = 0, sz = this->s_members.size(); i < sz; i++) {
         if (this->s_members[i].first == name)
             return Variable(this->s_members[i].second);
@@ -670,7 +674,7 @@ LiteScript::Variable LiteScript::Class::GetStaticMember(const char *name) {
     return this->memory.Create(Type::UNDEFINED);
 }
 
-LiteScript::Variable LiteScript::Class::GetUnstaticMember(const char *name) {
+LiteScript::Variable LiteScript::Class::GetUnstaticMember(const char *name) const {
     for (unsigned int i = 0, sz = this->us_members.size(); i < sz; i++) {
         if (this->us_members[i].first == name)
             return Variable(this->us_members[i].second);
@@ -678,11 +682,11 @@ LiteScript::Variable LiteScript::Class::GetUnstaticMember(const char *name) {
     return this->memory.Create(Type::UNDEFINED);
 }
 
-LiteScript::Variable LiteScript::Class::GetOperator(Class::OperatorType op) {
+LiteScript::Variable LiteScript::Class::GetOperator(OperatorType op) const {
     if (!this->op_members[op].isNull)
         return this->memory.Create(Type::UNDEFINED);
     else
-        return Variable(this->op_members[op]);
+        return Variable(*this->op_members[op]);
 }
 
 LiteScript::Variable LiteScript::Class::CreateElement(std::vector<Variable>& args) {
@@ -696,7 +700,7 @@ LiteScript::Variable LiteScript::Class::CreateElement(std::vector<Variable>& arg
     return v;
 }
 
-bool LiteScript::Class::operator==(const Class &c) {
+bool LiteScript::Class::operator==(const Class &c) const {
     for (unsigned int i = 0, sz = this->inherit.size(); i < sz; i++) {
         if (this->inherit[i]->GetType() == Type::CLASS && this == &this->inherit[i]->GetData<Class>())
             return true;
@@ -704,7 +708,7 @@ bool LiteScript::Class::operator==(const Class &c) {
     return false;
 }
 
-bool LiteScript::Class::operator!=(const Class &c) {
+bool LiteScript::Class::operator!=(const Class &c) const {
     for (unsigned int i = 0, sz = this->inherit.size(); i < sz; i++) {
         if (this->inherit[i]->GetType() == Type::CLASS && this == &this->inherit[i]->GetData<Class>())
             return false;

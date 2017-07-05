@@ -81,8 +81,8 @@ LiteScript::Variable LiteScript::_Type_CALLBACK::OBitwiseOr(const Variable &obj1
     return Variable(obj1);
 }
 
-void LiteScript::_Type_CALLBACK::OCall(Variable &object, std::vector<Variable> &args) const {
-    (object->GetData<Callback>())(args);
+LiteScript::Variable LiteScript::_Type_CALLBACK::OCall(Variable &object, std::vector<Variable> &args) const {
+    return (object->GetData<Callback>())(args);
 }
 
 std::string LiteScript::_Type_CALLBACK::ToString(const Variable &object) const {

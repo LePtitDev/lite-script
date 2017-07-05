@@ -27,6 +27,7 @@ std::array<void(*)(LiteScript::State&, LiteScript::Instruction&), LiteScript::In
     LiteScript::StateExecutor::I_DEFINE_ARG,
     LiteScript::StateExecutor::I_DEFINE_RETURN,
 
+    LiteScript::StateExecutor::I_VALUE_POP,
     LiteScript::StateExecutor::I_VALUE_UNDEFINED,
     LiteScript::StateExecutor::I_VALUE_NULL,
     LiteScript::StateExecutor::I_VALUE_BOOLEAN,
@@ -138,6 +139,11 @@ void LiteScript::StateExecutor::I_DEFINE_RETURN(State& state, Instruction& instr
 }
 
 // VALUE CREATIONS
+void LiteScript::StateExecutor::I_VALUE_POP(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() > 0)
+        state.op_lifo.pop_back();
+}
 void LiteScript::StateExecutor::I_VALUE_UNDEFINED(State& state, Instruction& instr) {
     state.line_num++;
     state.op_lifo.push_back(state.memory.Create(Type::UNDEFINED));

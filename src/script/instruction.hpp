@@ -27,98 +27,99 @@ namespace LiteScript {
     // Instruction codes
     enum InstrCode {
         // INVALID
-        INVALID,
+        INSTR_INVALID,
 
         // DEFINITIONS
-        DEFINE_VARIABLE,
-        DEFINE_ARG,
-        DEFINE_RETURN,
+        INSTR_DEFINE_VARIABLE,
+        INSTR_DEFINE_ARG,
+        INSTR_DEFINE_RETURN,
 
         // VALUE CREATIONS
-        VALUE_UNDEFINED,
-        VALUE_NULL,
-        VALUE_BOOLEAN,
-        VALUE_NUMBER,
-        VALUE_STRING,
-        VALUE_CALLBACK,
-        VALUE_ARRAY,
-        VALUE_CLASS,
-        VALUE_ARGS,
-        VALUE_THIS,
+        INSTR_VALUE_POP,
+        INSTR_VALUE_UNDEFINED,
+        INSTR_VALUE_NULL,
+        INSTR_VALUE_BOOLEAN,
+        INSTR_VALUE_NUMBER,
+        INSTR_VALUE_STRING,
+        INSTR_VALUE_CALLBACK,
+        INSTR_VALUE_ARRAY,
+        INSTR_VALUE_CLASS,
+        INSTR_VALUE_ARGS,
+        INSTR_VALUE_THIS,
 
         // PILES MANAGEMENT
-        PUSH_NSP,
-        PUSH_ARGS,
-        POP_NSP,
-        POP_AGRS,
+        INSTR_PUSH_NSP,
+        INSTR_PUSH_ARGS,
+        INSTR_POP_NSP,
+        INSTR_POP_AGRS,
 
         // OPERATIONS
         // Assignation et unary operations
-        OP_ASSIGN,
-        OP_UNARY_PLUS,
-        OP_UNARY_MINUS,
-        OP_PRE_INCR,
-        OP_POST_INCR,
-        OP_PRE_DECR,
-        OP_POST_DECR,
+        INSTR_OP_ASSIGN,
+        INSTR_OP_UNARY_PLUS,
+        INSTR_OP_UNARY_MINUS,
+        INSTR_OP_PRE_INCR,
+        INSTR_OP_POST_INCR,
+        INSTR_OP_PRE_DECR,
+        INSTR_OP_POST_DECR,
 
         // Arithmetic operations
-        OP_ADD,
-        OP_SUB,
-        OP_MUL,
-        OP_DIV,
-        OP_MOD,
+        INSTR_OP_ADD,
+        INSTR_OP_SUB,
+        INSTR_OP_MUL,
+        INSTR_OP_DIV,
+        INSTR_OP_MOD,
 
         // Comparison
-        OP_EQU,
-        OP_DIF,
-        OP_GREAT,
-        OP_LESS,
-        OP_GREAT_EQU,
-        OP_LESS_EQU,
+        INSTR_OP_EQU,
+        INSTR_OP_DIF,
+        INSTR_OP_GREAT,
+        INSTR_OP_LESS,
+        INSTR_OP_GREAT_EQU,
+        INSTR_OP_LESS_EQU,
 
         // Logical operation
-        OP_LOG_NOT,
-        OP_LOG_AND,
-        OP_LOG_OR,
+        INSTR_OP_LOG_NOT,
+        INSTR_OP_LOG_AND,
+        INSTR_OP_LOG_OR,
 
         // Binary operations
-        OP_BIT_NOT,
-        OP_BIT_AND,
-        OP_BIT_OR,
-        OP_BIT_XOR,
-        OP_LSHIFT,
-        OP_RSHIFT,
+        INSTR_OP_BIT_NOT,
+        INSTR_OP_BIT_AND,
+        INSTR_OP_BIT_OR,
+        INSTR_OP_BIT_XOR,
+        INSTR_OP_LSHIFT,
+        INSTR_OP_RSHIFT,
 
         // Arithmetic and assignation
-        OP_ADD_ASSIGN,
-        OP_SUB_ASSIGN,
-        OP_MUL_ASSIGN,
-        OP_DIV_ASSIGN,
+        INSTR_OP_ADD_ASSIGN,
+        INSTR_OP_SUB_ASSIGN,
+        INSTR_OP_MUL_ASSIGN,
+        INSTR_OP_DIV_ASSIGN,
 
         // Special operations
-        OP_ARRAY,
-        OP_MEMBER,
-        OP_CALL,
+        INSTR_OP_ARRAY,
+        INSTR_OP_MEMBER,
+        INSTR_OP_CALL,
 
         // CONTROL INSTRUCTIONS
-        JUMP_TO,
-        JUMP_IF,
-        JUMP_ELSE,
+        INSTR_JUMP_TO,
+        INSTR_JUMP_IF,
+        INSTR_JUMP_ELSE,
 
         // COMPLEX VALUES COMPLETION
         // Array
-        ARRAY_PUSH_NUMERIC,
-        ARRAY_PUSH_LITERAL,
+        INSTR_ARRAY_PUSH_NUMERIC,
+        INSTR_ARRAY_PUSH_LITERAL,
 
         // Class
-        CLASS_PUSH_STATIC,
-        CLASS_PUSH_USTATIC,
-        CLASS_PUSH_OPERATOR,
-        CLASS_INHERIT,
+        INSTR_CLASS_PUSH_STATIC,
+        INSTR_CLASS_PUSH_USTATIC,
+        INSTR_CLASS_PUSH_OPERATOR,
+        INSTR_CLASS_INHERIT,
 
         // NAMESPACES
-        NAMESPACE_USE,
+        INSTR_NAMESPACE_USE,
 
         // INSTRUCTION_NUMBER
         INSTR_NUMBER

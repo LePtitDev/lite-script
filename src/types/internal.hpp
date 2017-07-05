@@ -854,7 +854,7 @@ namespace LiteScript {
         bool operator!=(const Callback& c) const;
 
         // The calling operator
-        void operator()(std::vector<Variable>& args);
+        Variable operator()(std::vector<Variable>& args);
 
     };
 
@@ -974,51 +974,48 @@ namespace LiteScript {
 
         // The operator type
         enum OperatorType {
-            OP_ASSIGN,
+            OP_TYPE_ASSIGN,
 
-            OP_UNARY_PLUS,
-            OP_UNARY_MINUS,
-            OP_PRE_INCR,
-            OP_POST_INCR,
-            OP_PRE_DECR,
-            OP_POST_DECR,
+            OP_TYPE_UNARY_PLUS,
+            OP_TYPE_UNARY_MINUS,
+            OP_TYPE_PRE_INCR,
+            OP_TYPE_POST_INCR,
+            OP_TYPE_PRE_DECR,
+            OP_TYPE_POST_DECR,
 
-            OP_ADD,
-            OP_SUB,
-            OP_MUL,
-            OP_DIV,
-            OP_MOD,
+            OP_TYPE_ADD,
+            OP_TYPE_SUB,
+            OP_TYPE_MUL,
+            OP_TYPE_DIV,
+            OP_TYPE_MOD,
 
-            OP_EQU,
-            OP_DIF,
-            OP_GREAT,
-            OP_LESS,
-            OP_GREAT_EQU,
-            OP_LESS_EQU,
+            OP_TYPE_EQU,
+            OP_TYPE_DIF,
+            OP_TYPE_GREAT,
+            OP_TYPE_LESS,
+            OP_TYPE_GREAT_EQU,
+            OP_TYPE_LESS_EQU,
 
-            OP_LOG_NOT,
-            OP_LOG_AND,
-            OP_LOG_OR,
+            OP_TYPE_LOG_NOT,
+            OP_TYPE_LOG_AND,
+            OP_TYPE_LOG_OR,
 
-            OP_BIT_NOT,
-            OP_BIT_AND,
-            OP_BIT_OR,
-            OP_BIT_XOR,
-            OP_LSHIFT,
-            OP_RSHIFT,
+            OP_TYPE_BIT_NOT,
+            OP_TYPE_BIT_AND,
+            OP_TYPE_BIT_OR,
+            OP_TYPE_BIT_XOR,
+            OP_TYPE_LSHIFT,
+            OP_TYPE_RSHIFT,
 
-            OP_ADD_ASSIGN,
-            OP_SUB_ASSIGN,
-            OP_MUL_ASSIGN,
-            OP_DIV_ASSIGN,
+            OP_TYPE_ADD_ASSIGN,
+            OP_TYPE_SUB_ASSIGN,
+            OP_TYPE_MUL_ASSIGN,
+            OP_TYPE_DIV_ASSIGN,
 
-            OP_ARRAY,
-            OP_MEMBER,
-            OP_CALL,
+            OP_TYPE_ARRAY,
+            OP_TYPE_CALL,
 
-            OP_TOSTRING,
-
-            OP_NUMBER
+            OP_TYPE_NUMBER
         };
 
     private:
@@ -1037,7 +1034,7 @@ namespace LiteScript {
         std::vector<std::pair<std::string, Variable>> us_members;
 
         // Operators overloading
-        std::array<Nullable<Variable>, OperatorType::OP_NUMBER> op_members;
+        std::array<Nullable<Variable>, OperatorType::OP_TYPE_NUMBER> op_members;
 
     public:
 
@@ -1093,28 +1090,28 @@ namespace LiteScript {
          * @param v The variable member
          * @return true if success
          */
-        bool AddOperator(Class::OperatorType op, const Variable& v);
+        bool AddOperator(OperatorType op, const Variable& v);
 
         /**
          * Get the static member
          *
          * @param name The name of the member
          */
-        Variable GetStaticMember(const char * name);
+        Variable GetStaticMember(const char * name) const;
 
         /**
          * Get the unstatic member
          *
          * @param name The name of the member
          */
-        Variable GetUnstaticMember(const char * name);
+        Variable GetUnstaticMember(const char * name) const;
 
         /**
          * Get the operator member
          *
          * @param op The operator type
          */
-        Variable GetOperator(Class::OperatorType op);
+        Variable GetOperator(Class::OperatorType op) const;
 
         /**
          * Create an element by this class
@@ -1124,10 +1121,10 @@ namespace LiteScript {
         Variable CreateElement(std::vector<Variable>& args);
 
         // The equal comparison operator
-        bool operator==(const Class& c);
+        bool operator==(const Class& c) const;
 
         // The not equal comparison operator
-        bool operator!=(const Class& c);
+        bool operator!=(const Class& c) const;
 
     };
 

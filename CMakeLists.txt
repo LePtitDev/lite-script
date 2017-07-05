@@ -22,6 +22,7 @@ set(SOURCE_FILES
         src/types/callback.hpp src/types/callback.cpp
         src/types/array.hpp src/types/array.cpp
         src/types/class.hpp src/types/class.cpp
+        src/types/class_object.hpp src/types/class_object.cpp
         src/types/namespace.hpp src/types/namespace.cpp
 
         src/memory/memory.hpp src/memory/memory.cpp
@@ -30,6 +31,6 @@ set(SOURCE_FILES
 
         src/script/instruction.hpp src/script/instruction.cpp
         src/script/state.hpp src/script/state.cpp
-        src/script/executor.hpp src/script/executor.cpp src/types/class_object.hpp src/types/class_object.cpp)
+        src/script/executor.hpp src/script/executor.cpp)
 
 add_executable(LiteScript ${SOURCE_FILES})

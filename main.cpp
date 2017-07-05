@@ -41,10 +41,10 @@ int main(int argc, char * argv[]) {
         std::cout << "2. GetVariable non correct" << std::endl;
 
     State state(memory);
-    state.ExecuteSingle(Instruction(InstrCode::VALUE_UNDEFINED));
-    state.ExecuteSingle(Instruction(InstrCode::DEFINE_VARIABLE, "ma-variable"));
-    state.ExecuteSingle(Instruction(InstrCode::VALUE_NULL));
-    state.ExecuteSingle(Instruction(InstrCode::DEFINE_VARIABLE, "autre-variable"));
+    state.ExecuteSingle(Instruction(InstrCode::INSTR_VALUE_UNDEFINED));
+    state.ExecuteSingle(Instruction(InstrCode::INSTR_DEFINE_VARIABLE, "ma-variable"));
+    state.ExecuteSingle(Instruction(InstrCode::INSTR_VALUE_NULL));
+    state.ExecuteSingle(Instruction(InstrCode::INSTR_DEFINE_VARIABLE, "autre-variable"));
 
     Namespace& nsp = state.GetCurrentNamespace()->GetData<Namespace>();
     std::cout << "variable count = " << nsp.Count() << std::endl;
