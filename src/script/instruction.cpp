@@ -11,7 +11,6 @@
 */
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////
 
 #include "instruction.hpp"
 
@@ -124,4 +123,29 @@ LiteScript::Instruction LiteScript::Instruction::Load(std::istream &stream) {
             break;
     }
     return result;
+}
+
+LiteScript::Instruction & LiteScript::Instruction::operator=(const Instruction &i) {
+    if (this->comp_type == CompType::COMP_TYPE_STRING)
+        delete this->comp_value.v_string;
+    unsigned int len;
+    this->code = i.code;
+    this->comp_type = i.comp_type;
+    switch (this->comp_type) {
+        case CompType::COMP_TYPE_BOOLEAN:
+            this->comp_value.v_boolean = i.comp_value.v_boolean;
+            break;
+        case CompType::COMP_TYPE_INTEGER:
+            this->comp_value.v_integer = i.comp_value.v_integer;
+            break;
+        case CompType::COMP_TYPE_FLOAT:
+            this->comp_value.v_float = i.comp_value.v_float;
+            break;
+        case CompType::COMP_TYPE_STRING:
+            len = strlen(i.comp_value.v_string) + 1;
+            this->comp_value.v_string = new char[len];
+            memcpy(this->comp_value.v_string, i.comp_value.v_string, len);
+            break;
+    }
+    return *this;
 }

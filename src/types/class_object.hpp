@@ -12,8 +12,8 @@
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
-#ifndef LITESCRIPT_CLASS_OBJECT_HPP
-#define LITESCRIPT_CLASS_OBJECT_HPP
+#ifndef LITESCRIPT_TYPES_CLASS_OBJECT_HPP
+#define LITESCRIPT_TYPES_CLASS_OBJECT_HPP
 
 #include "../litescript.hpp"
 

@@ -11,10 +11,9 @@
 */
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////
 
-#ifndef LITESCRIPT_EXECUTOR_HPP
-#define LITESCRIPT_EXECUTOR_HPP
+#ifndef LITESCRIPT_SCRIPT_EXECUTOR_HPP
+#define LITESCRIPT_SCRIPT_EXECUTOR_HPP
 
 #include "../litescript.hpp"
 
@@ -71,12 +70,14 @@ namespace LiteScript {
         static void I_VALUE_CLASS(State&, Instruction&);
         static void I_VALUE_ARGS(State&, Instruction&);
         static void I_VALUE_THIS(State&, Instruction&);
+        static void I_VALUE_VARIABLE(State&, Instruction&);
 
         // PILES MANAGEMENT
         static void I_PUSH_NSP(State&, Instruction&);
         static void I_PUSH_ARGS(State&, Instruction&);
         static void I_POP_NSP(State&, Instruction&);
         static void I_POP_ARGS(State&, Instruction&);
+        static void I_RETURN(State&, Instruction&);
 
         // OPERATIONS
         // Assignation et unary operations

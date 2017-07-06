@@ -11,7 +11,6 @@
 */
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////
 
 #ifndef LITESCRIPT_LITESCRIPT_HPP
 
@@ -55,16 +54,19 @@ namespace LiteScript {
         std::vector<std::vector<Variable>> args;
 
         // The LIFO of this
-        std::vector<Nullable<Variable>> ths;
+        std::vector<LiteScript::Nullable<LiteScript::Variable>> ths;
 
         // The LIFO of returns
-        std::vector<Nullable<Variable>> rets;
+        std::vector<LiteScript::Nullable<LiteScript::Variable>> rets;
 
         // The LIFO of operations
         std::vector<Variable> op_lifo;
 
         // The LIFO of calling
         std::vector<std::array<unsigned int, 2>> call_lifo;
+
+        // The namespace LIFO
+        std::vector<Variable> nsp_lifo;
 
     public:
 
@@ -93,12 +95,9 @@ namespace LiteScript {
         State(Memory& memory);
 
         /**
-         * Constructor with instructions
-         *
-         * @param memory The main memory
-         * @param instrs The list of instructions
+         * Copy constructor
          */
-        State(Memory& memory, std::vector<Instruction> instrs);
+        State(const State& state);
 
         /////////////////////
         ////// METHODS //////
@@ -107,19 +106,33 @@ namespace LiteScript {
         /**
          * Execute all the script
          */
-        void Execute();
+        Variable Execute();
 
         /**
          * Execute a single instruction
          */
-        void ExecuteSingle();
+        Variable ExecuteSingle();
 
         /**
          * Execute a single instruction that isn't in the instructions lists
          *
          * @param instr The instruction to execute
          */
-        void ExecuteSingle(const Instruction& instr);
+        Variable ExecuteSingle(const Instruction& instr);
+
+        /**
+         * Add a single instruction in the current instruction list
+         *
+         * @param in The instruction to add
+         */
+        void AddInstruction(const Instruction& in);
+
+        /**
+         * Add a list of instructions
+         *
+         * @param in_list The instruction list to add
+         */
+        void AddInstructions(const std::vector<Instruction>& in_list);
 
         /**
          * Find a variable by its name, search in :
@@ -129,7 +142,7 @@ namespace LiteScript {
          *
          * @param name The name of the variable
          */
-        Nullable<Variable> GetVariable(const char * name) const;
+        Variable GetVariable(const char * name) const;
 
         /**
          * Return the current namespace
@@ -150,6 +163,18 @@ namespace LiteScript {
          * @param n The target namespace
          */
         void UseNamespace(const Variable& n);
+
+        /**
+         * Push the namespace lifo
+         *
+         * @param v The namespace
+         */
+        void PushNamespace(const Variable& v);
+
+        /**
+         * Pop the namespace lifo
+         */
+        void PopNamespace();
 
         /**
          * Return the count of args in the top of LIFO

@@ -37,6 +37,7 @@ The objective is to create an alternative of current script engines and integrat
 
 * Members copy when **class object** creation
 * The constructor **class** problem because unamed
+* Errors catch
 
 ## Possible features
 

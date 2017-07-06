@@ -11,10 +11,8 @@
 */
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////
 
 #include "executor.hpp"
-#include "instruction.hpp"
 
 void LiteScript::StateExecutor::Execute(State &state, Instruction &instr) {
     StateExecutor::ARRAY[instr.code](state, instr);
@@ -39,11 +37,13 @@ std::array<void(*)(LiteScript::State&, LiteScript::Instruction&), LiteScript::In
     LiteScript::StateExecutor::I_VALUE_CLASS,
     LiteScript::StateExecutor::I_VALUE_ARGS,
     LiteScript::StateExecutor::I_VALUE_THIS,
+    LiteScript::StateExecutor::I_VALUE_VARIABLE,
     
     LiteScript::StateExecutor::I_PUSH_NSP,
     LiteScript::StateExecutor::I_PUSH_ARGS,
     LiteScript::StateExecutor::I_POP_NSP,
     LiteScript::StateExecutor::I_POP_ARGS,
+    LiteScript::StateExecutor::I_RETURN,
     
     LiteScript::StateExecutor::I_OP_ASSIGN,
     LiteScript::StateExecutor::I_OP_UNARY_PLUS,
@@ -115,8 +115,8 @@ void LiteScript::StateExecutor::I_DEFINE_VARIABLE(State& state, Instruction& ins
     state.line_num++;
     if (state.op_lifo.size() == 0 || instr.comp_type != Instruction::CompType::COMP_TYPE_STRING)
         return;
-    Nullable<Variable> v = state.GetVariable(instr.comp_value.v_string);
-    if (!v.isNull)
+    Variable v = state.GetVariable(instr.comp_value.v_string);
+    if (v->GetType() != Type::UNDEFINED)
         return;
     state.GetCurrentNamespace()->GetData<Namespace>().DefineVariable(instr.comp_value.v_string, state.op_lifo.back());
     state.op_lifo.pop_back();
@@ -158,7 +158,7 @@ void LiteScript::StateExecutor::I_VALUE_BOOLEAN(State& state, Instruction& instr
     if (instr.comp_type != Instruction::CompType::COMP_TYPE_BOOLEAN)
         return;
     state.op_lifo.push_back(state.memory.Create(Type::BOOLEAN));
-    (*state.op_lifo.end())->GetData<bool>() = instr.comp_value.v_boolean;
+    state.op_lifo.back()->GetData<bool>() = instr.comp_value.v_boolean;
 }
 void LiteScript::StateExecutor::I_VALUE_NUMBER(State& state, Instruction& instr) {
     state.line_num++;
@@ -170,21 +170,21 @@ void LiteScript::StateExecutor::I_VALUE_NUMBER(State& state, Instruction& instr)
     else
         return;
     state.op_lifo.push_back(state.memory.Create(Type::NUMBER));
-    (*state.op_lifo.end())->GetData<Number>() = number;
+    state.op_lifo.back()->GetData<Number>() = number;
 }
 void LiteScript::StateExecutor::I_VALUE_STRING(State& state, Instruction& instr) {
     state.line_num++;
     if (instr.comp_type != Instruction::CompType::COMP_TYPE_STRING)
         return;
     state.op_lifo.push_back(state.memory.Create(Type::STRING));
-    (*state.op_lifo.end())->GetData<String>() = String(instr.comp_value.v_string);
+    state.op_lifo.back()->GetData<String>() = String(instr.comp_value.v_string);
 }
 void LiteScript::StateExecutor::I_VALUE_CALLBACK(State& state, Instruction& instr) {
     state.line_num++;
     if (instr.comp_type != Instruction::CompType::COMP_TYPE_INTEGER)
         return;
     state.op_lifo.push_back(state.memory.Create(Type::CALLBACK));
-    (*state.op_lifo.end())->GetData<Callback>() = Callback(state, state.instr_index, (unsigned int)instr.comp_value.v_integer);
+    state.op_lifo.back()->GetData<Callback>() = Callback(state, state.instr_index, (unsigned int)instr.comp_value.v_integer);
 }
 void LiteScript::StateExecutor::I_VALUE_ARRAY(State& state, Instruction& instr) {
     state.line_num++;
@@ -206,6 +206,12 @@ void LiteScript::StateExecutor::I_VALUE_ARGS(State& state, Instruction& instr) {
 void LiteScript::StateExecutor::I_VALUE_THIS(State& state, Instruction& instr) {
     state.line_num++;
     state.op_lifo.push_back(Variable(*state.ths.back()));
+}
+void LiteScript::StateExecutor::I_VALUE_VARIABLE(State& state, Instruction& instr) {
+    state.line_num++;
+    if (instr.comp_type != Instruction::CompType::COMP_TYPE_STRING)
+        return;
+    state.op_lifo.push_back(state.GetVariable(instr.comp_value.v_string));
 }
 
 // PILES MANAGEMENT
@@ -234,6 +240,10 @@ void LiteScript::StateExecutor::I_POP_ARGS(State& state, Instruction& instr) {
     state.line_num++;
     if (state.args.size() > 0)
         state.args.pop_back();
+}
+void LiteScript::StateExecutor::I_RETURN(State& state, Instruction& instr) {
+    state.line_num++;
+    state.PopCall();
 }
 
 // OPERATIONS

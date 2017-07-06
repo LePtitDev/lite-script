@@ -11,7 +11,6 @@
 */
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////
 
 #ifndef LITESCRIPT_LITESCRIPT_HPP
 
@@ -46,12 +45,14 @@ namespace LiteScript {
         INSTR_VALUE_CLASS,
         INSTR_VALUE_ARGS,
         INSTR_VALUE_THIS,
+        INSTR_VALUE_VARIABLE,
 
         // PILES MANAGEMENT
         INSTR_PUSH_NSP,
         INSTR_PUSH_ARGS,
         INSTR_POP_NSP,
-        INSTR_POP_AGRS,
+        INSTR_POP_ARGS,
+        INSTR_RETURN,
 
         // OPERATIONS
         // Assignation et unary operations
@@ -218,6 +219,9 @@ namespace LiteScript {
          * @return The instruction
          */
         static Instruction Load(std::istream& stream);
+
+        // The assign operator
+        Instruction& operator=(const Instruction& in);
 
     };
 

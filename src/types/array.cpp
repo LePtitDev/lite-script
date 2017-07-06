@@ -11,7 +11,6 @@
 */
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////
 
 #include "array.hpp"
 
@@ -89,12 +88,12 @@ std::string LiteScript::_Type_ARRAY::ToString(const Variable &object) const {
                 ss << ",";
         }
     }
-    if (obj.UnamedCount() > 0)
+    if (obj.UnamedCount() > 0 && obj.NamedCount() > 0)
         ss << ",";
     for (unsigned int i = 0, sz = obj.NamedCount(); i < sz; i++) {
         Variable v = obj.GetNamedVariable(i);
         if (v->GetType() != Type::UNDEFINED) {
-            ss << "[" << obj.GetNamedKey(i) << "]:" << ((std::string) (v)).c_str();
+            ss << "['" << obj.GetNamedKey(i) << "']:" << ((std::string) (v)).c_str();
             if (i < sz - 1)
                 ss << ",";
         }

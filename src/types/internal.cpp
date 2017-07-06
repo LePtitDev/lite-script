@@ -511,7 +511,14 @@ LiteScript::Variable LiteScript::Callback::operator()(std::vector<Variable> &arg
     if (!this->This.isNull)
         this->state->GetThis() = this->This;
     if (this->call_ptr == nullptr) {
+        Nullable<Variable> last_nsp;
+        if (!this->nsp.isNull) {
+            last_nsp = Nullable<Variable>(this->state->GetCurrentNamespace());
+            this->state->PushNamespace(*this->nsp);
+        }
         this->state->PushCall(this->state->InstructionIndex, this->state->InstructionLine + 1);
+        if (!last_nsp.isNull)
+            this->state->PopNamespace();
         return this->state->memory.Create(Type::UNDEFINED);
     }
     else {
@@ -615,7 +622,7 @@ LiteScript::Variable LiteScript::Array::operator[](const char *name) {
             return Variable(this->named[i].second);
     }
     this->named.push_back({ std::string(name), this->memory.Create(Type::UNDEFINED) });
-    return Variable(this->named.end()->second);
+    return Variable(this->named.back().second);
 }
 
 /*************************/
@@ -777,8 +784,12 @@ bool LiteScript::Namespace::DefineVariable(const char *name) {
 
 bool LiteScript::Namespace::DefineVariable(const char *name, const Variable& v) {
     for (unsigned int i = 0, sz = this->vars.size(); i < sz; i++) {
-        if (this->vars[i].first == name)
-            return false;
+        if (this->vars[i].first == name) {
+            if (this->vars[i].second->GetType() != Type::UNDEFINED)
+                return false;
+            else
+                this->vars.emplace(this->vars.begin() + i, std::pair<std::string, Variable>(name, Variable(v)));
+        }
     }
     this->vars.push_back({ std::string(name), Variable(v) });
     return true;
