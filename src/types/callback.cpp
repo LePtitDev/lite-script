@@ -86,6 +86,6 @@ LiteScript::Variable LiteScript::_Type_CALLBACK::OCall(Variable &object, std::ve
 
 std::string LiteScript::_Type_CALLBACK::ToString(const Variable &object) const {
     std::stringstream ss;
-    ss << object->ID;
+    ss << "f" << object->ID;
     return ss.str();
 }

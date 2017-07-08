@@ -62,6 +62,18 @@ LiteScript::Variable LiteScript::Assembly::Execute(const char *code) {
     }
 }
 
+LiteScript::Variable LiteScript::Assembly::ExecuteAfter(const char *code) {
+    this->error = Assembly::ErrorType::ASSM_ERROR_NO;
+    std::vector<Instruction> list = Assembly::GetInstructionList(code, this->error, this->line_error);
+    if (this->error != Assembly::ErrorType::ASSM_ERROR_NO)
+        return this->memory.Create(Type::UNDEFINED);
+    else {
+        for (unsigned int i = 0, sz = list.size(); i < sz; i++)
+            this->state.AddInstruction(list[i]);
+        return this->state.Execute();
+    }
+}
+
 LiteScript::Variable LiteScript::Assembly::ExecuteSingle(const char *code) {
     this->error = Assembly::ErrorType::ASSM_ERROR_NO;
     Instruction in = Assembly::GetInstructionSingle(code, this->error);
@@ -164,6 +176,13 @@ LiteScript::Instruction LiteScript::Assembly::GetInstructionSingle(const char *c
         if (strncmp(code + 6, "callback", 8) == 0) {
             if (code[14] == ' ' && Syntax::ReadUInteger(code + 15, tmp.ui) > 0)
                 return Instruction(InstrCode::INSTR_VALUE_CALLBACK, (int)tmp.ui);
+            err = Assembly::ErrorType::ASSM_ERROR_EXPECTED_INTEGER;
+            return Instruction(InstrCode::INSTR_INVALID);
+        }
+        //value.arg [int]
+        if (strncmp(code + 6, "arg", 3) == 0) {
+            if (code[9] == ' ' && Syntax::ReadUInteger(code + 10, tmp.ui) > 0)
+                return Instruction(InstrCode::INSTR_VALUE_ARG, (int)tmp.ui);
             err = Assembly::ErrorType::ASSM_ERROR_EXPECTED_INTEGER;
             return Instruction(InstrCode::INSTR_INVALID);
         }
@@ -456,19 +475,23 @@ std::vector<LiteScript::Instruction> LiteScript::Assembly::GetInstructionList(co
     unsigned int line_num = 0;
     for (unsigned int i = 0; code[i] != '\0'; i++) {
         if (code[i] == '\n') {
-            line_num++;
             list.push_back(Assembly::GetInstructionSingle(line.c_str(), err));
-            if (err != Assembly::ErrorType::ASSM_ERROR_NO) {
-                list.clear();
-                line_err = line_num;
-                return list;
-            }
+            if (err != Assembly::ErrorType::ASSM_ERROR_NO)
+                goto error;
             line.clear();
+            line_num++;
         }
         else {
             line += code[i];
         }
     }
+    list.push_back(Assembly::GetInstructionSingle(line.c_str(), err));
+    if (err != Assembly::ErrorType::ASSM_ERROR_NO)
+        goto error;
+    return list;
+error:
+    list.clear();
+    line_err = line_num;
     return list;
 }
 

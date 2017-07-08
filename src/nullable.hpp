@@ -97,19 +97,23 @@ namespace LiteScript {
                 std::allocator<T> allocator;
                 allocator.construct((T *)this->data, t);
             }
+            return *this;
         }
 
         // The assign operator
         Nullable<T>& operator=(const Nullable<T>& v) {
+            if (this == &v)
+                return *this;
             this->Nullify();
             if (!(this->is_null = v.is_null)) {
                 std::allocator<T> allocator;
                 allocator.construct((T *)this->data, *(const T *)v.data);
             }
+            return *this;
         }
 
         // The converter operator
-        operator T() { return T(*(const T *)this->data); }
+        operator T() { return (*(const T *)this->data); }
 
         // The pointer operator
         T& operator*() { return *(T *)this->data; }

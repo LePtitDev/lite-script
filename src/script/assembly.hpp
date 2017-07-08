@@ -113,6 +113,14 @@ namespace LiteScript {
         Variable Execute(const char * code);
 
         /**
+         * Execute an assembly script code (push instructions in the current list)
+         *
+         * @param code The assembly script code
+         * @return The last variable returned
+         */
+        Variable ExecuteAfter(const char * code);
+
+        /**
          * Execute a single assembly script code line
          *
          * @param code The assembly script code line

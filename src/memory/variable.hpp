@@ -360,7 +360,7 @@ namespace LiteScript {
          *
          * @param args The argument list
          */
-        void operator()(std::vector<Variable>& args);
+        Variable operator()(std::vector<Variable>& args);
 
         ////// STRING CONVERSION //////
 

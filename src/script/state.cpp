@@ -39,9 +39,10 @@ LiteScript::State::State(const State &state) :
 }
 
 LiteScript::Variable LiteScript::State::Execute() {
+    if (this->instr.size() == 0)
+        return this->memory.Create(Type::UNDEFINED);
     for (unsigned int sz = this->instr.size(); this->instr_index < sz; this->instr_index++) {
-        unsigned int nb_instr = this->instr[this->instr_index].size();
-        while (this->line_num < nb_instr)
+        while (this->line_num < this->instr[this->instr_index].size())
             this->ExecuteSingle();
         this->line_num = 0;
     }
@@ -55,6 +56,8 @@ LiteScript::Variable LiteScript::State::Execute() {
 }
 
 LiteScript::Variable LiteScript::State::ExecuteSingle() {
+    if (this->instr.size() == 0 || this->line_num >= this->instr[this->instr_index].size())
+        return this->memory.Create(Type::UNDEFINED);
     StateExecutor::Execute(*this, this->instr[this->instr_index][this->line_num]);
 
     if (this->op_lifo.size() > 0)
@@ -93,7 +96,7 @@ void LiteScript::State::AddInstructions(const std::vector<Instruction> &in_list)
 LiteScript::Variable LiteScript::State::GetVariable(const char *name) const {
     int index;
     if (this->nsp_list.size() > 0) {
-        const Variable& n_last = *this->nsp_list.end();
+        const Variable& n_last = this->nsp_list.back();
         index = n_last->GetData<Namespace>().IndexOf(name);
         if (index >= 0)
             return n_last->GetData<Namespace>().GetVariable((unsigned int)index);
@@ -116,7 +119,7 @@ LiteScript::Variable LiteScript::State::GetVariable(const char *name) const {
 
 LiteScript::Variable LiteScript::State::GetCurrentNamespace() const {
     if (this->nsp_list.size() > 0)
-        return Variable(*this->nsp_list.end());
+        return Variable(this->nsp_list.back());
     else
         return Variable(*this->nsp_current);
 }
@@ -172,14 +175,14 @@ void LiteScript::State::PopNamespace() {
 
 unsigned int LiteScript::State::GetArgsCount() const {
     if (this->args.size() > 0)
-        return this->args.end()->size();
+        return this->args.back().size();
     else
         return 0;
 }
 
 LiteScript::Variable LiteScript::State::GetArg(unsigned int i) const {
-    if (this->args.size() > 0 && this->args.end()->size() > i)
-        return Variable(this->args.end()->at(i));
+    if (this->args.size() > 0 && this->args.back().size() > i)
+        return Variable(this->args.back().at(i));
     else
         return this->memory.Create(Type::UNDEFINED);
 }

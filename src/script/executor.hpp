@@ -69,6 +69,7 @@ namespace LiteScript {
         static void I_VALUE_ARRAY(State&, Instruction&);
         static void I_VALUE_CLASS(State&, Instruction&);
         static void I_VALUE_OBJECT(State&, Instruction&);
+        static void I_VALUE_ARG(State&, Instruction&);
         static void I_VALUE_ARGS(State&, Instruction&);
         static void I_VALUE_THIS(State&, Instruction&);
         static void I_VALUE_VARIABLE(State&, Instruction&);

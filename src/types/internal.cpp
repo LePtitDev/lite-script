@@ -516,7 +516,7 @@ LiteScript::Variable LiteScript::Callback::operator()(std::vector<Variable> &arg
             last_nsp = Nullable<Variable>(this->state->GetCurrentNamespace());
             this->state->PushNamespace(*this->nsp);
         }
-        this->state->PushCall(this->state->InstructionIndex, this->state->InstructionLine + 1);
+        this->state->PushCall(this->intrl_idx, this->line_num);
         if (!last_nsp.isNull)
             this->state->PopNamespace();
         return this->state->memory.Create(Type::UNDEFINED);

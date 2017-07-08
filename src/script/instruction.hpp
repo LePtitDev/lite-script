@@ -44,6 +44,7 @@ namespace LiteScript {
         INSTR_VALUE_ARRAY,
         INSTR_VALUE_CLASS,
         INSTR_VALUE_OBJECT,
+        INSTR_VALUE_ARG,
         INSTR_VALUE_ARGS,
         INSTR_VALUE_THIS,
         INSTR_VALUE_VARIABLE,
