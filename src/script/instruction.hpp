@@ -43,6 +43,7 @@ namespace LiteScript {
         INSTR_VALUE_CALLBACK,
         INSTR_VALUE_ARRAY,
         INSTR_VALUE_CLASS,
+        INSTR_VALUE_OBJECT,
         INSTR_VALUE_ARGS,
         INSTR_VALUE_THIS,
         INSTR_VALUE_VARIABLE,
@@ -118,6 +119,7 @@ namespace LiteScript {
         INSTR_CLASS_PUSH_USTATIC,
         INSTR_CLASS_PUSH_OPERATOR,
         INSTR_CLASS_INHERIT,
+        INSTR_CLASS_CONSTRUCTOR,
 
         // NAMESPACES
         INSTR_NAMESPACE_USE,

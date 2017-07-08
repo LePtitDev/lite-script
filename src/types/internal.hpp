@@ -1036,6 +1036,9 @@ namespace LiteScript {
         // Operators overloading
         std::array<Nullable<Variable>, OperatorType::OP_TYPE_NUMBER> op_members;
 
+        // The index of constructor callback
+        int constructor_index;
+
     public:
 
         Memory& memory;
@@ -1066,22 +1069,36 @@ namespace LiteScript {
         void Inherit(const Variable& v);
 
         /**
+         * Define the constructor
+         *
+         * @param name The member function name (need to exists)
+         * @return true if success and false otherwise
+         */
+        bool DefineConstructor(const char * name);
+
+        /**
          * Add a static member
          *
          * @param name The name of the member
          * @param v The variable member
-         * @return true if success
          */
-        bool AddStatic(const char * name, const Variable& v);
+        void AddStatic(const char * name, const Variable& v);
 
         /**
          * Add an unstatic member
          *
          * @param name The name of the member
          * @param v The variable member
-         * @return true if success
          */
-        bool AddUnstatic(const char * name, const Variable& v);
+        void AddUnstatic(const char * name, const Variable& v);
+
+        /**
+         * Add an unstatic member
+         *
+         * @param op The operator type
+         * @param v The variable member
+         */
+        void AddOperator(OperatorType op, const Variable& v);
 
         /**
          * Add an unstatic member
@@ -1090,16 +1107,7 @@ namespace LiteScript {
          * @param v The variable member
          * @return true if success
          */
-        bool AddOperator(OperatorType op, const Variable& v);
-
-        /**
-         * Add an unstatic member
-         *
-         * @param op The operator type
-         * @param v The variable member
-         * @return true if success
-         */
-        bool AddOperator(unsigned int op, const Variable& v);
+        void AddOperator(unsigned int op, const Variable& v);
 
         /**
          * Get the static member
@@ -1128,6 +1136,54 @@ namespace LiteScript {
          * @param args Constructor arguments
          */
         Variable CreateElement(std::vector<Variable>& args);
+
+        /**
+         * Get the class inherits
+         */
+        const std::vector<Variable>& GetInherits() const;
+
+        /**
+         * Get the static members count
+         */
+        unsigned int GetStaticCount() const;
+
+        /**
+         * Get the unstatic members count
+         */
+        unsigned int GetUnstaticCount() const;
+
+        /**
+         * Get the static member name
+         *
+         * @param i The index of the member
+         */
+        const char * GetStaticName(unsigned int i) const;
+
+        /**
+         * Get the unstatic member name
+         *
+         * @param i The index of the member
+         */
+        const char * GetUnstaticName(unsigned int i) const;
+
+        /**
+         * Get the static member
+         *
+         * @param i The index of the member
+         */
+        Variable GetStaticMember(unsigned int i) const;
+
+        /**
+         * Get the unstatic member
+         *
+         * @param i The index of the member
+         */
+        Variable GetUnstaticMember(unsigned int i) const;
+
+        /**
+         * Get the index of the constructor
+         */
+        int GetConstructorIndex() const;
 
         // The equal comparison operator
         bool operator==(const Class& c) const;

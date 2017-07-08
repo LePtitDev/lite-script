@@ -184,5 +184,7 @@ LiteScript::Variable LiteScript::_Type_STRING::OMember(LiteScript::Variable& obj
 }
 
 std::string LiteScript::_Type_STRING::ToString(const LiteScript::Variable& obj) const {
-    return (std::string)(obj->GetData<String>());
+    std::stringstream ss;
+    ss << "\"" << ((std::string)(obj->GetData<String>())).c_str() << "\"";
+    return ss.str();
 }

@@ -30,7 +30,7 @@ std::string LiteScript::_Type_CLASS_OBJECT::ToString(const Variable &object) con
     const ClassObject& co = object->GetData<ClassObject>();
     ss << "{";
     for (unsigned int i = 0, sz = co.GetMemberCount(); i < sz; i++) {
-        ss << co.GetMemberName(i) << ((std::string)(co.GetMemberVariable(i))).c_str();
+        ss << co.GetMemberName(i) << ":" << ((std::string)(co.GetMemberVariable(i))).c_str();
         if (i < sz - 1)
             ss << ",";
     }

@@ -629,55 +629,79 @@ LiteScript::Variable LiteScript::Array::operator[](const char *name) {
 /****** CLASS CLASS ******/
 /*************************/
 
-LiteScript::Class::Class(Memory& memory) : memory(memory) {}
+LiteScript::Class::Class(Memory& memory) : memory(memory), constructor_index(-1) {}
 LiteScript::Class::Class(const Class &c) :
     inherit(c.inherit), s_members(c.s_members), us_members(c.us_members), op_members(c.op_members),
-    memory(c.memory)
+    memory(c.memory), constructor_index(c.constructor_index)
 {
 
 }
 
 void LiteScript::Class::Inherit(const Variable &v) {
-    if (v->GetType() != Type::CLASS || this == &v->GetData<Class>())
+    if (v->GetType() != Type::CLASS)
         return;
-    this->inherit.push_back(Variable(v));
     const Class& C = v->GetData<Class>();
+    if (this == &C)
+        return;
+    bool can_inherit;
+    for (unsigned int i = 0, sz = C.inherit.size(); i < sz; i++) {
+        can_inherit = true;
+        for (unsigned int j = 0, sz2 = 0; j < sz2; j++) {
+            if (this->inherit[i]->ID == C.inherit[i]->ID) {
+                can_inherit = false;
+                break;
+            }
+        }
+        if (can_inherit)
+            this->Inherit(C.inherit[i]);
+    }
+    this->inherit.push_back(Variable(v));
     for (unsigned int i = 0, sz = C.s_members.size(); i < sz; i++)
         this->AddStatic(C.s_members[i].first.c_str(), C.s_members[i].second);
     for (unsigned int i = 0, sz = C.us_members.size(); i < sz; i++)
         this->AddUnstatic(C.us_members[i].first.c_str(), C.us_members[i].second);
 }
 
-bool LiteScript::Class::AddStatic(const char *name, const Variable &v) {
+bool LiteScript::Class::DefineConstructor(const char *name) {
+    for (unsigned int i = 0, sz = this->us_members.size(); i < sz; i++) {
+        if (this->us_members[i].first == name) {
+            if (this->us_members[i].second->GetType() == Type::CALLBACK) {
+                this->constructor_index = (int)i;
+                return true;
+            }
+            else
+                return false;
+        }
+    }
+    return false;
+}
+
+void LiteScript::Class::AddStatic(const char *name, const Variable &v) {
     for (unsigned int i = 0, sz = this->s_members.size(); i < sz; i++) {
-        if (this->s_members[i].first == name)
-            return false;
+        if (this->s_members[i].first == name) {
+            this->s_members[i] = std::pair<std::string, Variable>(std::string(name), Variable(v));
+            return;
+        }
     }
     this->s_members.push_back({ std::string(name), Variable(v) });
-    return true;
 }
 
-bool LiteScript::Class::AddUnstatic(const char *name, const Variable &v) {
+void LiteScript::Class::AddUnstatic(const char *name, const Variable &v) {
     for (unsigned int i = 0, sz = this->us_members.size(); i < sz; i++) {
-        if (this->us_members[i].first == name)
-            return false;
+        if (this->us_members[i].first == name) {
+            this->us_members[i] = std::pair<std::string, Variable>(std::string(name), Variable(v));
+            return;
+        }
     }
     this->us_members.push_back({ std::string(name), Variable(v) });
-    return true;
 }
 
-bool LiteScript::Class::AddOperator(OperatorType op, const Variable &v) {
-    if (!this->op_members[op].isNull || v->GetType() != Type::CALLBACK)
-        return false;
+void LiteScript::Class::AddOperator(OperatorType op, const Variable &v) {
     this->op_members[op] = Nullable<Variable>(v);
-    return true;
 }
 
-bool LiteScript::Class::AddOperator(unsigned int op, const Variable &v) {
-    if (op >= OperatorType::OP_TYPE_NUMBER || !this->op_members[op].isNull || v->GetType() != Type::CALLBACK)
-        return false;
+void LiteScript::Class::AddOperator(unsigned int op, const Variable &v) {
     this->op_members[op] = Nullable<Variable>(v);
-    return true;
 }
 
 LiteScript::Variable LiteScript::Class::GetStaticMember(const char *name) const {
@@ -705,13 +729,52 @@ LiteScript::Variable LiteScript::Class::GetOperator(OperatorType op) const {
 
 LiteScript::Variable LiteScript::Class::CreateElement(std::vector<Variable>& args) {
     Variable v = this->memory.Create(Type::CLASS_OBJECT);
-    ClassObject co = v->GetData<ClassObject>();
+    ClassObject& co = v->GetData<ClassObject>();
     co.ClassBase = Nullable<Class>(*this);
-    for (unsigned int i = 0, sz = this->us_members.size(); i < sz; i++) {
-        if (this->us_members[i].second->GetType() != Type::CALLBACK)
-            co.AddMember(this->us_members[i].first.c_str(), this->us_members[i].second);
+    for (unsigned int i = 0, j = 0, sz = this->us_members.size(); i < sz; i++) {
+        if (this->us_members[i].second->GetType() != Type::CALLBACK) {
+            co.AddMember(this->us_members[i].first.c_str(), this->memory.Create(Type::NIL));
+            co.GetMemberVariable(j) = this->us_members[i].second;
+            j++;
+        }
+    }
+    if (this->constructor_index != -1 && this->us_members[this->constructor_index].second->GetType() == Type::CALLBACK) {
+        this->us_members[this->constructor_index].second->GetData<Callback>().This = Nullable<Variable>(v);
+        this->us_members[this->constructor_index].second(args);
     }
     return v;
+}
+
+const std::vector<LiteScript::Variable> & LiteScript::Class::GetInherits() const {
+    return this->inherit;
+}
+
+unsigned int LiteScript::Class::GetStaticCount() const {
+    return this->s_members.size();
+}
+
+unsigned int LiteScript::Class::GetUnstaticCount() const {
+    return this->us_members.size();
+}
+
+const char * LiteScript::Class::GetStaticName(unsigned int i) const {
+    return this->s_members[i].first.c_str();
+}
+
+const char * LiteScript::Class::GetUnstaticName(unsigned int i) const {
+    return this->us_members[i].first.c_str();
+}
+
+LiteScript::Variable LiteScript::Class::GetStaticMember(unsigned int i) const {
+    return Variable(this->s_members[i].second);
+}
+
+LiteScript::Variable LiteScript::Class::GetUnstaticMember(unsigned int i) const {
+    return Variable(this->us_members[i].second);
+}
+
+int LiteScript::Class::GetConstructorIndex() const {
+    return this->constructor_index;
 }
 
 bool LiteScript::Class::operator==(const Class &c) const {

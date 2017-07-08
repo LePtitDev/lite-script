@@ -157,6 +157,9 @@ LiteScript::Instruction LiteScript::Assembly::GetInstructionSingle(const char *c
         //value.class
         if (strncmp(code + 6, "class", 5) == 0)
             return Instruction(InstrCode::INSTR_VALUE_CLASS);
+        //value.object
+        if (strncmp(code + 6, "object", 6) == 0)
+            return Instruction(InstrCode::INSTR_VALUE_OBJECT);
         //value.callback [int]
         if (strncmp(code + 6, "callback", 8) == 0) {
             if (code[14] == ' ' && Syntax::ReadUInteger(code + 15, tmp.ui) > 0)
@@ -414,7 +417,14 @@ LiteScript::Instruction LiteScript::Assembly::GetInstructionSingle(const char *c
         //class.inherit
         if (strncmp(code + 6, "inherit", 8) == 0)
             return Instruction(InstrCode::INSTR_CLASS_INHERIT);
-        err = Assembly::ErrorType::ASSM_ERROR_NO;
+        //class.constructor [string]
+        if (strncmp(code + 6, "constructor", 11) == 0) {
+            if (code[17] == ' ' && code[18] != '\0')
+                return Instruction(InstrCode::INSTR_CLASS_CONSTRUCTOR, code + 18);
+            err = Assembly::ErrorType::ASSM_ERROR_EXPECTED_STRING;
+            return Instruction(InstrCode::INSTR_INVALID);
+        }
+        err = Assembly::ErrorType::ASSM_ERROR_UNKNOW_CMD;
         return Instruction(InstrCode::INSTR_INVALID);
     }
     else if (code[0] == 'n') {
@@ -425,7 +435,7 @@ LiteScript::Instruction LiteScript::Assembly::GetInstructionSingle(const char *c
             err = Assembly::ErrorType::ASSM_ERROR_EXPECTED_STRING;
             return Instruction(InstrCode::INSTR_INVALID);
         }
-        err = Assembly::ErrorType::ASSM_ERROR_NO;
+        err = Assembly::ErrorType::ASSM_ERROR_UNKNOW_CMD;
         return Instruction(InstrCode::INSTR_INVALID);
     }
 

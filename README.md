@@ -32,11 +32,6 @@ The objective is to create an alternative of current script engines and integrat
 
 * Garbage collector *mark and sweep* (**Variable**s contain also a reference counter)
 * Javascript like object-oriented language
-
-## Problems to resolve
-
-* Members copy when **class object** creation
-* The constructor **class** problem because unamed
 * Errors catch
 
 ## Possible features

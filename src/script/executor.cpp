@@ -13,6 +13,7 @@
 /////////////////////////////////////////////////////////////////////
 
 #include "executor.hpp"
+#include "instruction.hpp"
 
 void LiteScript::StateExecutor::Execute(State &state, Instruction &instr) {
     StateExecutor::ARRAY[instr.code](state, instr);
@@ -35,6 +36,7 @@ std::array<void(*)(LiteScript::State&, LiteScript::Instruction&), LiteScript::In
     LiteScript::StateExecutor::I_VALUE_CALLBACK,
     LiteScript::StateExecutor::I_VALUE_ARRAY,
     LiteScript::StateExecutor::I_VALUE_CLASS,
+    LiteScript::StateExecutor::I_VALUE_OBJECT,
     LiteScript::StateExecutor::I_VALUE_ARGS,
     LiteScript::StateExecutor::I_VALUE_THIS,
     LiteScript::StateExecutor::I_VALUE_VARIABLE,
@@ -97,6 +99,7 @@ std::array<void(*)(LiteScript::State&, LiteScript::Instruction&), LiteScript::In
     LiteScript::StateExecutor::I_CLASS_PUSH_USTATIC,
     LiteScript::StateExecutor::I_CLASS_PUSH_OPERATOR,
     LiteScript::StateExecutor::I_CLASS_INHERIT,
+    LiteScript::StateExecutor::I_CLASS_CONSTRUCTOR,
 
     LiteScript::StateExecutor::I_NAMESPACE_USE
 });
@@ -193,6 +196,17 @@ void LiteScript::StateExecutor::I_VALUE_ARRAY(State& state, Instruction& instr) 
 void LiteScript::StateExecutor::I_VALUE_CLASS(State& state, Instruction& instr) {
     state.line_num++;
     state.op_lifo.push_back(state.memory.Create(Type::CLASS));
+}
+void LiteScript::StateExecutor::I_VALUE_OBJECT(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() == 0 || state.args.size() == 0)
+        return;
+    Variable oc(state.op_lifo.back());
+    state.op_lifo.pop_back();
+    if (oc->GetType() != Type::CLASS)
+        return;
+    std::vector<Variable>& args = state.args.back();
+    state.op_lifo.push_back(oc->GetData<Class>().CreateElement(args));
 }
 void LiteScript::StateExecutor::I_VALUE_ARGS(State& state, Instruction& instr) {
     state.line_num++;
@@ -643,7 +657,7 @@ void LiteScript::StateExecutor::I_JUMP_ELSE(State& state, Instruction& instr) {
 // Array
 void LiteScript::StateExecutor::I_ARRAY_PUSH_NUMERIC(State& state, Instruction& instr) {
     state.line_num++;
-    if (state.op_lifo.size() < 1 || instr.comp_type != Instruction::CompType::COMP_TYPE_INTEGER)
+    if (state.op_lifo.size() < 2 || instr.comp_type != Instruction::CompType::COMP_TYPE_INTEGER)
         return;
     Variable v2(state.op_lifo.back());
     state.op_lifo.pop_back();
@@ -654,7 +668,7 @@ void LiteScript::StateExecutor::I_ARRAY_PUSH_NUMERIC(State& state, Instruction& 
 }
 void LiteScript::StateExecutor::I_ARRAY_PUSH_LITERAL(State& state, Instruction& instr) {
     state.line_num++;
-    if (state.op_lifo.size() < 1 || instr.comp_type != Instruction::CompType::COMP_TYPE_STRING)
+    if (state.op_lifo.size() < 2 || instr.comp_type != Instruction::CompType::COMP_TYPE_STRING)
         return;
     Variable v2(state.op_lifo.back());
     state.op_lifo.pop_back();
@@ -667,7 +681,7 @@ void LiteScript::StateExecutor::I_ARRAY_PUSH_LITERAL(State& state, Instruction& 
 // Class
 void LiteScript::StateExecutor::I_CLASS_PUSH_STATIC(State& state, Instruction& instr) {
     state.line_num++;
-    if (state.op_lifo.size() < 1 || instr.comp_type != Instruction::CompType::COMP_TYPE_STRING)
+    if (state.op_lifo.size() < 2 || instr.comp_type != Instruction::CompType::COMP_TYPE_STRING)
         return;
     Variable v2(state.op_lifo.back());
     state.op_lifo.pop_back();
@@ -678,7 +692,7 @@ void LiteScript::StateExecutor::I_CLASS_PUSH_STATIC(State& state, Instruction& i
 }
 void LiteScript::StateExecutor::I_CLASS_PUSH_USTATIC(State& state, Instruction& instr) {
     state.line_num++;
-    if (state.op_lifo.size() < 1 || instr.comp_type != Instruction::CompType::COMP_TYPE_STRING)
+    if (state.op_lifo.size() < 2 || instr.comp_type != Instruction::CompType::COMP_TYPE_STRING)
         return;
     Variable v2(state.op_lifo.back());
     state.op_lifo.pop_back();
@@ -689,7 +703,7 @@ void LiteScript::StateExecutor::I_CLASS_PUSH_USTATIC(State& state, Instruction& 
 }
 void LiteScript::StateExecutor::I_CLASS_PUSH_OPERATOR(State& state, Instruction& instr) {
     state.line_num++;
-    if (state.op_lifo.size() < 1 || instr.comp_type != Instruction::CompType::COMP_TYPE_INTEGER)
+    if (state.op_lifo.size() < 2 || instr.comp_type != Instruction::CompType::COMP_TYPE_INTEGER)
         return;
     Variable v2(state.op_lifo.back());
     state.op_lifo.pop_back();
@@ -700,7 +714,7 @@ void LiteScript::StateExecutor::I_CLASS_PUSH_OPERATOR(State& state, Instruction&
 }
 void LiteScript::StateExecutor::I_CLASS_INHERIT(State& state, Instruction& instr) {
     state.line_num++;
-    if (state.op_lifo.size() < 1)
+    if (state.op_lifo.size() < 2)
         return;
     Variable v2(state.op_lifo.back());
     state.op_lifo.pop_back();
@@ -708,6 +722,15 @@ void LiteScript::StateExecutor::I_CLASS_INHERIT(State& state, Instruction& instr
     if (v1->GetType() != Type::CLASS)
         return;
     v1->GetData<Class>().Inherit(v2);
+}
+void LiteScript::StateExecutor::I_CLASS_CONSTRUCTOR(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() < 1 || instr.comp_type != Instruction::CompType::COMP_TYPE_STRING)
+        return;
+    Variable v1(state.op_lifo.back());
+    if (v1->GetType() != Type::CLASS)
+        return;
+    v1->GetData<Class>().DefineConstructor(instr.comp_value.v_string);
 }
 
 // NAMESPACES

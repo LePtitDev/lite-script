@@ -68,6 +68,7 @@ namespace LiteScript {
         static void I_VALUE_CALLBACK(State&, Instruction&);
         static void I_VALUE_ARRAY(State&, Instruction&);
         static void I_VALUE_CLASS(State&, Instruction&);
+        static void I_VALUE_OBJECT(State&, Instruction&);
         static void I_VALUE_ARGS(State&, Instruction&);
         static void I_VALUE_THIS(State&, Instruction&);
         static void I_VALUE_VARIABLE(State&, Instruction&);
@@ -143,6 +144,7 @@ namespace LiteScript {
         static void I_CLASS_PUSH_USTATIC(State&, Instruction&);
         static void I_CLASS_PUSH_OPERATOR(State&, Instruction&);
         static void I_CLASS_INHERIT(State&, Instruction&);
+        static void I_CLASS_CONSTRUCTOR(State&, Instruction&);
 
         // NAMESPACES
         static void I_NAMESPACE_USE(State&, Instruction&);
