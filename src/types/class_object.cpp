@@ -28,7 +28,7 @@ LiteScript::Object & LiteScript::_Type_CLASS_OBJECT::AssignObject(Object &obj) {
 std::string LiteScript::_Type_CLASS_OBJECT::ToString(const Variable &object) const {
     std::stringstream ss;
     const ClassObject& co = object->GetData<ClassObject>();
-    ss << "{";
+    ss << "class(" << &(*co.ClassBase) << "):{";
     for (unsigned int i = 0, sz = co.GetMemberCount(); i < sz; i++) {
         ss << co.GetMemberName(i) << ":" << ((std::string)(co.GetMemberVariable(i))).c_str();
         if (i < sz - 1)

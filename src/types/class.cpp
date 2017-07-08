@@ -43,7 +43,7 @@ std::string LiteScript::_Type_CLASS::ToString(const Variable &object) const {
     if (inherits.size() > 0) {
         ss << "inherits:[";
         for (unsigned int i = 0, sz = inherits.size(); i < sz; i++) {
-            ss << inherits[i];
+            ss << inherits[i]->ID;
             if (i < sz - 1)
                 ss << ",";
         }
