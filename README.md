@@ -38,6 +38,11 @@ The objective is to create an alternative of current script engines and integrat
 
 * The type **regex**
 * **State**, **Memory** and **Instruction** saves
+* Name changing
+  * Scrila (SCRIpting LAnguage)
+  * Liscla (LIttle SCript LAnguage)
+  * Devrila (DEVelopper scRIpting LAnguage)
+  * OAS Script/Assembly (Open-And-Shut)
 
 ## Example of Javascript like script
 
@@ -100,5 +105,7 @@ var Henri = new Game.Person("Henri", 22, Gender.MALE);
 
 print(Anne + Henri);
 ```
+
+## Website
 
 My personnal website : [leptitdev.com](http://leptitdev.com) (french website).
