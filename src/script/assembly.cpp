@@ -175,7 +175,7 @@ LiteScript::Instruction LiteScript::Assembly::GetInstructionSingle(const char *c
         //value.callback [int]
         if (strncmp(code + 6, "callback", 8) == 0) {
             if (code[14] == ' ' && Syntax::ReadUInteger(code + 15, tmp.ui) > 0)
-                return Instruction(InstrCode::INSTR_VALUE_CALLBACK, (int)tmp.ui);
+                return Instruction(InstrCode::INSTR_VALUE_CALLBACK, (int)tmp.ui - 1);
             err = Assembly::ErrorType::ASSM_ERROR_EXPECTED_INTEGER;
             return Instruction(InstrCode::INSTR_INVALID);
         }
@@ -362,21 +362,21 @@ LiteScript::Instruction LiteScript::Assembly::GetInstructionSingle(const char *c
         //jump-to [int]
         if (strncmp(code + 5, "to", 2) == 0) {
             if (code[7] == ' ' && Syntax::ReadUInteger(code + 8, tmp.ui) > 0)
-                return Instruction(InstrCode::INSTR_JUMP_TO, (int)tmp.ui);
+                return Instruction(InstrCode::INSTR_JUMP_TO, (int)tmp.ui - 1);
             err = Assembly::ErrorType::ASSM_ERROR_EXPECTED_INTEGER;
             return Instruction(InstrCode::INSTR_INVALID);
         }
         //jump-if [int]
         if (strncmp(code + 5, "if", 2) == 0) {
             if (code[7] == ' ' && Syntax::ReadUInteger(code + 8, tmp.ui) > 0)
-                return Instruction(InstrCode::INSTR_JUMP_IF, (int)tmp.ui);
+                return Instruction(InstrCode::INSTR_JUMP_IF, (int)tmp.ui - 1);
             err = Assembly::ErrorType::ASSM_ERROR_EXPECTED_INTEGER;
             return Instruction(InstrCode::INSTR_INVALID);
         }
         //jump-else [int]
         if (strncmp(code + 5, "else", 4) == 0) {
             if (code[9] == ' ' && Syntax::ReadUInteger(code + 10, tmp.ui) > 0)
-                return Instruction(InstrCode::INSTR_JUMP_ELSE, (int)tmp.ui);
+                return Instruction(InstrCode::INSTR_JUMP_ELSE, (int)tmp.ui - 1);
             err = Assembly::ErrorType::ASSM_ERROR_EXPECTED_INTEGER;
             return Instruction(InstrCode::INSTR_INVALID);
         }

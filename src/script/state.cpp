@@ -162,17 +162,6 @@ void LiteScript::State::UseNamespace(const Variable& n) {
     this->nsp_current = n;
 }
 
-void LiteScript::State::PushNamespace(const Variable &v) {
-    if (v->GetType() == Type::NAMESPACE)
-        this->nsp_lifo.push_back(*this->nsp_current);
-    this->UseNamespace(v);
-}
-
-void LiteScript::State::PopNamespace() {
-    this->UseNamespace(this->nsp_lifo.back());
-    this->nsp_lifo.pop_back();
-}
-
 unsigned int LiteScript::State::GetArgsCount() const {
     if (this->args.size() > 0)
         return this->args.back().size();

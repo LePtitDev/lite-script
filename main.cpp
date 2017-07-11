@@ -22,11 +22,27 @@ std::string readfile(const char * name, unsigned int& i) {
     return s;
 }
 
+Variable print_var(State& s, std::vector<Variable>& args) {
+    std::cout << "print: ";
+    for (unsigned int i = 0, sz = args.size(); i < sz; i++) {
+        std::cout << args[i];
+        if (i < sz - 1)
+            std::cout << ", ";
+    }
+    std::cout << std::endl;
+    return s.memory.Create(Type::UNDEFINED);
+}
+
 int main(int argc, char * argv[]) {
     Assembly assembly;
+
+    Variable v1 = assembly.memory.Create(Type::CALLBACK);
+    v1->GetData<Callback>() = Callback(assembly.state, print_var);
+    assembly.state.GetCurrentNamespace()->GetData<Namespace>().DefineVariable("print", v1);
+
     char cmd[256];
     std::string code;
-    unsigned int line_num = 0, prev_num = 0;
+    unsigned int line_num = 1, prev_num = 1;
     std::cout << "Enter assembly code :" << std::endl;
     std::cout << "- \"exit\" to stop execution" << std::endl;
     std::cout << "- enter white line to execute previous code" << std::endl;

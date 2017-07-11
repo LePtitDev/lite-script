@@ -165,18 +165,6 @@ namespace LiteScript {
         void UseNamespace(const Variable& n);
 
         /**
-         * Push the namespace lifo
-         *
-         * @param v The namespace
-         */
-        void PushNamespace(const Variable& v);
-
-        /**
-         * Pop the namespace lifo
-         */
-        void PopNamespace();
-
-        /**
          * Return the count of args in the top of LIFO
          */
         unsigned int GetArgsCount() const;

@@ -804,6 +804,16 @@ namespace LiteScript {
         // The current this
         Nullable<Variable> This;
 
+        ///////////////////////
+        ////// ACCESSORS //////
+        ///////////////////////
+
+        // Public getter on the instructions list index
+        const unsigned int& I;
+
+        // Public getter on the instruction line number
+        const unsigned int& L;
+
         //////////////////////////
         ////// CONSTRUCTORS //////
         //////////////////////////
@@ -843,6 +853,11 @@ namespace LiteScript {
          * Indicate if the callback is assigned
          */
         bool isAssigned() const;
+
+        /**
+         * Indicate if the callback is internal
+         */
+        bool isInternal() const;
 
         // The assign operator
         Callback& operator=(const Callback& c);

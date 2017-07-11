@@ -13,6 +13,7 @@
 /////////////////////////////////////////////////////////////////////
 
 #include "executor.hpp"
+#include "instruction.hpp"
 
 void LiteScript::StateExecutor::Execute(State &state, Instruction &instr) {
     StateExecutor::ARRAY[instr.code](state, instr);
@@ -129,7 +130,7 @@ void LiteScript::StateExecutor::I_DEFINE_ARG(State& state, Instruction& instr) {
     if (state.op_lifo.size() == 0 || state.args.size() == 0 || instr.comp_type != Instruction::CompType::COMP_TYPE_INTEGER)
         return;
     std::vector<Variable>& args = state.args.back();
-    while (args.size() <= instr.comp_value.v_integer)
+    while (args.size() < instr.comp_value.v_integer)
         args.push_back(state.memory.Create(Type::UNDEFINED));
     args.emplace(args.begin() + instr.comp_value.v_integer, state.op_lifo.back());
     state.op_lifo.pop_back();
@@ -240,6 +241,7 @@ void LiteScript::StateExecutor::I_PUSH_NSP(State& state, Instruction& instr) {
     state.nsp_list.push_back(state.memory.Create(Type::NAMESPACE));
     state.ths.push_back(state.memory.Create(Type::UNDEFINED));
     state.rets.push_back(Nullable<Variable>(state.memory.Create(Type::UNDEFINED)));
+    state.nsp_lifo.push_back(Variable(*state.nsp_current));
 }
 void LiteScript::StateExecutor::I_PUSH_ARGS(State& state, Instruction& instr) {
     state.line_num++;
@@ -255,6 +257,10 @@ void LiteScript::StateExecutor::I_POP_NSP(State& state, Instruction& instr) {
         state.nsp_list.pop_back();
     if (state.ths.size() > 0)
         state.ths.pop_back();
+    if (state.nsp_lifo.size() > 0) {
+        state.nsp_current = Nullable<Variable>(state.nsp_lifo.back());
+        state.nsp_lifo.pop_back();
+    }
 }
 void LiteScript::StateExecutor::I_POP_ARGS(State& state, Instruction& instr) {
     state.line_num++;

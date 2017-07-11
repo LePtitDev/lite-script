@@ -454,24 +454,24 @@ LiteScript::String& LiteScript::Character::operator*=(unsigned int nb) {
 /****** CLASS CALLBACK ******/
 /****************************/
 
-LiteScript::Callback::Callback() : state(nullptr) {}
+LiteScript::Callback::Callback() : state(nullptr), I(intrl_idx), L(line_num) {}
 
 LiteScript::Callback::Callback(const Callback &c) :
     state(c.state), intrl_idx(c.intrl_idx), line_num(c.line_num), call_ptr(c.call_ptr),
-    nsp(Nullable<Variable>(c.nsp))
+    nsp(Nullable<Variable>(c.nsp)), I(intrl_idx), L(line_num)
 {
 
 }
 
 LiteScript::Callback::Callback(LiteScript::State &s, unsigned int i, unsigned int l) :
     call_ptr(nullptr), state(&s), intrl_idx(i), line_num(l),
-    nsp(Nullable<Variable>(s.GetCurrentNamespace()))
+    nsp(Nullable<Variable>(s.GetCurrentNamespace())), I(intrl_idx), L(line_num)
 {
 
 }
 
 LiteScript::Callback::Callback(State &s, Variable (* cptr)(State &, std::vector<Variable>&)) :
-    state(&s), call_ptr(cptr)
+    state(&s), call_ptr(cptr), I(intrl_idx), L(line_num)
 {
 
 }
@@ -480,11 +480,16 @@ bool LiteScript::Callback::isAssigned() const {
     return this->state != nullptr;
 }
 
+bool LiteScript::Callback::isInternal() const {
+    return this->state != nullptr && this->call_ptr != nullptr;
+}
+
 LiteScript::Callback & LiteScript::Callback::operator=(const Callback &c) {
     this->state = c.state;
     this->intrl_idx = c.intrl_idx;
     this->line_num = c.line_num;
     this->call_ptr = c.call_ptr;
+    this->nsp = c.nsp;
     return *this;
 }
 
@@ -512,13 +517,9 @@ LiteScript::Variable LiteScript::Callback::operator()(std::vector<Variable> &arg
         this->state->GetThis() = this->This;
     if (this->call_ptr == nullptr) {
         Nullable<Variable> last_nsp;
-        if (!this->nsp.isNull) {
-            last_nsp = Nullable<Variable>(this->state->GetCurrentNamespace());
-            this->state->PushNamespace(*this->nsp);
-        }
+        if (!this->nsp.isNull)
+            this->state->UseNamespace(*this->nsp);
         this->state->PushCall(this->intrl_idx, this->line_num);
-        if (!last_nsp.isNull)
-            this->state->PopNamespace();
         return this->state->memory.Create(Type::UNDEFINED);
     }
     else {

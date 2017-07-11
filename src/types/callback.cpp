@@ -86,6 +86,10 @@ LiteScript::Variable LiteScript::_Type_CALLBACK::OCall(Variable &object, std::ve
 
 std::string LiteScript::_Type_CALLBACK::ToString(const Variable &object) const {
     std::stringstream ss;
-    ss << "f" << object->ID;
+    const Callback& C = object->GetData<Callback>();
+    if (C.isInternal())
+        ss << "f(internal)";
+    else
+        ss << "f(I=" << C.I << ",L=" << C.L << ")";
     return ss.str();
 }
