@@ -1,0 +1,40 @@
+namespace Program
+jump-to 31
+value.arg 0
+define.variable n
+value.variable n
+value.number 1
+operator.less-equ
+jump-else 12
+value.number 1
+define.return
+return
+value.variable Fibonacci
+push.args
+value.variable n
+value.number 1
+operator.sub
+define.arg 0
+operator.call
+pop.args
+value.variable Fibonacci
+push.args
+value.variable n
+value.number 2
+operator.sub
+define.arg 0
+operator.call
+pop.args
+operator.add
+define.return
+return
+value.callback 3
+define.variable Fibonacci
+namespace global
+value.variable Program
+operator.member Fibonacci
+push.args
+value.number 20
+define.arg 0
+operator.call
+pop.args

@@ -4,8 +4,6 @@ project(LiteScript)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 set(SOURCE_FILES
-        main.cpp
-
         src/litescript.hpp
         src/nullable.hpp
 
@@ -32,6 +30,7 @@ set(SOURCE_FILES
         src/script/instruction.hpp src/script/instruction.cpp
         src/script/state.hpp src/script/state.cpp
         src/script/executor.hpp src/script/executor.cpp
-        src/script/assembly.hpp src/script/assembly.cpp src/script/syntax.hpp src/script/syntax.cpp)
+        src/script/assembly.hpp src/script/assembly.cpp
+        src/script/syntax.hpp src/script/syntax.cpp)
 
-add_executable(LiteScript ${SOURCE_FILES})
+add_executable(LiteScript main.cpp ${SOURCE_FILES})

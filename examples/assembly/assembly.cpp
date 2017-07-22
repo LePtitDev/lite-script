@@ -1,10 +1,16 @@
 #include <iostream>
 #include <fstream>
 
-#include "src/litescript.hpp"
+#include "../../src/litescript.hpp"
 
 using namespace LiteScript;
 
+/**
+ * Read the content of a file
+ * @param name The filename
+ * @param i The line number reference
+ * @return The content of the file
+ */
 std::string readfile(const char * name, unsigned int& i) {
     std::string s;
     std::ifstream file(name);
@@ -22,6 +28,12 @@ std::string readfile(const char * name, unsigned int& i) {
     return s;
 }
 
+/**
+ * The print callback to include in the state of script
+ * @param s The assembly state
+ * @param args The arguments
+ * @return Undefined value
+ */
 Variable print_var(State& s, std::vector<Variable>& args) {
     std::cout << "print: ";
     for (unsigned int i = 0, sz = args.size(); i < sz; i++) {
@@ -33,6 +45,9 @@ Variable print_var(State& s, std::vector<Variable>& args) {
     return s.memory.Create(Type::UNDEFINED);
 }
 
+/**
+ * The assembly instruction syntaxes
+ */
 std::array<const char *, 75> commands_instructions({
     "define.variable <name> : define a variable in the current namespace (1 pop)",
     "define.arg <index number> : define an argument (1 pop)",
@@ -111,6 +126,9 @@ std::array<const char *, 75> commands_instructions({
     "namespace <name[.name]*> : define the current namespace base, \"global\" for return to the global namespace"
 });
 
+/**
+ * The commands
+ */
 std::array<const char *, 5> command_help({
     "exit : stop execution",
     "file <filepath> : execute assembly code in a file",
@@ -119,6 +137,11 @@ std::array<const char *, 5> command_help({
     "enter white line to execute previous code"
 });
 
+/**
+ * For display instructions and commands
+ * @param commnds_c The number of strings
+ * @param commnds_v The strings
+ */
 void display_commands(int commnds_c, const char ** commnds_v) {
     for (unsigned int i = 0; i < commnds_c; i++) {
         if (strlen(commnds_v[i]) != 0)
@@ -127,31 +150,44 @@ void display_commands(int commnds_c, const char ** commnds_v) {
     }
 }
 
+/**
+ * The main fonction
+ */
 int main(int argc, char * argv[]) {
+    // We create an assembly object
     Assembly assembly;
 
+    // We add the "print" callback in the global namespace
     Variable v1 = assembly.memory.Create(Type::CALLBACK);
     v1->GetData<Callback>() = Callback(assembly.state, print_var);
     assembly.state.GetCurrentNamespace()->GetData<Namespace>().DefineVariable("print", v1);
 
+    // If there is a parameter, it's a file assembly script to execute
     if (argc > 1) {
         unsigned int i;
+        // We read the file content
         std::string code = readfile(argv[1], i);
         if (code == "error : can't open the file") {
             std::cout << code << " \"" << argv[1] << "\"" << std::endl;
             return -1;
         }
 
+        // We execute the assembly script
         Variable result = assembly.ExecuteAfter(code.c_str());
+        // If there is an error, we print it
         if (assembly.error != Assembly::ErrorType::ASSM_ERROR_NO) {
             std::cout << "ERROR(" << assembly.line_error << "): " << assembly.GetError() << std::endl;
             return 1;
         }
+        // Otherwise we print the result of the script
+        // (it's the last value on the heap)
         else
             std::cout << (std::string)(result) << std::endl;
         return 0;
     }
 
+    // Else we read lines on the keyboard
+    // (the script execution is relatively the same as above)
     char cmd[256];
     std::string code;
     unsigned int line_num = 1, prev_num = 1;
@@ -200,4 +236,5 @@ int main(int argc, char * argv[]) {
             prev_num = line_num;
         }
     }
+
 }
