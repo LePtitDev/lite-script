@@ -51,5 +51,6 @@ namespace LiteScript {
 #include "script/instruction.hpp"
 #include "script/state.hpp"
 #include "script/assembly.hpp"
+#include "script/script.hpp"
 
 #endif //LITESCRIPT_LITESCRIPT_HPP

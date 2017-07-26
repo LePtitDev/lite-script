@@ -31,6 +31,6 @@ set(SOURCE_FILES
         src/script/state.hpp src/script/state.cpp
         src/script/executor.hpp src/script/executor.cpp
         src/script/assembly.hpp src/script/assembly.cpp
-        src/script/syntax.hpp src/script/syntax.cpp)
+        src/script/syntax.hpp src/script/syntax.cpp src/script/script.hpp src/script/script.cpp)
 
 add_executable(LiteScript main.cpp ${SOURCE_FILES})

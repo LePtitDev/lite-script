@@ -196,12 +196,8 @@ namespace LiteScript {
         ////// UNSTATIC METHOD //////
         /////////////////////////////
 
-        /**
-         * Save the instruction in the stream
-         *
-         * @param stream The stream
-         */
-        void Save(std::ostream& stream);
+        // The assign operator
+        Instruction& operator=(const Instruction& in);
 
         ////////////////////////////
         ////// STATIC METHODS //////
@@ -213,7 +209,7 @@ namespace LiteScript {
          * @param stream The stream
          * @param instr The instruction
          */
-        static void Save(std::ostream& stream, Instruction instr);
+        static void Save(std::ostream& stream, const std::vector<Instruction>& instr);
 
         /**
          * Load an instruction from a stream
@@ -221,10 +217,7 @@ namespace LiteScript {
          * @param stream The stream
          * @return The instruction
          */
-        static Instruction Load(std::istream& stream);
-
-        // The assign operator
-        Instruction& operator=(const Instruction& in);
+        static std::vector<Instruction> Load(std::istream& stream);
 
     };
 
