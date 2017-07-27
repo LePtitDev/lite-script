@@ -1,0 +1,14 @@
+﻿------ LIENS ------
+
+http://www.ascii.cl/htmlcodes.htm
+
+------ ESPACE DE NOMS ------
+
+Les espaces de noms :
+- global : celui qui englobe tout
+- pile des appels : ceux de fonctions
+
+Un espace de noms d'appel :
+- courant : l'espace de nom global courant
+- pile des espaces  : espaces de noms empilées
+- d'appel : espace de noms de l'appel courant

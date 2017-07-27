@@ -33,6 +33,7 @@ The objective is to create an alternative of current script engines and integrat
 * Garbage collector *mark and sweep* (**Variable**s contain also a reference counter)
 * Javascript like object-oriented language
 * Errors catch
+* Reorganization of namespaces management
 
 ## Possible features
 

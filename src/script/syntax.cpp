@@ -16,12 +16,6 @@
 
 #include "syntax.hpp"
 
-unsigned int LiteScript::Syntax::LineBegin(const char *begin, unsigned int current) {
-    int i;
-    for (i = (int)current - 1; i >= 0 && begin[i] != '\n'; i--);
-    return (unsigned int)i + 1;
-}
-
 unsigned int LiteScript::Syntax::ReadUndefined(const char *text) {
     return (text[0] == 'u' &&
             text[1] == 'n' &&
@@ -146,6 +140,7 @@ r:
 unsigned int LiteScript::Syntax::ReadName(const char *text, std::string &name) {
     if (text[0] < 'a' && text[0] > 'z' && text[0] < 'A' && text[0] > 'Z' && text[0] != '$' && text[0] != '_')
         return 0;
+    name.clear();
     name += text[0];
     unsigned int i;
     for (i = 1;
@@ -157,15 +152,13 @@ unsigned int LiteScript::Syntax::ReadName(const char *text, std::string &name) {
     return i;
 }
 
-int LiteScript::Syntax::ReadString(const char *text, std::string &string, unsigned int &lb) {
+int LiteScript::Syntax::ReadString(const char *text, std::string &string) {
     if (text[0] != '"' && text[0] != '\'')
         return 0;
     string.clear();
     char end_char = text[0];
     int i;
     for (i = 1; text[i] != end_char; i++) {
-        if (text[i] == '\n')
-            lb++;
         if (text[i] == '\0')
             return -1;
         if (text[i] != '\\') {
@@ -187,7 +180,7 @@ int LiteScript::Syntax::ReadString(const char *text, std::string &string, unsign
     return i + 1;
 }
 
-unsigned int LiteScript::Syntax::ReadComment(const char *text, unsigned int& lb) {
+unsigned int LiteScript::Syntax::ReadComment(const char *text) {
     if (text[0] != '/')
         return 0;
     unsigned int i;
@@ -197,8 +190,6 @@ unsigned int LiteScript::Syntax::ReadComment(const char *text, unsigned int& lb)
     }
     else if (text[1] == '*') {
         for (i = 2; text[i] != '\0'; i++) {
-            if (text[i] == '\n')
-                lb++;
             if (text[i] == '*' && text[i + 1] == '/') {
                 i += 2;
                 break;
@@ -211,12 +202,12 @@ unsigned int LiteScript::Syntax::ReadComment(const char *text, unsigned int& lb)
     }
 }
 
-unsigned int LiteScript::Syntax::ReadWhitespace(const char *text, unsigned int &lb) {
+unsigned int LiteScript::Syntax::ReadWhitespace(const char *text) {
     unsigned int i = 0, tmp;
     while (true) {
         if (text[i] == ' ' || text[i] == '\t' || text[i] == '\n')
             i++;
-        else if ((tmp = ReadComment(text, lb)) > 0)
+        else if ((tmp = ReadComment(text)) > 0)
             i += tmp;
         else
             break;
@@ -224,8 +215,7 @@ unsigned int LiteScript::Syntax::ReadWhitespace(const char *text, unsigned int &
     return i;
 }
 
-int LiteScript::Syntax::ReadArray(const char *text, std::vector<Instruction> &instrl, unsigned int &lb,
-                                  Script::ErrorType &errorType) {
+int LiteScript::Syntax::ReadArray(const char *text, std::vector<Instruction> &instrl, Script::ErrorType &errorType) {
     union {
         int i;
         unsigned int ui;
@@ -236,14 +226,13 @@ int LiteScript::Syntax::ReadArray(const char *text, std::vector<Instruction> &in
         instrl.push_back(Instruction(InstrCode::INSTR_VALUE_ARRAY));
         unsigned int index = 0;
         while (text[i] != ']') {
-            if ((tmp.ui = ReadWhitespace(text + i, lb)) > 0)
-                i += (int)tmp.ui;
-            else if (index == 0 && (tmp.i = ReadExpression(text + i, instrl, lb, errorType)) > 0) {
+            i += (int)ReadWhitespace(text + i);
+            if (index == 0 && (tmp.i = ReadExpression(text + i, instrl, errorType)) > 0) {
                 i += tmp.i;
                 instrl.push_back(Instruction(InstrCode::INSTR_ARRAY_PUSH_NUMERIC, (int)0));
                 index++;
             }
-            else if (index > 0 && text[i] == ',' && (tmp.i = ReadExpression(text + i + 1, instrl, lb, errorType)) > 0) {
+            else if (index > 0 && text[i] == ',' && (tmp.i = ReadExpression(text + i + 1, instrl, errorType)) > 0) {
                 i += tmp.i + 1;
                 instrl.push_back(Instruction(InstrCode::INSTR_ARRAY_PUSH_NUMERIC, (int)index++));
             }
@@ -251,7 +240,7 @@ int LiteScript::Syntax::ReadArray(const char *text, std::vector<Instruction> &in
                 if (tmp.i != 0)
                     return tmp.i - i;
                 else {
-                    errorType = Script::ErrorType::SCRPT_ERROR_VALUE_SIMPLEARRAY_ENDEXPECTED;
+                    errorType = Script::ErrorType::SCRPT_ERROR_VALUE_SIMPLEARRAY_END;
                     return -i;
                 }
             }
@@ -261,14 +250,126 @@ int LiteScript::Syntax::ReadArray(const char *text, std::vector<Instruction> &in
     else if (text[0] == '{') {
         // \{ ({name}:{expr}(,{name}:{expr})*)? \}
         instrl.push_back(Instruction(InstrCode::INSTR_VALUE_ARRAY));
+        bool need_name = true;
+        std::string tmp_str;
         while (text[i] != '}') {
-            if ((tmp.ui = ReadWhitespace(text, lb)) > 0)
+            i += (int)ReadWhitespace(text + i);
+            if (need_name && (tmp.ui = ReadName(text + i, tmp_str)) > 0) {
                 i += (int)tmp.ui;
-            ////// A COMPLETER //////
+                i += (int)ReadWhitespace(text + i);
+                if (text[i] != ':') {
+                    errorType = Script::ErrorType::SCRPT_ERROR_VALUE_NAMEDARRAY_COLON;
+                    return -i;
+                }
+                ++i;
+                if ((tmp.i = ReadExpression(text + i, instrl, errorType)) <= 0) {
+                    if (tmp.i != 0)
+                        return tmp.i - i;
+                    else {
+                        errorType = Script::ErrorType::SCRPT_ERROR_VALUE_NAMEDARRAY_EXPRESSION;
+                        return -i;
+                    }
+                }
+                i += tmp.i;
+                instrl.push_back(Instruction(InstrCode::INSTR_ARRAY_PUSH_NUMERIC, (int)0));
+                need_name = false;
+            }
+            else if (!need_name && text[i] == ',' && (tmp.ui = ReadWhitespace(text + i + 1)) > 0) {
+                i += tmp.ui + 1;
+                need_name = true;
+            }
+            else {
+                if (tmp.i != 0)
+                    return tmp.i - i;
+                else {
+                    errorType = Script::ErrorType::SCRPT_ERROR_VALUE_NAMEDARRAY_END;
+                    return -i;
+                }
+            }
         }
         return i + 1;
     }
     else {
         return 0;
     }
+}
+
+int LiteScript::Syntax::ReadCallbackValue(const char *text, std::vector<Instruction> &instrl,
+                                     Script::ErrorType &errorType) {
+    if (text[0] != 'f' ||
+        text[1] != 'u' ||
+        text[2] != 'n' ||
+        text[3] != 'c' ||
+        text[4] != 't' ||
+        text[5] != 'i' ||
+        text[6] != 'o' ||
+        text[7] != 'n')
+        return 0;
+    int i = 8, tmp, line = instrl.size() - 1;;
+    i += ReadWhitespace(text + i);
+    // function\(({name}(,{name})*(...)?)?\){instructionBlock}
+    if ((tmp = ReadCallbackArguments(text + i, instrl, errorType)) <= 0) {
+        if (tmp != 0)
+            return tmp - i;
+        else {
+            errorType = Script::ErrorType::SCRPT_ERROR_VALUE_CALLBACK_ARGUMENTS;
+            return -i;
+        }
+    }
+    i += tmp;
+    i += ReadWhitespace(text + i);
+    if ((tmp = ReadInstructionBlock(text + i, instrl, errorType)) <= 0) {
+        if (tmp != 0)
+            return tmp - i;
+        else {
+            errorType = Script::ErrorType::SCRPT_ERROR_VALUE_CALLBACK_INSTRUCTIONS;
+            return -i;
+        }
+    }
+    i += tmp;
+    instrl.push_back(Instruction(InstrCode::INSTR_VALUE_CALLBACK, line));
+    return i;
+}
+
+int LiteScript::Syntax::ReadCallbackArguments(const char *text, std::vector<Instruction> &instrl,
+                                              Script::ErrorType &errorType) {
+    if (text[0] != '(')
+        return 0;
+    bool need_name = true;
+    std::string name;
+    int i = 1;
+    int tmp_i;
+    int index = 0;
+    while (text[i] != ')') {
+        i += ReadWhitespace(text + i);
+        if (need_name && (tmp_i = ReadName(text + i, name)) > 0) {
+            i += tmp_i;
+            instrl.push_back(Instruction(InstrCode::INSTR_VALUE_ARG, index));
+            instrl.push_back(Instruction(InstrCode::INSTR_VALUE_VARIABLE, name.c_str()));
+            need_name = false;
+        }
+        else if (!need_name && text[i] == ',') {
+            i++;
+            index++;
+            need_name = true;
+        }
+        else if (!need_name && text[i] == '.' && text[i + 1] == '.' && text[i + 2] == '.') {
+            instrl[instrl.size() - 2].code = InstrCode::INSTR_VALUE_ARGS;
+            i += 3;
+            i += ReadWhitespace(text + i);
+            if (text[i] != ')') {
+                errorType = Script::ErrorType::SCRPT_ERROR_CALLBACK_ARGUMENT_END;
+                return -i;
+            }
+        }
+        else {
+            errorType = Script::ErrorType::SCRPT_ERROR_CALLBACK_ARGUMENT_END;
+            return -i;
+        }
+    }
+    if (need_name && index > 0) {
+        errorType = Script::ErrorType::SCRPT_ERROR_CALLBACK_ARGUMENT_NAME;
+        return -i;
+    }
+    return i;
 }

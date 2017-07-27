@@ -23,15 +23,6 @@ namespace LiteScript {
     namespace Syntax {
 
         /**
-         * Get the number of characters from the current position to the line begin
-         *
-         * @param begin The text begin
-         * @param current The current position
-         * @return The number of characters
-         */
-        unsigned int LineBegin(const char * begin, unsigned int current);
-
-        /**
          * Try to read an undefined value
          *
          * @param text The text that contain the undefined value
@@ -106,76 +97,146 @@ namespace LiteScript {
          *
          * @param text The text that contain the string
          * @param string The result
-         * @param lb The number of line breaks met is added
          * @return The number of characters read if success and a negative number if an error occurred
          */
-        int ReadString(const char * text, std::string& string, unsigned int& lb);
+        int ReadString(const char * text, std::string& string);
 
         /**
          * Try to read a comment
          *
          * @param text The text that contain the comment
-         * @param lb The number of line breaks met is added
          * @return The number of read characters (zero if failure)
          */
-        unsigned int ReadComment(const char * text, unsigned int& lb);
+        unsigned int ReadComment(const char * text);
 
         /**
          * Try to read a white space (comments included)
          *
          * @param text The text that contain the white space
-         * @param lb The number of line breaks met is added
          * @return The number of read characters (zero if failure)
          */
-        unsigned int ReadWhitespace(const char * text, unsigned int& lb);
+        unsigned int ReadWhitespace(const char * text);
 
         /**
          * Try to read an array
          *
          * @param text The text that contain the array
          * @param instrl The instructions list that result
-         * @param lb The number of line breaks met is added
          * @param errorType The error type
          * @return The number of characters read if success and a negative number if an error occurred
          * (if error the return value is the opposite of the position where occurred)
          */
-        int ReadArray(const char * text, std::vector<Instruction>& instrl, unsigned int& lb, Script::ErrorType& errorType);
+        int ReadArray(const char * text, std::vector<Instruction>& instrl, Script::ErrorType& errorType);
+
+        /**
+         * Try to read an anonymous callback
+         *
+         * @param text The text that contain the anonymous callback
+         * @param instrl The instructions list that result
+         * @param errorType The error type
+         * @return The number of characters read if success and a negative number if an error occurred
+         * (if error the return value is the opposite of the position where occurred)
+         */
+        int ReadCallbackValue(const char * text, std::vector<Instruction>& instrl, Script::ErrorType& errorType);
+
+        /**
+         * Try to read callback arguments
+         *
+         * @param text The text that contain the callback arguments
+         * @param instrl The instructions list that result
+         * @param errorType The error type
+         * @return The number of characters read if success and a negative number if an error occurred
+         * (if error the return value is the opposite of the position where occurred)
+         */
+        int ReadCallbackArguments(const char * text, std::vector<Instruction>& instrl, Script::ErrorType& errorType);
 
         /**
          * Try to read a value
          *
          * @param text The text that contain the value
          * @param instrl The instructions list that result
-         * @param lb The number of line breaks met is added
          * @param errorType The error type
          * @return The number of characters read if success and a negative number if an error occurred
          * (if error the return value is the opposite of the position where occurred)
          */
-        int ReadValue(const char * text, std::vector<Instruction>& instrl, unsigned int& lb, Script::ErrorType& errorType);
+        int ReadValue(const char * text, std::vector<Instruction>& instrl, Script::ErrorType& errorType);
 
         /**
          * Try to read an operand
          *
          * @param text The text that contain the operand
          * @param instrl The instructions list that result
-         * @param lb The number of line breaks met is added
          * @param errorType The error type
          * @return The number of characters read if success and a negative number if an error occurred
          * (if error the return value is the opposite of the position where occurred)
          */
-        int ReadOperand(const char * text, std::vector<Instruction>& instrl, unsigned int& lb, Script::ErrorType& errorType);
+        int ReadOperand(const char * text, std::vector<Instruction>& instrl, Script::ErrorType& errorType);
 
         /**
          * Try to read an expression
          *
          * @param text The text that contain the expression
          * @param instrl The instructions list that result
-         * @param lb The number of line breaks met is added
          * @param errorType The error type
          * @return The number of characters read if success and a negative number if an error occurred
          * (if error the return value is the opposite of the position where occurred)
          */
-        int ReadExpression(const char * text, std::vector<Instruction>& instrl, unsigned int& lb, Script::ErrorType& errorType);
+        int ReadExpression(const char * text, std::vector<Instruction>& instrl, Script::ErrorType& errorType);
+
+        /**
+         * Try to read an if control instruction
+         *
+         * @param text The text that contain the if control instruction
+         * @param instrl The instructions list that result
+         * @param errorType The error type
+         * @return The number of characters read if success and a negative number if an error occurred
+         * (if error the return value is the opposite of the position where occurred)
+         */
+        int ReadControlIf(const char * text, std::vector<Instruction>& instrl, Script::ErrorType& errorType);
+
+        /**
+         * Try to read an instruction
+         *
+         * @param text The text that contain the instruction
+         * @param instrl The instructions list that result
+         * @param errorType The error type
+         * @return The number of characters read if success and a negative number if an error occurred
+         * (if error the return value is the opposite of the position where occurred)
+         */
+        int ReadInstruction(const char * text, std::vector<Instruction>& instrl, Script::ErrorType& errorType);
+
+        /**
+         * Try to read an instruction block
+         *
+         * @param text The text that contain the instruction block
+         * @param instrl The instructions list that result
+         * @param errorType The error type
+         * @return The number of characters read if success and a negative number if an error occurred
+         * (if error the return value is the opposite of the position where occurred)
+         */
+        int ReadInstructionBlock(const char * text, std::vector<Instruction>& instrl, Script::ErrorType& errorType);
+
+        /**
+         * Try to read a callback
+         *
+         * @param text The text that contain the callback
+         * @param instrl The instructions list that result
+         * @param errorType The error type
+         * @return The number of characters read if success and a negative number if an error occurred
+         * (if error the return value is the opposite of the position where occurred)
+         */
+        int ReadCallback(const char * text, std::vector<Instruction>& instrl, Script::ErrorType& errorType);
+
+        /**
+         * Try to read a script
+         *
+         * @param text The text that contain the script
+         * @param instrl The instructions list that result
+         * @param errorType The error type
+         * @return The number of characters read if success and a negative number if an error occurred
+         * (if error the return value is the opposite of the position where occurred)
+         */
+        int ReadScript(const char * text, std::vector<Instruction>& instrl, Script::ErrorType& errorType);
 
     }
 
