@@ -151,6 +151,39 @@ namespace LiteScript {
         int ReadCallbackArguments(const char * text, std::vector<Instruction>& instrl, Script::ErrorType& errorType);
 
         /**
+         * Try to read an anonymous class
+         *
+         * @param text The text that contain the anonymous class
+         * @param instrl The instructions list that result
+         * @param errorType The error type
+         * @return The number of characters read if success and a negative number if an error occurred
+         * (if error the return value is the opposite of the position where occurred)
+         */
+        int ReadClassValue(const char * text, std::vector<Instruction>& instrl, Script::ErrorType& errorType);
+
+        /**
+         * Try to read class inherits
+         *
+         * @param text The text that contain the class inherits
+         * @param instrl The instructions list that result
+         * @param errorType The error type
+         * @return The number of characters read if success and a negative number if an error occurred
+         * (if error the return value is the opposite of the position where occurred)
+         */
+        int ReadClassInherits(const char * text, std::vector<Instruction>& instrl, Script::ErrorType& errorType);
+
+        /**
+         * Try to read a class member
+         *
+         * @param text The text that contain the class member
+         * @param instrl The instructions list that result
+         * @param errorType The error type
+         * @return The number of characters read if success and a negative number if an error occurred
+         * (if error the return value is the opposite of the position where occurred)
+         */
+        int ReadClassMember(const char * text, std::vector<Instruction>& instrl, Script::ErrorType& errorType);
+
+        /**
          * Try to read a value
          *
          * @param text The text that contain the value
@@ -226,6 +259,17 @@ namespace LiteScript {
          * (if error the return value is the opposite of the position where occurred)
          */
         int ReadCallback(const char * text, std::vector<Instruction>& instrl, Script::ErrorType& errorType);
+
+        /**
+         * Try to read a class
+         *
+         * @param text The text that contain the class
+         * @param instrl The instructions list that result
+         * @param errorType The error type
+         * @return The number of characters read if success and a negative number if an error occurred
+         * (if error the return value is the opposite of the position where occurred)
+         */
+        int ReadClass(const char * text, std::vector<Instruction>& instrl, Script::ErrorType& errorType);
 
         /**
          * Try to read a script
