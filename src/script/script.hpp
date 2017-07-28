@@ -48,6 +48,9 @@ namespace LiteScript {
 
             SCRPT_ERROR_CLASS_INHERIT,
             SCRPT_ERROR_CLASS_BEGIN,
+            SCRPT_ERROR_CLASS_INVALID,
+            SCRPT_ERROR_CLASS_OPERATOR_NAME,
+            SCRPT_ERROR_CLASS_OPERATOR_INVALID,
             SCRPT_ERROR_CLASS_END,
 
             SCRPT_ERROR_NUMBER

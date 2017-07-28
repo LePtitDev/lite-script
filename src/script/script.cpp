@@ -40,6 +40,12 @@ std::array<const char *, LiteScript::Script::ErrorType::SCRPT_ERROR_NUMBER> Lite
     "Class to inherit expected for class definition",
     // SCRPT_ERROR_CLASS_BEGIN
     "Opening brace expected for class definition",
+    // SCRPT_ERROR_CLASS_INVALID
+    "Invalid member inside class definition",
+    // SCRPT_ERROR_CLASS_OPERATOR_NAME
+    "Operator name expected for class definition",
+    // SCRPT_ERROR_CLASS_OPERATOR_INVALID
+    "Invalid operator name for class definition",
     // SCRPT_ERROR_CLASS_END
     "Closing brace expected for class definition"
 });

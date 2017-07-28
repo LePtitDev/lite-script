@@ -13,7 +13,6 @@
 /////////////////////////////////////////////////////////////////////
 
 #include "executor.hpp"
-#include "instruction.hpp"
 
 void LiteScript::StateExecutor::Execute(State &state, Instruction &instr) {
     StateExecutor::ARRAY[instr.code](state, instr);
@@ -725,7 +724,7 @@ void LiteScript::StateExecutor::I_CLASS_PUSH_OPERATOR(State& state, Instruction&
     Variable v1(state.op_lifo.back());
     if (v1->GetType() != Type::CLASS)
         return;
-    v1->GetData<Class>().AddOperator(instr.comp_value.v_integer, v2);
+    v1->GetData<Class>().AddOperator((unsigned int)instr.comp_value.v_integer, v2);
 }
 void LiteScript::StateExecutor::I_CLASS_INHERIT(State& state, Instruction& instr) {
     state.line_num++;
