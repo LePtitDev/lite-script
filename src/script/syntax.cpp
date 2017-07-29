@@ -16,6 +16,22 @@
 
 #include "syntax.hpp"
 
+std::array<unsigned char, LiteScript::Syntax::Operators::OP_NUMBER> LiteScript::Syntax::OP_Priority({
+    1, 1, 1, 1, 1,
+    2, 2, 2, 2, 2, 2, 2,
+    3, 3, 3,
+    4, 4,
+    5, 5,
+    6, 6, 6, 6,
+    7, 7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13, 13, 13, 13, 13
+});
+
 unsigned int LiteScript::Syntax::ReadUndefined(const char *text) {
     return (text[0] == 'u' &&
             text[1] == 'n' &&
@@ -467,6 +483,11 @@ int LiteScript::Syntax::ReadClassMember(const char *text, std::vector<Instructio
     int i = 0, tmp, curr;
     if ((tmp = ReadClassOperator(text, instrl, errorType)) != 0)
         return tmp;
+    if ((tmp = ReadClass(text, instrl, errorType)) != 0) {
+        if (tmp > 0)
+            instrl.back().code = InstrCode::INSTR_CLASS_PUSH_STATIC;
+        return tmp;
+    }
 
     bool is_static = false;
     if (text[0] == 's' &&
@@ -633,4 +654,140 @@ int LiteScript::Syntax::ReadClassOperator(const char *text, std::vector<Instruct
     i += tmp.i;
     instrl.push_back(Instruction(InstrCode::INSTR_CLASS_PUSH_OPERATOR, (int)op));
     return i;
+}
+
+int LiteScript::Syntax::ReadValue(const char *text, std::vector<Instruction> &instrl, Script::ErrorType &errorType) {
+    union {
+        bool b;
+        int i;
+        unsigned int ui;
+        float f;
+    } tmp;
+    std::string tmp_s;
+    if ((tmp.ui = ReadUndefined(text)) > 0) {
+        instrl.push_back(Instruction(InstrCode::INSTR_VALUE_UNDEFINED));
+        return (int) tmp.ui;
+    }
+    else if ((tmp.ui = ReadNull(text)) > 0) {
+        instrl.push_back(Instruction(InstrCode::INSTR_VALUE_NULL));
+        return (int) tmp.ui;
+    }
+    else if ((tmp.ui = ReadBoolean(text, tmp.b)) > 0) {
+        instrl.push_back(Instruction(InstrCode::INSTR_VALUE_BOOLEAN, tmp.b));
+        return (int) tmp.ui;
+    }
+    else if ((tmp.ui = ReadNumber(text, tmp.f)) > 0) {
+        instrl.push_back(Instruction(InstrCode::INSTR_VALUE_NUMBER, tmp.f));
+        return (int) tmp.ui;
+    }
+    else if ((tmp.ui = ReadName(text, tmp_s)) > 0) {
+        instrl.push_back(Instruction(InstrCode::INSTR_VALUE_VARIABLE, tmp_s.c_str()));
+        return (int) tmp.ui;
+    }
+    else if ((tmp.i = ReadString(text, tmp_s)) > 0) {
+        instrl.push_back(Instruction(InstrCode::INSTR_VALUE_STRING, tmp_s.c_str()));
+        return tmp.i;
+    }
+    else if (tmp.i != 0)
+        return tmp.i;
+    else if ((tmp.i = ReadCallbackValue(text, instrl, errorType)) > 0) {
+        return tmp.i;
+    }
+    else if (tmp.i != 0)
+        return tmp.i;
+    else if ((tmp.i = ReadArray(text, instrl, errorType)) > 0) {
+        return tmp.i;
+    }
+    else if (tmp.i != 0)
+        return tmp.i;
+    else if ((tmp.i = ReadClassValue(text, instrl, errorType)) > 0) {
+        return tmp.i;
+    }
+    else if (tmp.i != 0)
+        return tmp.i;
+    else if (text[0] == '(') {
+        int i = 1;
+        i += ReadWhitespace(text + i);
+        if ((tmp.i = ReadExpression(text + i, instrl, errorType)) <= 0) {
+            if (tmp.i != 0)
+                return tmp.i - i;
+            else {
+                errorType = Script::ErrorType::SCRPT_ERROR_EXPRESSION;
+                return -i;
+            }
+        }
+        i += tmp.i;
+        i += ReadWhitespace(text + i);
+        if (text[i] != ')') {
+            errorType = Script::ErrorType::SCRPT_ERROR_PARENTHESIS_CLOSE;
+            return -i;
+        }
+        return i + 1;
+    }
+    else
+        return 0;
+}
+
+void LiteScript::Syntax::PopOperator(std::vector<Operators> &op, std::vector<Instruction>& instrl) {
+    switch (op.back()) {
+        // LEVEL 1
+        case Operators::OP_POST_INCR:
+            instrl.push_back(Instruction(InstrCode::INSTR_OP_POST_INCR));
+            break;
+        case Operators::OP_POST_DECR:
+            instrl.push_back(Instruction(InstrCode::INSTR_OP_POST_DECR));
+            break;
+        case Operators::OP_CALL:
+            instrl.push_back(Instruction(InstrCode::INSTR_OP_CALL));
+            break;
+        case Operators::OP_GET:
+            instrl.push_back(Instruction(InstrCode::INSTR_OP_ARRAY));
+            break;
+        case Operators::OP_MEMBER:
+            instrl.back().code = InstrCode::INSTR_OP_MEMBER;
+            break;
+        // LEVEL 2
+        case Operators::OP_PRE_INCR:
+            instrl.push_back(Instruction(InstrCode::INSTR_OP_PRE_INCR));
+            break;
+        case Operators::OP_PRE_DECR:
+            instrl.push_back(Instruction(InstrCode::INSTR_OP_PRE_DECR));
+            break;
+        case Operators::OP_UNARY_PLUS:
+            instrl.push_back(Instruction(InstrCode::INSTR_OP_UNARY_PLUS));
+            break;
+        case Operators::OP_UNARY_MINUS:
+            instrl.push_back(Instruction(InstrCode::INSTR_OP_UNARY_MINUS));
+            break;
+        case Operators::OP_NOT:
+            instrl.push_back(Instruction(InstrCode::INSTR_OP_LOG_NOT));
+            break;
+        case Operators::OP_BIT_NOT:
+            instrl.push_back(Instruction(InstrCode::INSTR_OP_BIT_NOT));
+            break;
+        case Operators::OP_NEW:
+            instrl.push_back(Instruction(InstrCode::INSTR_VALUE_OBJECT));
+            break;
+        // LEVEL 3
+            ////// A COMPLETER //////
+        default:
+            break;
+    }
+    op.pop_back();
+}
+
+void LiteScript::Syntax::PushOperator(std::vector<Operators> &opl, Operators opc, std::vector<Instruction>& instrl) {
+    while (OP_Priority[opl.back()] <= OP_Priority[opc])
+        PopOperator(opl, instrl);
+    opl.push_back(opc);
+}
+
+int LiteScript::Syntax::ReadPrefixOperator(const char *text, std::vector<Operators> &op,
+                                           std::vector<Instruction> &instrl, Script::ErrorType &errorType) {
+    if (text[0] == 'n' &&
+        text[1] == 'e' &&
+        text[2] == 'w') {
+        ////// A COMPLETER //////
+
+    }
 }
