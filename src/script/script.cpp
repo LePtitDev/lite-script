@@ -49,10 +49,19 @@ std::array<const char *, LiteScript::Script::ErrorType::SCRPT_ERROR_NUMBER> Lite
     // SCRPT_ERROR_CLASS_END
     "Closing brace expected for class definition",
 
+    // SCRPT_ERROR_NAME
+    "Variable name expected",
     // SCRPT_ERROR_EXPRESSION
     "Expression expected",
     // SCRPT_ERROR_PARENTHESIS_CLOSE
-    "Closing parenthesis expected"
+    "Closing parenthesis expected",
+    // SCRPT_ERROR_BRACKET_CLOSE
+    "Closing bracket expected",
+    // SCRPT_ERROR_COLON
+    "Colon expected",
+
+    // SCRPT_ERROR_OPERATOR_INVALID
+    "Invalid operator"
 });
 
 LiteScript::Script::Script() :

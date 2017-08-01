@@ -44,6 +44,8 @@ The objective is to create an alternative of current script engines and integrat
   * Liscla (LIttle SCript LAnguage)
   * Devrila (DEVelopper scRIpting LAnguage)
   * OAS Script/Assembly (Open-And-Shut)
+  * Little
+  * StartScript
 
 ## Example of Javascript like script
 

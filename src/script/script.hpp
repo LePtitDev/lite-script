@@ -53,8 +53,13 @@ namespace LiteScript {
             SCRPT_ERROR_CLASS_OPERATOR_INVALID,
             SCRPT_ERROR_CLASS_END,
 
+            SCRPT_ERROR_NAME,
             SCRPT_ERROR_EXPRESSION,
             SCRPT_ERROR_PARENTHESIS_CLOSE,
+            SCRPT_ERROR_BRACKET_CLOSE,
+            SCRPT_ERROR_COLON,
+
+            SCRPT_ERROR_OPERATOR_INVALID,
 
             SCRPT_ERROR_NUMBER
         };

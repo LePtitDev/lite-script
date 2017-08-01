@@ -769,7 +769,85 @@ void LiteScript::Syntax::PopOperator(std::vector<Operators> &op, std::vector<Ins
             instrl.push_back(Instruction(InstrCode::INSTR_VALUE_OBJECT));
             break;
         // LEVEL 3
-            ////// A COMPLETER //////
+        case Operators::OP_MUL:
+            instrl.push_back(Instruction(InstrCode::INSTR_OP_MUL));
+            break;
+        case Operators::OP_DIV:
+            instrl.push_back(Instruction(InstrCode::INSTR_OP_DIV));
+            break;
+        case Operators::OP_MOD:
+            instrl.push_back(Instruction(InstrCode::INSTR_OP_MOD));
+            break;
+        // LEVEL 4
+        case Operators::OP_ADD:
+            instrl.push_back(Instruction(InstrCode::INSTR_OP_ADD));
+            break;
+        case Operators::OP_SUB:
+            instrl.push_back(Instruction(InstrCode::INSTR_OP_SUB));
+            break;
+        // LEVEL 5
+        case Operators::OP_LSHIFT:
+            instrl.push_back(Instruction(InstrCode::INSTR_OP_LSHIFT));
+            break;
+        case Operators::OP_RSHIFT:
+            instrl.push_back(Instruction(InstrCode::INSTR_OP_RSHIFT));
+            break;
+        // LEVEL 6
+        case Operators::OP_LESS:
+            instrl.push_back(Instruction(InstrCode::INSTR_OP_LESS));
+            break;
+        case Operators::OP_LESS_EQU:
+            instrl.push_back(Instruction(InstrCode::INSTR_OP_LESS_EQU));
+            break;
+        case Operators::OP_GREAT:
+            instrl.push_back(Instruction(InstrCode::INSTR_OP_GREAT));
+            break;
+        case Operators::OP_GREAT_EQU:
+            instrl.push_back(Instruction(InstrCode::INSTR_OP_GREAT_EQU));
+            break;
+        // LEVEL 7
+        case Operators::OP_EQU:
+            instrl.push_back(Instruction(InstrCode::INSTR_OP_EQU));
+            break;
+        case Operators::OP_DIF:
+            instrl.push_back(Instruction(InstrCode::INSTR_OP_DIF));
+            break;
+        // LEVEL 8
+        case Operators::OP_BIT_AND:
+            instrl.push_back(Instruction(InstrCode::INSTR_OP_BIT_AND));
+            break;
+        // LEVEL 9
+        case Operators::OP_BIT_XOR:
+            instrl.push_back(Instruction(InstrCode::INSTR_OP_BIT_XOR));
+            break;
+        // LEVEL 10
+        case Operators::OP_BIT_OR:
+            instrl.push_back(Instruction(InstrCode::INSTR_OP_BIT_OR));
+            break;
+        // LEVEL 11
+        case Operators::OP_AND:
+            instrl.push_back(Instruction(InstrCode::INSTR_OP_LOG_AND));
+            break;
+        // LEVEL 12
+        case Operators::OP_OR:
+            instrl.push_back(Instruction(InstrCode::INSTR_OP_LOG_OR));
+            break;
+        // LEVEL 13
+        case Operators::OP_ASSIGN:
+            instrl.push_back(Instruction(InstrCode::INSTR_OP_ASSIGN));
+            break;
+        case Operators::OP_ADD_ASSIGN:
+            instrl.push_back(Instruction(InstrCode::INSTR_OP_ADD_ASSIGN));
+            break;
+        case Operators::OP_SUB_ASSIGN:
+            instrl.push_back(Instruction(InstrCode::INSTR_OP_SUB_ASSIGN));
+            break;
+        case Operators::OP_MUL_ASSIGN:
+            instrl.push_back(Instruction(InstrCode::INSTR_OP_MUL_ASSIGN));
+            break;
+        case Operators::OP_DIV_ASSIGN:
+            instrl.push_back(Instruction(InstrCode::INSTR_OP_DIV_ASSIGN));
+            break;
         default:
             break;
     }
@@ -787,7 +865,278 @@ int LiteScript::Syntax::ReadPrefixOperator(const char *text, std::vector<Operato
     if (text[0] == 'n' &&
         text[1] == 'e' &&
         text[2] == 'w') {
-        ////// A COMPLETER //////
+        PushOperator(op, Operators::OP_NEW, instrl);
+        return 3;
+    }
+    else if (text[0] == '+') {
+        if (text[1] == '+') {
+            PushOperator(op, Operators::OP_PRE_INCR, instrl);
+            return 2;
+        }
+        else {
+            PushOperator(op, Operators::OP_UNARY_PLUS, instrl);
+            return 1;
+        }
+    }
+    else if (text[0] == '-') {
+        if (text[1] == '-') {
+            PushOperator(op, Operators::OP_PRE_DECR, instrl);
+            return 2;
+        }
+        else {
+            PushOperator(op, Operators::OP_UNARY_MINUS, instrl);
+            return 1;
+        }
+    }
+    else if (text[0] == '!') {
+        PushOperator(op, Operators::OP_NOT, instrl);
+        return 1;
+    }
+    else if (text[0] == '~') {
+        PushOperator(op, Operators::OP_BIT_NOT, instrl);
+        return 1;
+    }
+    else
+        return 0;
+}
 
+int LiteScript::Syntax::ReadSuffixOperator(const char *text, std::vector<Operators> &op,
+                                           std::vector<Instruction> &instrl, Script::ErrorType &errorType) {
+    if (text[0] == '+' && text[1] == '+') {
+        PushOperator(op, Operators::OP_POST_INCR, instrl);
+        return 2;
+    }
+    else if (text[0] == '-' && text[1] == '-') {
+        PushOperator(op, Operators::OP_POST_DECR, instrl);
+        return 2;
+    }
+    else
+        return 0;
+}
+
+int LiteScript::Syntax::ReadOperator(const char *text, std::vector<Operators> &op, std::vector<Instruction> &instrl,
+                                     Script::ErrorType &errorType) {
+    if (text[0] == '(') {
+        while (OP_Priority[op.back()] == 1)
+            PopOperator(op, instrl);
+        instrl.push_back(Instruction(InstrCode::INSTR_PUSH_ARGS));
+        int i = 1, index = 0;
+        union {
+            int i;
+            unsigned int ui;
+        } tmp;
+        bool need_arg = true;
+        while (text[i] != ')') {
+            if ((tmp.ui = ReadWhitespace(text + i)) > 0)
+                i += (int)tmp.ui;
+            else if (need_arg && (tmp.i = ReadExpression(text + i, instrl, errorType)) > 0) {
+                i += tmp.i;
+                need_arg = false;
+                instrl.push_back(Instruction(InstrCode::INSTR_DEFINE_ARG, index++));
+            }
+            else if (tmp.i < 0)
+                return tmp.i;
+            else if (!need_arg && text[i] == ',') {
+                i++;
+                need_arg = true;
+            }
+            else {
+                errorType = Script::ErrorType::SCRPT_ERROR_PARENTHESIS_CLOSE;
+                return -i;
+            }
+        }
+        if (need_arg && index > 0) {
+            errorType = Script::ErrorType::SCRPT_ERROR_EXPRESSION;
+            return -i;
+        }
+        if (op.back() == Operators::OP_NEW)
+            instrl.push_back(Instruction(InstrCode::INSTR_VALUE_OBJECT));
+        else
+            instrl.push_back(Instruction(InstrCode::INSTR_OP_CALL));
+        instrl.push_back(Instruction(InstrCode::INSTR_POP_ARGS));
+        return i + 1;
+    }
+    else if (text[0] == '[') {
+        while (OP_Priority[op.back()] == 1)
+            PopOperator(op, instrl);
+        int i = 1, tmp;
+        i += (int)ReadWhitespace(text + i);
+        if ((tmp = ReadExpression(text + i, instrl, errorType)) <= 0) {
+            if (tmp != 0)
+                return tmp - i;
+            else {
+                errorType = Script::ErrorType::SCRPT_ERROR_EXPRESSION;
+                return -i;
+            }
+        }
+        i += tmp;
+        i += (int)ReadWhitespace(text + i);
+        if (text[i] != ']') {
+            errorType = Script::ErrorType::SCRPT_ERROR_BRACKET_CLOSE;
+            return -i;
+        }
+        instrl.push_back(Instruction(InstrCode::INSTR_OP_ARRAY));
+        return i + 1;
+    }
+    else if (text[0] == '.') {
+        while (OP_Priority[op.back()] == 1)
+            PopOperator(op, instrl);
+        int i = 1;
+        i += (int)ReadWhitespace(text + i);
+        unsigned int tmp;
+        std::string name;
+        if ((tmp = ReadName(text + i, name)) == 0) {
+            errorType = Script::ErrorType::SCRPT_ERROR_NAME;
+            return -i;
+        }
+        i += (int)tmp;
+        instrl.push_back(Instruction(InstrCode::INSTR_OP_MEMBER, name.c_str()));
+        return i;
+    }
+    else if (text[0] == '?') {
+        while (OP_Priority[op.back()] == OP_Priority[Operators::OP_ASSIGN])
+            PopOperator(op, instrl);
+        int i = 1, tmp, line_je = instrl.size();
+        i += (int)ReadWhitespace(text + i);
+        instrl.push_back(Instruction(InstrCode::INSTR_JUMP_ELSE));
+        if ((tmp = ReadExpression(text + i, instrl, errorType)) <= 0) {
+            if (tmp != 0)
+                return tmp - i;
+            else {
+                errorType = Script::ErrorType::SCRPT_ERROR_EXPRESSION;
+                return -i;
+            }
+        }
+        i += tmp;
+        i += (int)ReadWhitespace(text + i);
+        int line_jt = instrl.size();
+        instrl.push_back(Instruction(InstrCode::INSTR_JUMP_TO));
+        instrl[line_je] = Instruction(InstrCode::INSTR_JUMP_ELSE, (int)instrl.size());
+        if (text[i] != ':') {
+            errorType = Script::ErrorType::SCRPT_ERROR_COLON;
+            return -i;
+        }
+        i += (int)ReadWhitespace(text + i);
+        if ((tmp = ReadExpression(text + i, instrl, errorType)) <= 0) {
+            if (tmp != 0)
+                return tmp - i;
+            else {
+                errorType = Script::ErrorType::SCRPT_ERROR_EXPRESSION;
+                return -i;
+            }
+        }
+        instrl[line_jt] = Instruction(InstrCode::INSTR_JUMP_TO, (int)instrl.size());
+        i += tmp;
+        return i;
+    }
+    else {
+        switch (text[0]) {
+            case '+':
+                if (text[1] == '=') {
+                    PushOperator(op, Operators::OP_ADD_ASSIGN, instrl);
+                    return 2;
+                }
+                else {
+                    PushOperator(op, Operators::OP_ADD, instrl);
+                    return 1;
+                }
+            case '-':
+                if (text[1] == '=') {
+                    PushOperator(op, Operators::OP_SUB_ASSIGN, instrl);
+                    return 2;
+                }
+                else {
+                    PushOperator(op, Operators::OP_SUB, instrl);
+                    return 1;
+                }
+            case '*':
+                if (text[1] == '=') {
+                    PushOperator(op, Operators::OP_MUL_ASSIGN, instrl);
+                    return 2;
+                }
+                else {
+                    PushOperator(op, Operators::OP_MUL, instrl);
+                    return 1;
+                }
+            case '/':
+                if (text[1] == '=') {
+                    PushOperator(op, Operators::OP_DIV_ASSIGN, instrl);
+                    return 2;
+                }
+                else {
+                    PushOperator(op, Operators::OP_DIV, instrl);
+                    return 1;
+                }
+            case '%':
+                PushOperator(op, Operators::OP_MOD, instrl);
+                return 1;
+            case '=':
+                if (text[1] == '=') {
+                    PushOperator(op, Operators::OP_EQU, instrl);
+                    return 2;
+                }
+                else {
+                    PushOperator(op, Operators::OP_ASSIGN, instrl);
+                    return 1;
+                }
+            case '!':
+                if (text[1] == '=') {
+                    PushOperator(op, Operators::OP_DIF, instrl);
+                    return 2;
+                }
+                else {
+                    errorType = Script::ErrorType::SCRPT_ERROR_OPERATOR_INVALID;
+                    return -1;
+                }
+            case '<':
+                if (text[1] == '=') {
+                    PushOperator(op, Operators::OP_LESS_EQU, instrl);
+                    return 2;
+                }
+                else if (text[1] == '<') {
+                    PushOperator(op, Operators::OP_LSHIFT, instrl);
+                    return 2;
+                }
+                else {
+                    PushOperator(op, Operators::OP_LESS, instrl);
+                    return 1;
+                }
+            case '>':
+                if (text[1] == '=') {
+                    PushOperator(op, Operators::OP_GREAT_EQU, instrl);
+                    return 2;
+                }
+                else if (text[1] == '>') {
+                    PushOperator(op, Operators::OP_RSHIFT, instrl);
+                    return 2;
+                }
+                else {
+                    PushOperator(op, Operators::OP_GREAT, instrl);
+                    return 1;
+                }
+            case '&':
+                if (text[1] == '&') {
+                    PushOperator(op, Operators::OP_AND, instrl);
+                    return 2;
+                }
+                else {
+                    PushOperator(op, Operators::OP_BIT_AND, instrl);
+                    return 1;
+                }
+            case '|':
+                if (text[1] == '|') {
+                    PushOperator(op, Operators::OP_OR, instrl);
+                    return 2;
+                }
+                else {
+                    PushOperator(op, Operators::OP_BIT_OR, instrl);
+                    return 1;
+                }
+            case '^':
+                PushOperator(op, Operators::OP_BIT_XOR, instrl);
+                return 1;
+            default:
+                return 0;
+        }
     }
 }
