@@ -108,7 +108,14 @@ int main(int argc, char * argv[]) {
         Variable result = script.Execute(code.c_str());
         if (script.error != Script::ErrorType::SCRPT_ERROR_NO)
             std::cout << "ERROR(" << (script.line_error + 1) << "," << (script.col_error + 1) << "): " << script.GetError() << std::endl;
-        else
-            std::cout << (std::string)(result) << std::endl;
+        else {
+            std::cout << (std::string) (result) << std::endl;
+            std::ofstream file("instr.txt");
+            if (!file.is_open())
+                std::cout << "error : open file" << std::endl;
+            else
+                Instruction::Save(file, script.state.GetInstruction(script.state.InstructionIndex));
+            file.close();
+        }
     }
 }

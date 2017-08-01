@@ -207,6 +207,13 @@ namespace LiteScript {
          */
         void JumpTo(unsigned int index, unsigned int line);
 
+        /**
+         * Get a list of instruction
+         *
+         * @param i The index of instructions list
+         */
+        const std::vector<Instruction>& GetInstruction(unsigned int i) const;
+
     };
 
 }

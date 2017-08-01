@@ -158,7 +158,8 @@ unsigned int LiteScript::Syntax::ReadName(const char *text, std::string &name) {
          (text[i] >= 'A' && text[i] <= 'Z') ||
          (text[i] >= '0' && text[i] <= '9') ||
                  text[i] == '$' ||
-                 text[i] == '_'; i++);
+                 text[i] == '_'; i++)
+        name += text[i];
     return i;
 }
 

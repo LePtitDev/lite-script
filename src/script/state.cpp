@@ -203,3 +203,7 @@ void LiteScript::State::JumpTo(unsigned int index, unsigned int line) {
     this->instr_index = index;
     this->line_num = line;
 }
+
+const std::vector<LiteScript::Instruction> & LiteScript::State::GetInstruction(unsigned int i) const {
+    return this->instr[i];
+}
