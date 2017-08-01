@@ -278,12 +278,13 @@ namespace LiteScript {
          *
          * @param text The text that contain the operator
          * @param op The operators heap
+         * @param need_value Indicate if need a value after operator
          * @param instrl The instructions list that result
          * @param errorType The error type
          * @return The number of characters read if success and a negative number if an error occurred
          * (if error the return value is the opposite of the position where occurred)
          */
-        int ReadOperator(const char * text, std::vector<Operators>& op, std::vector<Instruction>& instrl,
+        int ReadOperator(const char * text, std::vector<Operators>& op, bool& need_value, std::vector<Instruction>& instrl,
                                Script::ErrorType& errorType);
 
         /**
@@ -342,17 +343,6 @@ namespace LiteScript {
         int ReadClass(const char * text, std::vector<Instruction>& instrl, Script::ErrorType& errorType);
 
         /**
-         * Try to read an instruction
-         *
-         * @param text The text that contain the instruction
-         * @param instrl The instructions list that result
-         * @param errorType The error type
-         * @return The number of characters read if success and a negative number if an error occurred
-         * (if error the return value is the opposite of the position where occurred)
-         */
-        int ReadInstruction(const char * text, std::vector<Instruction>& instrl, Script::ErrorType& errorType);
-
-        /**
          * Try to read an instruction block
          *
          * @param text The text that contain the instruction block
@@ -362,6 +352,17 @@ namespace LiteScript {
          * (if error the return value is the opposite of the position where occurred)
          */
         int ReadInstructionBlock(const char * text, std::vector<Instruction>& instrl, Script::ErrorType& errorType);
+
+        /**
+         * Try to read an instruction
+         *
+         * @param text The text that contain the instruction
+         * @param instrl The instructions list that result
+         * @param errorType The error type
+         * @return The number of characters read if success and a negative number if an error occurred
+         * (if error the return value is the opposite of the position where occurred)
+         */
+        int ReadInstruction(const char * text, std::vector<Instruction>& instrl, Script::ErrorType& errorType);
 
         /**
          * Try to read a script

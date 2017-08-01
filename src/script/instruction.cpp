@@ -85,3 +85,11 @@ LiteScript::Instruction & LiteScript::Instruction::operator=(const Instruction &
     }
     return *this;
 }
+
+void LiteScript::Instruction::Save(std::ostream &stream, const std::vector<Instruction> &instr) {
+    ////// A COMPLETER //////
+}
+
+std::vector<LiteScript::Instruction> LiteScript::Instruction::Load(std::istream &stream) {
+    ////// A COMPLETER //////
+}

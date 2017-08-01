@@ -54,12 +54,18 @@ namespace LiteScript {
             SCRPT_ERROR_CLASS_END,
 
             SCRPT_ERROR_NAME,
+            SCRPT_ERROR_VALUE,
+            SCRPT_ERROR_OPERATOR,
             SCRPT_ERROR_EXPRESSION,
+            SCRPT_ERROR_PARENTHESIS_OPEN,
             SCRPT_ERROR_PARENTHESIS_CLOSE,
             SCRPT_ERROR_BRACKET_CLOSE,
+            SCRPT_ERROR_BRACE_CLOSE,
             SCRPT_ERROR_COLON,
+            SCRPT_ERROR_SEMICOLON,
+            SCRPT_ERROR_INSTRUCTION,
 
-            SCRPT_ERROR_OPERATOR_INVALID,
+            SCRPT_ERROR_UNKNOW,
 
             SCRPT_ERROR_NUMBER
         };
@@ -89,6 +95,9 @@ namespace LiteScript {
 
         // The line number of the last error
         unsigned int line_error;
+
+        // The column number of the last error
+        unsigned int col_error;
 
         ///////////////////////
         ////// ACCESSORS //////
@@ -156,9 +165,10 @@ namespace LiteScript {
          * @param code The oriented-object script code
          * @param err The error return
          * @param line_err The line when error encounting
+         * @param col_error The error column when error encounting
          * @return The instructions list
          */
-        static std::vector<Instruction> GetInstructionList(const char * code, Script::ErrorType& err, unsigned int& line_err);
+        static std::vector<Instruction> GetInstructionList(const char * code, Script::ErrorType& err, unsigned int& line_err, unsigned int& col_error);
 
         /**
          * Get the formated string error
