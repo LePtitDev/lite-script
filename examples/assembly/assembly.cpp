@@ -176,7 +176,7 @@ int main(int argc, char * argv[]) {
         Variable result = assembly.ExecuteAfter(code.c_str());
         // If there is an error, we print it
         if (assembly.error != Assembly::ErrorType::ASSM_ERROR_NO) {
-            std::cout << "ERROR(" << assembly.line_error << "): " << assembly.GetError() << std::endl;
+            std::cout << "ERROR(" << assembly.line_error + 1 << "): " << assembly.GetError() << std::endl;
             return 1;
         }
         // Otherwise we print the result of the script

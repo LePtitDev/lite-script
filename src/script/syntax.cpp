@@ -284,7 +284,7 @@ int LiteScript::Syntax::ReadArray(const char *text, std::vector<Instruction> &in
                     }
                 }
                 i += tmp.i;
-                instrl.push_back(Instruction(InstrCode::INSTR_ARRAY_PUSH_NUMERIC, (int)0));
+                instrl.push_back(Instruction(InstrCode::INSTR_ARRAY_PUSH_LITERAL, tmp_str.c_str()));
                 need_name = false;
             }
             else if (!need_name && text[i] == ',') {
@@ -309,16 +309,11 @@ int LiteScript::Syntax::ReadArray(const char *text, std::vector<Instruction> &in
 
 int LiteScript::Syntax::ReadCallbackValue(const char *text, std::vector<Instruction> &instrl,
                                      Script::ErrorType &errorType) {
-    if (text[0] != 'f' ||
-        text[1] != 'u' ||
-        text[2] != 'n' ||
-        text[3] != 'c' ||
-        text[4] != 't' ||
-        text[5] != 'i' ||
-        text[6] != 'o' ||
-        text[7] != 'n')
+    std::string tmp_s;
+    if (ReadName(text, tmp_s) == 0 || tmp_s != "function")
         return 0;
-    int i = 8, tmp, line = instrl.size() - 1;;
+    int i = 8, tmp, jt = instrl.size(), line = instrl.size() + 1;
+    instrl.push_back(Instruction(InstrCode::INSTR_JUMP_TO));
     i += ReadWhitespace(text + i);
     // function\(({name}(,{name})*(...)?)?\){instructionBlock}
     if ((tmp = ReadCallbackArguments(text + i, instrl, errorType)) <= 0) {
@@ -340,6 +335,8 @@ int LiteScript::Syntax::ReadCallbackValue(const char *text, std::vector<Instruct
         }
     }
     i += tmp;
+    instrl.push_back(Instruction(InstrCode::INSTR_RETURN));
+    instrl[jt] = Instruction(InstrCode::INSTR_JUMP_TO, (int)instrl.size());
     instrl.push_back(Instruction(InstrCode::INSTR_VALUE_CALLBACK, line));
     return i;
 }
@@ -362,7 +359,7 @@ int LiteScript::Syntax::ReadCallbackArguments(const char *text, std::vector<Inst
         else if (need_name && (tmp.i = ReadName(text + i, name)) > 0) {
             i += tmp.i;
             instrl.push_back(Instruction(InstrCode::INSTR_VALUE_ARG, index));
-            instrl.push_back(Instruction(InstrCode::INSTR_VALUE_VARIABLE, name.c_str()));
+            instrl.push_back(Instruction(InstrCode::INSTR_DEFINE_VARIABLE, name.c_str()));
             need_name = false;
         }
         else if (!need_name && text[i] == ',') {
@@ -393,11 +390,8 @@ int LiteScript::Syntax::ReadCallbackArguments(const char *text, std::vector<Inst
 
 int LiteScript::Syntax::ReadClassValue(const char *text, std::vector<Instruction> &instrl,
                                        Script::ErrorType &errorType) {
-    if (text[0] != 'c' ||
-        text[1] != 'l' ||
-        text[2] != 'a' ||
-        text[3] != 's' ||
-        text[4] != 's')
+    std::string tmp_s;
+    if (ReadName(text, tmp_s) == 0 || tmp_s != "class")
         return 0;
     instrl.push_back(Instruction(InstrCode::INSTR_VALUE_CLASS));
     int i = 5;
@@ -470,7 +464,7 @@ int LiteScript::Syntax::ReadClassInherits(const char *text, std::vector<Instruct
         errorType = Script::ErrorType::SCRPT_ERROR_CLASS_INHERIT;
         return -i;
     }
-    return i + 1;
+    return i;
 }
 
 int LiteScript::Syntax::ReadClassMember(const char *text, std::vector<Instruction> &instrl,
@@ -516,6 +510,7 @@ int LiteScript::Syntax::ReadClassMember(const char *text, std::vector<Instructio
             errorType = Script::ErrorType::SCRPT_ERROR_SEMICOLON;
             return -i;
         }
+        ++i;
     }
     else if (text[i] == 'f') {
         if ((tmp = ReadCallback(text + i, instrl, errorType)) <= 0) {
@@ -658,11 +653,13 @@ int LiteScript::Syntax::ReadClassOperator(const char *text, std::vector<Instruct
 
 int LiteScript::Syntax::ReadValue(const char *text, std::vector<Instruction> &instrl, Script::ErrorType &errorType) {
     union {
-        bool b;
         int i;
         unsigned int ui;
-        float f;
     } tmp;
+    union {
+        bool b;
+        float f;
+    } res;
     std::string tmp_s;
     if ((tmp.ui = ReadUndefined(text)) > 0) {
         instrl.push_back(Instruction(InstrCode::INSTR_VALUE_UNDEFINED));
@@ -672,14 +669,24 @@ int LiteScript::Syntax::ReadValue(const char *text, std::vector<Instruction> &in
         instrl.push_back(Instruction(InstrCode::INSTR_VALUE_NULL));
         return (int) tmp.ui;
     }
-    else if ((tmp.ui = ReadBoolean(text, tmp.b)) > 0) {
-        instrl.push_back(Instruction(InstrCode::INSTR_VALUE_BOOLEAN, tmp.b));
+    else if ((tmp.ui = ReadBoolean(text, res.b)) > 0) {
+        instrl.push_back(Instruction(InstrCode::INSTR_VALUE_BOOLEAN, res.b));
         return (int) tmp.ui;
     }
-    else if ((tmp.ui = ReadNumber(text, tmp.f)) > 0) {
-        instrl.push_back(Instruction(InstrCode::INSTR_VALUE_NUMBER, tmp.f));
+    else if ((tmp.ui = ReadNumber(text, res.f)) > 0) {
+        instrl.push_back(Instruction(InstrCode::INSTR_VALUE_NUMBER, res.f));
         return (int) tmp.ui;
     }
+    else if ((tmp.i = ReadCallbackValue(text, instrl, errorType)) > 0) {
+        return tmp.i;
+    }
+    else if (tmp.i != 0)
+        return tmp.i;
+    else if ((tmp.i = ReadClassValue(text, instrl, errorType)) > 0) {
+        return tmp.i;
+    }
+    else if (tmp.i != 0)
+        return tmp.i;
     else if ((tmp.ui = ReadName(text, tmp_s)) > 0) {
         instrl.push_back(Instruction(InstrCode::INSTR_VALUE_VARIABLE, tmp_s.c_str()));
         return (int) tmp.ui;
@@ -690,17 +697,7 @@ int LiteScript::Syntax::ReadValue(const char *text, std::vector<Instruction> &in
     }
     else if (tmp.i != 0)
         return tmp.i;
-    else if ((tmp.i = ReadCallbackValue(text, instrl, errorType)) > 0) {
-        return tmp.i;
-    }
-    else if (tmp.i != 0)
-        return tmp.i;
     else if ((tmp.i = ReadArray(text, instrl, errorType)) > 0) {
-        return tmp.i;
-    }
-    else if (tmp.i != 0)
-        return tmp.i;
-    else if ((tmp.i = ReadClassValue(text, instrl, errorType)) > 0) {
         return tmp.i;
     }
     else if (tmp.i != 0)
@@ -1196,6 +1193,8 @@ int LiteScript::Syntax::ReadExpression(const char *text, std::vector<Instruction
             return -i;
         }
     }
+    while (!op_heap.empty())
+        PopOperator(op_heap, instrl);
     return i;
 }
 
@@ -1332,12 +1331,13 @@ int LiteScript::Syntax::ReadCallback(const char *text, std::vector<Instruction> 
         text[7] != 'n' ||
         text[8] != ' ')
         return 0;
-    int i = 9, line = instrl.size() - 1;;
+    int i = 9, jt = instrl.size(), line = instrl.size() + 1;;
     union {
         int i;
         unsigned int ui;
     } tmp;
     std::string name;
+    instrl.push_back(Instruction(InstrCode::INSTR_JUMP_TO));
     i += (int)ReadWhitespace(text + i);
     // function {name}\(({name}(,{name})*(...)?)?\){instructionBlock}
     if ((tmp.ui = ReadName(text + i, name)) == 0) {
@@ -1365,6 +1365,8 @@ int LiteScript::Syntax::ReadCallback(const char *text, std::vector<Instruction> 
         }
     }
     i += tmp.i;
+    instrl.push_back(Instruction(InstrCode::INSTR_RETURN));
+    instrl[jt] = Instruction(InstrCode::INSTR_JUMP_TO, (int)instrl.size());
     instrl.push_back(Instruction(InstrCode::INSTR_VALUE_CALLBACK, line));
     instrl.push_back(Instruction(InstrCode::INSTR_DEFINE_VARIABLE, name.c_str()));
     return i;
@@ -1417,6 +1419,7 @@ int LiteScript::Syntax::ReadClass(const char *text, std::vector<Instruction> &in
             }
         }
     }
+    instrl.push_back(Instruction(InstrCode::INSTR_CLASS_CONSTRUCTOR, name.c_str()));
     instrl.push_back(Instruction(InstrCode::INSTR_DEFINE_VARIABLE, name.c_str()));
     return i + 1;
 }

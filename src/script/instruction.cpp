@@ -88,6 +88,7 @@ LiteScript::Instruction & LiteScript::Instruction::operator=(const Instruction &
 
 void LiteScript::Instruction::Save(std::ostream &stream, const std::vector<Instruction> &instr) {
     for (unsigned int i = 0, sz = instr.size(); i < sz; i++) {
+        bool line_num = false;
         switch (instr[i].code) {
             // DEFINITIONS
             case InstrCode::INSTR_DEFINE_VARIABLE:
@@ -120,6 +121,7 @@ void LiteScript::Instruction::Save(std::ostream &stream, const std::vector<Instr
                 break;
             case InstrCode::INSTR_VALUE_CALLBACK:
                 stream << "value.callback";
+                line_num = true;
                 break;
             case InstrCode::INSTR_VALUE_ARRAY:
                 stream << "value.array";
@@ -271,12 +273,15 @@ void LiteScript::Instruction::Save(std::ostream &stream, const std::vector<Instr
             // CONTROL INSTRUCTIONS
             case InstrCode::INSTR_JUMP_TO:
                 stream << "jump-to";
+                line_num = true;
                 break;
             case InstrCode::INSTR_JUMP_IF:
                 stream << "jump-if";
+                line_num = true;
                 break;
             case InstrCode::INSTR_JUMP_ELSE:
                 stream << "jump-else";
+                line_num = true;
                 break;
             // COMPLEX VALUES COMPLETION
             // Array
@@ -314,7 +319,10 @@ void LiteScript::Instruction::Save(std::ostream &stream, const std::vector<Instr
                 stream << " " << (instr[i].comp_value.v_boolean ? "true" : "false");
                 break;
             case Instruction::CompType::COMP_TYPE_INTEGER:
-                stream << " " << instr[i].comp_value.v_integer;
+                if (line_num)
+                    stream << " " << (instr[i].comp_value.v_integer + 1);
+                else
+                    stream << " " << instr[i].comp_value.v_integer;
                 break;
             case Instruction::CompType::COMP_TYPE_FLOAT:
                 stream << " " << instr[i].comp_value.v_float;
@@ -330,5 +338,8 @@ void LiteScript::Instruction::Save(std::ostream &stream, const std::vector<Instr
 }
 
 std::vector<LiteScript::Instruction> LiteScript::Instruction::Load(std::istream &stream) {
-    ////// A COMPLETER //////
+    std::string code;
+    while (!stream.eof())
+        code += (char)stream.get();
+    return Assembly::GetInstructionList(code.c_str());
 }
