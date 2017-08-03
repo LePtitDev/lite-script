@@ -15,6 +15,7 @@
 #include <cstdlib>
 
 #include "syntax.hpp"
+#include "instruction.hpp"
 
 std::array<unsigned char, LiteScript::Syntax::Operators::OP_NUMBER> LiteScript::Syntax::OP_Priority({
     1, 1, 1, 1, 1,
@@ -1297,15 +1298,17 @@ int LiteScript::Syntax::ReadControlIf(const char *text, std::vector<Instruction>
     }
     i += tmp;
     i += (int)ReadWhitespace(text + i);
-    instrl[je] = Instruction(InstrCode::INSTR_JUMP_ELSE, (int)instrl.size());
     if (text[i+0] != 'e' ||
         text[i+1] != 'l' ||
         text[i+2] != 's' ||
-        text[i+3] != 'e')
+        text[i+3] != 'e') {
+        instrl[je] = Instruction(InstrCode::INSTR_JUMP_ELSE, (int)instrl.size());
         return i;
+    }
     i += 4;
     int jt = instrl.size();
     instrl.push_back(Instruction(InstrCode::INSTR_JUMP_TO));
+    instrl[je] = Instruction(InstrCode::INSTR_JUMP_ELSE, (int)instrl.size());
     if ((tmp = ReadInstruction(text + i, instrl, errorType)) <= 0) {
         if (tmp != 0)
             return tmp - i;
@@ -1317,6 +1320,406 @@ int LiteScript::Syntax::ReadControlIf(const char *text, std::vector<Instruction>
     instrl[jt] = Instruction(InstrCode::INSTR_JUMP_TO, (int)instrl.size());
     i += tmp;
     return i;
+}
+
+int LiteScript::Syntax::ReadReturn(const char *text, std::vector<Instruction> &instrl, Script::ErrorType &errorType) {
+    std::string keyword;
+    if (ReadName(text, keyword) == 0 || keyword != "return")
+        return 0;
+    int i = 6;
+    i += (int)ReadWhitespace(text + i);
+    if (text[i] == ';') {
+        instrl.push_back(Instruction(InstrCode::INSTR_RETURN));
+        return i + 1;
+    }
+    int tmp;
+    if ((tmp = ReadExpression(text + i, instrl, errorType)) <= 0) {
+        if (tmp != 0)
+            return tmp - i;
+        else {
+            errorType = Script::ErrorType::SCRPT_ERROR_RETURN;
+            return -i;
+        }
+    }
+    i += tmp;
+    i += (int)ReadWhitespace(text + i);
+    instrl.push_back(Instruction(InstrCode::INSTR_DEFINE_RETURN));
+    instrl.push_back(Instruction(InstrCode::INSTR_RETURN));
+    if (text[i] != ';') {
+        errorType = Script::ErrorType::SCRPT_ERROR_SEMICOLON;
+        return -i;
+    }
+    return i + 1;
+}
+
+int LiteScript::Syntax::ReadBreak(const char *text, std::vector<Instruction> &instrl, Script::ErrorType &errorType) {
+    std::string keyword;
+    if (ReadName(text, keyword) == 0 || keyword != "break")
+        return 0;
+    int i = 5;
+    i += (int)ReadWhitespace(text + i);
+    instrl.push_back(Instruction(InstrCode::INSTR_JUMP_TO, "break"));
+    if (text[i] != ';') {
+        errorType = Script::ErrorType::SCRPT_ERROR_SEMICOLON;
+        return i;
+    }
+    return i + 1;
+}
+
+int LiteScript::Syntax::ReadContinue(const char *text, std::vector<Instruction> &instrl, Script::ErrorType &errorType) {
+    std::string keyword;
+    if (ReadName(text, keyword) == 0 || keyword != "continue")
+        return 0;
+    int i = 8;
+    i += (int)ReadWhitespace(text + i);
+    instrl.push_back(Instruction(InstrCode::INSTR_JUMP_TO, "continue"));
+    if (text[i] != ';') {
+        errorType = Script::ErrorType::SCRPT_ERROR_SEMICOLON;
+        return i;
+    }
+    return i + 1;
+}
+
+int LiteScript::Syntax::ReadControlWhile(const char *text, std::vector<Instruction> &instrl,
+                                         Script::ErrorType &errorType) {
+    std::string keyword;
+    if (ReadName(text, keyword) == 0 || keyword != "while")
+        return 0;
+    int i = 5, tmp, jc = instrl.size();
+    i += (int)ReadWhitespace(text + i);
+    if (text[i] != '(') {
+        errorType = Script::ErrorType::SCRPT_ERROR_PARENTHESIS_OPEN;
+        return -i;
+    }
+    ++i;
+    if ((tmp = ReadExpression(text + i, instrl, errorType)) <= 0) {
+        if (tmp != 0)
+            return tmp - i;
+        else {
+            errorType = Script::ErrorType::SCRPT_ERROR_EXPRESSION;
+            return -i;
+        }
+    }
+    i += tmp;
+    i += (int)ReadWhitespace(text + i);
+    if (text[i] != ')') {
+        errorType = Script::ErrorType::SCRPT_ERROR_PARENTHESIS_CLOSE;
+        return -i;
+    }
+    ++i;
+    i += (int)ReadWhitespace(text + i);
+    int je = instrl.size();
+    instrl.push_back(Instruction(InstrCode::INSTR_JUMP_ELSE));
+    if ((tmp = ReadInstruction(text + i, instrl, errorType)) <= 0) {
+        if (tmp != 0)
+            return tmp - i;
+        else {
+            errorType = Script::ErrorType::SCRPT_ERROR_INSTRUCTION;
+            return -i;
+        }
+    }
+    i += tmp;
+    instrl.push_back(Instruction(InstrCode::INSTR_JUMP_TO, jc));
+    instrl[je] = Instruction(InstrCode::INSTR_JUMP_ELSE, (int)instrl.size());
+    for (int it = je, sz = instrl.size() - 1; it < sz; it++) {
+        if (instrl[it].code == InstrCode::INSTR_JUMP_TO &&
+            instrl[it].comp_type == Instruction::CompType::COMP_TYPE_STRING) {
+            if (std::string(instrl[it].comp_value.v_string) == "break")
+                instrl[it] = Instruction(InstrCode::INSTR_JUMP_TO, sz + 1);
+            else if (std::string(instrl[it].comp_value.v_string) == "continue")
+                instrl[it] = Instruction(InstrCode::INSTR_JUMP_TO, jc);
+        }
+    }
+    return i;
+}
+
+int LiteScript::Syntax::ReadControlDo(const char *text, std::vector<Instruction> &instrl,
+                                      Script::ErrorType &errorType) {
+    std::string keyword;
+    if (ReadName(text, keyword) == 0 || keyword != "do")
+        return 0;
+    int i = 2, tmp, ji = instrl.size();
+    i += (int)ReadWhitespace(text + i);
+    if ((tmp = ReadInstruction(text + i, instrl, errorType)) <= 0) {
+        if (tmp != 0)
+            return tmp - i;
+        else {
+            errorType = Script::ErrorType::SCRPT_ERROR_INSTRUCTION;
+            return -i;
+        }
+    }
+    i += tmp;
+    i += (int)ReadWhitespace(text + i);
+    if (ReadName(text + i, keyword) == 0 || keyword != "while") {
+        errorType = Script::ErrorType::SCRPT_ERROR_WHILE;
+        return -i;
+    }
+    i += 5;
+    i += (int)ReadWhitespace(text + i);
+    if (text[i] != '(') {
+        errorType = Script::ErrorType::SCRPT_ERROR_PARENTHESIS_OPEN;
+        return -i;
+    }
+    ++i;
+    i += (int)ReadWhitespace(text + i);
+    if ((tmp = ReadExpression(text + i, instrl, errorType)) <= 0) {
+        if (tmp != 0)
+            return tmp - i;
+        else {
+            errorType = Script::ErrorType::SCRPT_ERROR_EXPRESSION;
+            return -i;
+        }
+    }
+    i += tmp;
+    i += (int)ReadWhitespace(text + i);
+    if (text[i] != ')') {
+        errorType = Script::ErrorType::SCRPT_ERROR_PARENTHESIS_CLOSE;
+        return -i;
+    }
+    ++i;
+    i += (int)ReadWhitespace(text + i);
+    instrl.push_back(Instruction(InstrCode::INSTR_JUMP_IF, ji));
+    if (text[i] != ';') {
+        errorType = Script::ErrorType::SCRPT_ERROR_SEMICOLON;
+        return -i;
+    }
+    return i + 1;
+}
+
+int LiteScript::Syntax::ReadControlFor(const char *text, std::vector<Instruction> &instrl,
+                                         Script::ErrorType &errorType) {
+    std::string keyword;
+    if (ReadName(text, keyword) == 0 || keyword != "for")
+        return 0;
+    int i = 3, tmp;
+    i += (int)ReadWhitespace(text + i);
+    if (text[i] != '(') {
+        errorType = Script::ErrorType::SCRPT_ERROR_PARENTHESIS_OPEN;
+        return -i;
+    }
+    ++i;
+    i += (int)ReadWhitespace(text + i);
+    if (text[i] != ';') {
+        if ((tmp = ReadVariableDefinition(text + i, instrl, errorType)) > 0)
+            i += tmp;
+        else if (tmp < 0)
+            return tmp - i;
+        else if ((tmp = ReadExpression(text + i, instrl, errorType)) > 0) {
+            i += tmp;
+            instrl.push_back(Instruction(InstrCode::INSTR_VALUE_POP));
+        }
+        else if (tmp < 0)
+            return tmp - i;
+        else {
+            errorType = Script::ErrorType::SCRPT_ERROR_FOR_INITIALISATION;
+            return -i;
+        }
+        i += (int)ReadWhitespace(text + i);
+        if (text[i] != ';') {
+            errorType = Script::ErrorType::SCRPT_ERROR_SEMICOLON;
+            return -i;
+        }
+    }
+    ++i;
+    i += (int)ReadWhitespace(text + i);
+    int jc = instrl.size();
+    if ((tmp = ReadExpression(text + i, instrl, errorType)) <= 0) {
+        if (tmp != 0)
+            return tmp - i;
+        else {
+            errorType = Script::ErrorType::SCRPT_ERROR_FOR_CONDITION;
+            return -i;
+        }
+    }
+    i += tmp;
+    i += (int)ReadWhitespace(text + i);
+    if (text[i] != ';') {
+        errorType = Script::ErrorType::SCRPT_ERROR_SEMICOLON;
+        return -i;
+    }
+    ++i;
+    i += (int)ReadWhitespace(text + i);
+    int jb = instrl.size();
+    instrl.push_back(Instruction(InstrCode::INSTR_JUMP_ELSE));
+    instrl.push_back(Instruction(InstrCode::INSTR_JUMP_TO));
+    if ((tmp = ReadExpression(text + i, instrl, errorType)) > 0) {
+        i += tmp;
+        instrl.push_back(Instruction(InstrCode::INSTR_VALUE_POP));
+    }
+    else if (tmp < 0)
+        return tmp - i;
+    i += (int)ReadWhitespace(text + i);
+    instrl.push_back(Instruction(InstrCode::INSTR_JUMP_TO, jc));
+    instrl[jb + 1] = Instruction(InstrCode::INSTR_JUMP_TO, (int)instrl.size());
+    if (text[i] != ')') {
+        errorType = Script::ErrorType::SCRPT_ERROR_PARENTHESIS_CLOSE;
+        return -i;
+    }
+    ++i;
+    i += (int)ReadWhitespace(text + i);
+    int jex = instrl.size();
+    if ((tmp = ReadInstruction(text + i, instrl, errorType)) <= 0) {
+        if (tmp != 0)
+            return tmp - i;
+        else {
+            errorType = Script::ErrorType::SCRPT_ERROR_INSTRUCTION;
+            return -i;
+        }
+    }
+    i += tmp;
+    instrl.push_back(Instruction(InstrCode::INSTR_JUMP_TO, jb + 2));
+    instrl[jb] = Instruction(InstrCode::INSTR_JUMP_ELSE, (int)instrl.size());
+    for (int it = jex, sz = instrl.size() - 1; it < sz; it++) {
+        if (instrl[it].code == InstrCode::INSTR_JUMP_TO &&
+            instrl[it].comp_type == Instruction::CompType::COMP_TYPE_STRING) {
+            if (std::string(instrl[it].comp_value.v_string) == "break")
+                instrl[it] = Instruction(InstrCode::INSTR_JUMP_TO, sz + 1);
+            else if (std::string(instrl[it].comp_value.v_string) == "continue")
+                instrl[it] = Instruction(InstrCode::INSTR_JUMP_TO, jb + 2);
+        }
+    }
+    return i;
+}
+
+int LiteScript::Syntax::ReadControlSwitch(const char *text, std::vector<Instruction> &instrl,
+                                          Script::ErrorType &errorType) {
+    std::string keyword;
+    if (ReadName(text, keyword) == 0 || keyword != "switch")
+        return 0;
+    int i = 6, tmp;
+    i += (int)ReadWhitespace(text + i);
+    if (text[i] != '(') {
+        errorType = Script::ErrorType::SCRPT_ERROR_PARENTHESIS_OPEN;
+        return -i;
+    }
+    ++i;
+    i += (int)ReadWhitespace(text + i);
+    if ((tmp = ReadExpression(text + i, instrl, errorType)) <= 0) {
+        if (tmp != 0)
+            return tmp - i;
+        else {
+            errorType = Script::ErrorType::SCRPT_ERROR_EXPRESSION;
+            return -i;
+        }
+    }
+    i += tmp;
+    i += (int)ReadWhitespace(text + i);
+    if (text[i] != ')') {
+        errorType = Script::ErrorType::SCRPT_ERROR_PARENTHESIS_CLOSE;
+        return -i;
+    }
+    ++i;
+    i += (int)ReadWhitespace(text + i);
+    if (text[i] != '{') {
+        errorType = Script::ErrorType::SCRPT_ERROR_BRACE_OPEN;
+        return -i;
+    }
+    ++i;
+    i += (int)ReadWhitespace(text + i);
+    int jtn = -1, jen = -1, jb = instrl.size();
+    while (text[i] != '}') {
+        if ((tmp = (int)ReadWhitespace(text + i)) > 0)
+            i += tmp;
+        else if (ReadName(text + i, keyword) > 0) {
+            if (keyword == "case") {
+                i += 4;
+                i += (int) ReadWhitespace(text + i);
+                instrl.push_back(Instruction(InstrCode::INSTR_VALUE_COPY));
+                if ((tmp = ReadExpression(text + i, instrl, errorType)) <= 0) {
+                    if (tmp != 0)
+                        return tmp - i;
+                    else {
+                        errorType = Script::ErrorType::SCRPT_ERROR_EXPRESSION;
+                        return -i;
+                    }
+                }
+                i += tmp;
+                i += (int) ReadWhitespace(text + i);
+                if (text[i] != ':') {
+                    errorType = Script::ErrorType::SCRPT_ERROR_COLON;
+                    return -i;
+                }
+                ++i;
+                i += (int) ReadWhitespace(text + i);
+                instrl.push_back((Instruction(InstrCode::INSTR_OP_EQU)));
+                jen = instrl.size();
+                instrl.push_back((Instruction(InstrCode::INSTR_JUMP_ELSE)));
+                if (jtn >= 0)
+                    instrl[jtn] = Instruction(InstrCode::INSTR_JUMP_TO, (int)instrl.size());
+                while (text[i] != '}' && (ReadName(text + i, keyword) == 0 || (keyword != "case" && keyword != "default"))){
+                    if ((tmp = (int)ReadWhitespace(text + i)) > 0)
+                        i += tmp;
+                    else if ((tmp = ReadInstruction(text + i, instrl, errorType)) > 0)
+                        i += tmp;
+                    else {
+                        if (tmp != 0)
+                            return tmp - i;
+                        else {
+                            errorType = Script::ErrorType::SCRPT_ERROR_UNKNOW;
+                            return -i;
+                        }
+                    }
+                }
+                jtn = instrl.size();
+                instrl.push_back(Instruction(InstrCode::INSTR_JUMP_TO));
+                if (jen >= 0)
+                    instrl[jen] = Instruction(InstrCode::INSTR_JUMP_ELSE, (int)instrl.size());
+            }
+            else if (keyword == "default") {
+                i += 7;
+                i += (int) ReadWhitespace(text + i);
+                if (text[i] != ':') {
+                    errorType = Script::ErrorType::SCRPT_ERROR_COLON;
+                    return -i;
+                }
+                ++i;
+                i += (int) ReadWhitespace(text + i);
+                if (jtn >= 0)
+                    instrl[jtn] = Instruction(InstrCode::INSTR_JUMP_TO, (int)instrl.size());
+                if (jen >= 0)
+                    instrl[jen] = Instruction(InstrCode::INSTR_JUMP_ELSE, (int)instrl.size());
+                while (text[i] != '}') {
+                    if ((tmp = (int)ReadWhitespace(text + i)) > 0)
+                        i += tmp;
+                    else if ((tmp = ReadInstruction(text + i, instrl, errorType)) > 0)
+                        i += tmp;
+                    else {
+                        if (tmp != 0)
+                            return tmp - i;
+                        else {
+                            errorType = Script::ErrorType::SCRPT_ERROR_UNKNOW;
+                            return -i;
+                        }
+                    }
+                }
+                break;
+            }
+            else {
+                errorType = Script::ErrorType::SCRPT_ERROR_SWITCH_KEYWORDS;
+                return -i;
+            }
+        }
+        else {
+            errorType = Script::ErrorType::SCRPT_ERROR_SWITCH_END;
+            return -i;
+        }
+    }
+    if (text[i] != '}') {
+        errorType = Script::ErrorType::SCRPT_ERROR_BRACE_CLOSE;
+        return -i;
+    }
+    if (jtn >= 0)
+        instrl[jtn] = Instruction(InstrCode::INSTR_JUMP_TO, (int)instrl.size());
+    if (jen >= 0)
+        instrl[jen] = Instruction(InstrCode::INSTR_JUMP_ELSE, (int)instrl.size());
+    for (int it = jb, sz = instrl.size(); it < sz; it++) {
+        if (instrl[it].code == InstrCode::INSTR_JUMP_TO &&
+            instrl[it].comp_type == Instruction::CompType::COMP_TYPE_STRING &&
+            std::string(instrl[it].comp_value.v_string) == "break")
+                instrl[it] = Instruction(InstrCode::INSTR_JUMP_TO, sz);
+    }
+    instrl.push_back(Instruction(InstrCode::INSTR_VALUE_POP));
+    return i + 1;
 }
 
 int LiteScript::Syntax::ReadCallback(const char *text, std::vector<Instruction> &instrl,
@@ -1482,6 +1885,34 @@ int LiteScript::Syntax::ReadInstruction(const char *text, std::vector<Instructio
     else if (tmp != 0)
         i = tmp - i;
     if ((tmp = ReadControlIf(text + i, instrl, errorType)) > 0)
+        return tmp + i;
+    else if (tmp != 0)
+        return tmp - i;
+    if ((tmp = ReadReturn(text + i, instrl, errorType)) > 0)
+        return tmp + i;
+    else if (tmp != 0)
+        return tmp - i;
+    if ((tmp = ReadBreak(text + i, instrl, errorType)) > 0)
+        return tmp + i;
+    else if (tmp != 0)
+        return tmp - i;
+    if ((tmp = ReadContinue(text + i, instrl, errorType)) > 0)
+        return tmp + i;
+    else if (tmp != 0)
+        return tmp - i;
+    if ((tmp = ReadControlWhile(text + i, instrl, errorType)) > 0)
+        return tmp + i;
+    else if (tmp != 0)
+        return tmp - i;
+    if ((tmp = ReadControlDo(text + i, instrl, errorType)) > 0)
+        return tmp + i;
+    else if (tmp != 0)
+        return tmp - i;
+    if ((tmp = ReadControlFor(text + i, instrl, errorType)) > 0)
+        return tmp + i;
+    else if (tmp != 0)
+        return tmp - i;
+    if ((tmp = ReadControlSwitch(text + i, instrl, errorType)) > 0)
         return tmp + i;
     else if (tmp != 0)
         return tmp - i;

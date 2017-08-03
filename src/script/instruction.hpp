@@ -35,6 +35,7 @@ namespace LiteScript {
 
         // VALUE CREATIONS
         INSTR_VALUE_POP,
+        INSTR_VALUE_COPY,
         INSTR_VALUE_UNDEFINED,
         INSTR_VALUE_NULL,
         INSTR_VALUE_BOOLEAN,

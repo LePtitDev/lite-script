@@ -321,6 +321,83 @@ namespace LiteScript {
         int ReadControlIf(const char * text, std::vector<Instruction>& instrl, Script::ErrorType& errorType);
 
         /**
+         * Try to read a return instruction
+         *
+         * @param text The text that contain the return instruction
+         * @param instrl The instructions list that result
+         * @param errorType The error type
+         * @return The number of characters read if success and a negative number if an error occurred
+         * (if error the return value is the opposite of the position where occurred)
+         */
+        int ReadReturn(const char * text, std::vector<Instruction>& instrl, Script::ErrorType& errorType);
+
+        /**
+         * Try to read a break instruction
+         *
+         * @param text The text that contain the break instruction
+         * @param instrl The instructions list that result
+         * @param errorType The error type
+         * @return The number of characters read if success and a negative number if an error occurred
+         * (if error the return value is the opposite of the position where occurred)
+         */
+        int ReadBreak(const char * text, std::vector<Instruction>& instrl, Script::ErrorType& errorType);
+
+        /**
+         * Try to read a continue instruction
+         *
+         * @param text The text that contain the continue instruction
+         * @param instrl The instructions list that result
+         * @param errorType The error type
+         * @return The number of characters read if success and a negative number if an error occurred
+         * (if error the return value is the opposite of the position where occurred)
+         */
+        int ReadContinue(const char * text, std::vector<Instruction>& instrl, Script::ErrorType& errorType);
+
+        /**
+         * Try to read a while control instruction
+         *
+         * @param text The text that contain the while control instruction
+         * @param instrl The instructions list that result
+         * @param errorType The error type
+         * @return The number of characters read if success and a negative number if an error occurred
+         * (if error the return value is the opposite of the position where occurred)
+         */
+        int ReadControlWhile(const char * text, std::vector<Instruction>& instrl, Script::ErrorType& errorType);
+
+        /**
+         * Try to read a do..while control instruction
+         *
+         * @param text The text that contain the do..while control instruction
+         * @param instrl The instructions list that result
+         * @param errorType The error type
+         * @return The number of characters read if success and a negative number if an error occurred
+         * (if error the return value is the opposite of the position where occurred)
+         */
+        int ReadControlDo(const char * text, std::vector<Instruction>& instrl, Script::ErrorType& errorType);
+
+        /**
+         * Try to read a for control instruction
+         *
+         * @param text The text that contain the for control instruction
+         * @param instrl The instructions list that result
+         * @param errorType The error type
+         * @return The number of characters read if success and a negative number if an error occurred
+         * (if error the return value is the opposite of the position where occurred)
+         */
+        int ReadControlFor(const char * text, std::vector<Instruction>& instrl, Script::ErrorType& errorType);
+
+        /**
+         * Try to read a switch control instruction
+         *
+         * @param text The text that contain the switch control instruction
+         * @param instrl The instructions list that result
+         * @param errorType The error type
+         * @return The number of characters read if success and a negative number if an error occurred
+         * (if error the return value is the opposite of the position where occurred)
+         */
+        int ReadControlSwitch(const char * text, std::vector<Instruction>& instrl, Script::ErrorType& errorType);
+
+        /**
          * Try to read a callback
          *
          * @param text The text that contain the callback

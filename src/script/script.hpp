@@ -53,6 +53,11 @@ namespace LiteScript {
             SCRPT_ERROR_CLASS_OPERATOR_INVALID,
             SCRPT_ERROR_CLASS_END,
 
+            SCRPT_ERROR_FOR_INITIALISATION,
+            SCRPT_ERROR_FOR_CONDITION,
+            SCRPT_ERROR_SWITCH_KEYWORDS,
+            SCRPT_ERROR_SWITCH_END,
+
             SCRPT_ERROR_NAME,
             SCRPT_ERROR_VALUE,
             SCRPT_ERROR_OPERATOR,
@@ -60,10 +65,13 @@ namespace LiteScript {
             SCRPT_ERROR_PARENTHESIS_OPEN,
             SCRPT_ERROR_PARENTHESIS_CLOSE,
             SCRPT_ERROR_BRACKET_CLOSE,
+            SCRPT_ERROR_BRACE_OPEN,
             SCRPT_ERROR_BRACE_CLOSE,
             SCRPT_ERROR_COLON,
             SCRPT_ERROR_SEMICOLON,
             SCRPT_ERROR_INSTRUCTION,
+            SCRPT_ERROR_RETURN,
+            SCRPT_ERROR_WHILE,
 
             SCRPT_ERROR_UNKNOW,
 

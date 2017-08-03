@@ -48,12 +48,13 @@ Variable print_var(State& s, std::vector<Variable>& args) {
 /**
  * The assembly instruction syntaxes
  */
-std::array<const char *, 75> commands_instructions({
+std::array<const char *, 76> commands_instructions({
     "define.variable <name> : define a variable in the current namespace (1 pop)",
     "define.arg <index number> : define an argument (1 pop)",
     "define.return : define the return value (1 pop)",
     "",
     "value.pop : remove the heap last element (1 pop)",
+    "value.copy : copy the heap last element (1 push)",
     "value.undefined : add an undefined value to the heap (1 push)",
     "value.null : add a null value to the heap (1 push)",
     "value.boolean <true|false> : add a boolean value to the heap (1 push)",

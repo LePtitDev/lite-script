@@ -50,6 +50,15 @@ std::array<const char *, LiteScript::Script::ErrorType::SCRPT_ERROR_NUMBER> Lite
     // SCRPT_ERROR_CLASS_END
     "Closing brace expected for class definition",
 
+    // SCRPT_ERROR_FOR_INITIALISATION
+    "Initialisation expected in for control statement",
+    // SCRPT_ERROR_FOR_CONDITION
+    "Condition expected in for control statement",
+    // SCRPT_ERROR_SWITCH_KEYWORDS
+    "\"case\" or \"default\" keywords expected in switch control statement",
+    // SCRPT_ERROR_SWITCH_END
+    "Closing brace \"}\" expected in switch control statement",
+
     // SCRPT_ERROR_NAME
     "Variable name expected",
     // SCRPT_ERROR_VALUE
@@ -64,6 +73,8 @@ std::array<const char *, LiteScript::Script::ErrorType::SCRPT_ERROR_NUMBER> Lite
     "Closing parenthesis \")\" expected",
     // SCRPT_ERROR_BRACKET_CLOSE
     "Closing bracket \"]\" expected",
+    // SCRPT_ERROR_BRACE_OPEN
+    "Opening brace \"{\" expected",
     // SCRPT_ERROR_BRACE_CLOSE
     "Closing brace \"}\" expected",
     // SCRPT_ERROR_COLON
@@ -72,6 +83,10 @@ std::array<const char *, LiteScript::Script::ErrorType::SCRPT_ERROR_NUMBER> Lite
     "Semi-colon \";\" expected",
     // SCRPT_ERROR_INSTRUCTION
     "Instruction expected",
+    // SCRPT_ERROR_RETURN
+    "Expression or semi-colon expected for return",
+    // SCRPT_ERROR_WHILE
+    "\"while\" keyword expected in do..while control statement",
 
     // SCRPT_ERROR_UNKNOW
     "Unknow element"

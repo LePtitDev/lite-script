@@ -104,6 +104,9 @@ void LiteScript::Instruction::Save(std::ostream &stream, const std::vector<Instr
             case InstrCode::INSTR_VALUE_POP:
                 stream << "value.pop";
                 break;
+            case InstrCode::INSTR_VALUE_COPY:
+                stream << "value.copy";
+                break;
             case InstrCode::INSTR_VALUE_UNDEFINED:
                 stream << "value.undefined";
                 break;
