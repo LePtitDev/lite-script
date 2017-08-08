@@ -15,7 +15,6 @@
 #include <cstdlib>
 
 #include "syntax.hpp"
-#include "instruction.hpp"
 
 std::array<unsigned char, LiteScript::Syntax::Operators::OP_NUMBER> LiteScript::Syntax::OP_Priority({
     1, 1, 1, 1, 1,
@@ -43,6 +42,11 @@ unsigned int LiteScript::Syntax::ReadNull(const char *text) {
     return (ReadName(text, str) > 0 && str == "null") ? 4 : 0;
 }
 
+unsigned int LiteScript::Syntax::ReadThis(const char *text) {
+    std::string str;
+    return (ReadName(text, str) > 0 && str == "this") ? 4 : 0;
+}
+
 unsigned int LiteScript::Syntax::ReadBoolean(const char *text, bool &res) {
     std::string str;
     if (ReadName(text, str) > 0) {
@@ -56,29 +60,6 @@ unsigned int LiteScript::Syntax::ReadBoolean(const char *text, bool &res) {
         }
     }
     return 0;
-}
-
-unsigned int LiteScript::Syntax::ReadInteger(const char *text, int &res) {
-    unsigned int tmp, nb;
-    if (text[0] == '-') {
-        nb = ReadUInteger(text + 1, tmp);
-        if (nb == 0)
-            return 0;
-        res = -(int)tmp;
-        return nb + 1;
-    }
-    else if (text[0] == '+') {
-        nb = ReadUInteger(text + 1, tmp);
-        if (nb == 0)
-            return 0;
-        res = (int)tmp;
-        return nb + 1;
-    }
-    else {
-        nb = ReadUInteger(text, tmp);
-        res = (int)tmp;
-        return nb;
-    }
 }
 
 unsigned int LiteScript::Syntax::ReadUInteger(const char *text, unsigned int &res) {
@@ -219,7 +200,7 @@ unsigned int LiteScript::Syntax::ReadWhitespace(const char *text) {
     while (true) {
         if (text[i] == ' ' || text[i] == '\t' || text[i] == '\n')
             i++;
-        else if ((tmp = ReadComment(text)) > 0)
+        else if ((tmp = ReadComment(text + i)) > 0)
             i += tmp;
         else
             break;
@@ -670,6 +651,10 @@ int LiteScript::Syntax::ReadValue(const char *text, std::vector<Instruction> &in
         instrl.push_back(Instruction(InstrCode::INSTR_VALUE_NULL));
         return (int) tmp.ui;
     }
+    else if ((tmp.ui = ReadThis(text)) > 0) {
+        instrl.push_back(Instruction(InstrCode::INSTR_VALUE_THIS));
+        return (int) tmp.ui;
+    }
     else if ((tmp.ui = ReadBoolean(text, res.b)) > 0) {
         instrl.push_back(Instruction(InstrCode::INSTR_VALUE_BOOLEAN, res.b));
         return (int) tmp.ui;
@@ -948,8 +933,10 @@ int LiteScript::Syntax::ReadOperator(const char *text, std::vector<Operators> &o
             errorType = Script::ErrorType::SCRPT_ERROR_EXPRESSION;
             return -i;
         }
-        if (op.size() > 0 && op.back() == Operators::OP_NEW)
+        if (op.size() > 0 && op.back() == Operators::OP_NEW) {
+            op.pop_back();
             instrl.push_back(Instruction(InstrCode::INSTR_VALUE_OBJECT));
+        }
         else
             instrl.push_back(Instruction(InstrCode::INSTR_OP_CALL));
         instrl.push_back(Instruction(InstrCode::INSTR_POP_ARGS));
@@ -992,6 +979,7 @@ int LiteScript::Syntax::ReadOperator(const char *text, std::vector<Operators> &o
         }
         i += (int)tmp;
         instrl.push_back(Instruction(InstrCode::INSTR_OP_MEMBER, name.c_str()));
+        need_value = false;
         return i;
     }
     else if (text[0] == '?') {
@@ -1827,6 +1815,41 @@ int LiteScript::Syntax::ReadClass(const char *text, std::vector<Instruction> &in
     return i + 1;
 }
 
+int LiteScript::Syntax::ReadNamespace(const char *text, std::vector<Instruction> &instrl,
+                                      Script::ErrorType &errorType) {
+    std::string keyword;
+    if (ReadName(text, keyword) == 0 || keyword != "namespace")
+        return 0;
+    int i = 9, tmp;
+    i += (int)ReadWhitespace(text + i);
+    std::string nsp;
+    bool need_name = true;
+    while (text[i] != ';') {
+        if ((tmp = (int)ReadWhitespace(text + i)) > 0)
+            i += tmp;
+        else if (need_name && (tmp = ReadName(text + i, keyword)) > 0) {
+            i += tmp;
+            nsp += keyword;
+            need_name = false;
+        }
+        else if (!need_name && text[i] == '.') {
+            ++i;
+            nsp += '.';
+            need_name = true;
+        }
+        else {
+            errorType = Script::ErrorType::SCRPT_ERROR_NAMESPACE;
+            return -i;
+        }
+    }
+    if (need_name) {
+        errorType = Script::ErrorType::SCRPT_ERROR_NAMESPACE;
+        return -i;
+    }
+    instrl.push_back(Instruction(InstrCode::INSTR_NAMESPACE_USE, nsp.c_str()));
+    return i + 1;
+}
+
 int LiteScript::Syntax::ReadInstructionBlock(const char *text, std::vector<Instruction> &instrl,
                                              Script::ErrorType &errorType) {
     if (text[0] != '{')
@@ -1913,6 +1936,10 @@ int LiteScript::Syntax::ReadInstruction(const char *text, std::vector<Instructio
     else if (tmp != 0)
         return tmp - i;
     if ((tmp = ReadControlSwitch(text + i, instrl, errorType)) > 0)
+        return tmp + i;
+    else if (tmp != 0)
+        return tmp - i;
+    if ((tmp = ReadNamespace(text + i, instrl, errorType)) > 0)
         return tmp + i;
     else if (tmp != 0)
         return tmp - i;

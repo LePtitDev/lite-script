@@ -87,6 +87,8 @@ std::array<const char *, LiteScript::Script::ErrorType::SCRPT_ERROR_NUMBER> Lite
     "Expression or semi-colon expected for return",
     // SCRPT_ERROR_WHILE
     "\"while\" keyword expected in do..while control statement",
+    // SCRPT_ERROR_NAMESPACE
+    "Invalid namespace",
 
     // SCRPT_ERROR_UNKNOW
     "Unknow element"

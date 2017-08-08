@@ -722,7 +722,7 @@ LiteScript::Variable LiteScript::Class::GetUnstaticMember(const char *name) cons
 }
 
 LiteScript::Variable LiteScript::Class::GetOperator(OperatorType op) const {
-    if (!this->op_members[op].isNull)
+    if (this->op_members[op].isNull)
         return this->memory.Create(Type::UNDEFINED);
     else
         return Variable(*this->op_members[op]);

@@ -72,6 +72,7 @@ namespace LiteScript {
             SCRPT_ERROR_INSTRUCTION,
             SCRPT_ERROR_RETURN,
             SCRPT_ERROR_WHILE,
+            SCRPT_ERROR_NAMESPACE,
 
             SCRPT_ERROR_UNKNOW,
 

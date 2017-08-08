@@ -274,9 +274,16 @@ void LiteScript::StateExecutor::I_POP_ARGS(State& state, Instruction& instr) {
 }
 void LiteScript::StateExecutor::I_RETURN(State& state, Instruction& instr) {
     state.line_num++;
-    if (state.op_lifo.size() > 0)
-        state.op_lifo.pop_back();
+    Nullable<Variable> obj;
+    if (state.op_lifo.size() > 0) {
+        if (state.op_lifo.back()->GetType() != Type::UNDEFINED)
+            obj = state.op_lifo.back();
+        else
+            state.op_lifo.pop_back();
+    }
     state.ExecuteSingle(Instruction(InstrCode::INSTR_POP_NSP));
+    if (!obj.isNull)
+        state.op_lifo.pop_back();
     state.PopCall();
 }
 

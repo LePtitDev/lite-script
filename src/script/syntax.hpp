@@ -62,6 +62,14 @@ namespace LiteScript {
         unsigned int ReadNull(const char * text);
 
         /**
+         * Try to read the "this" value
+         *
+         * @param text The text that contain the "this" value
+         * @return The number of read characters (zero if failure)
+         */
+        unsigned int ReadThis(const char * text);
+
+        /**
          * Try to read a boolean
          *
          * @param text The text that contain the boolean
@@ -69,15 +77,6 @@ namespace LiteScript {
          * @return The number of read characters (zero if failure)
          */
         unsigned int ReadBoolean(const char * text, bool& res);
-
-        /**
-         * Try to read an integer
-         *
-         * @param text The text that contain the integer
-         * @param res The result
-         * @return The number of read characters (zero if failure)
-         */
-        unsigned int ReadInteger(const char * text, int& res);
 
         /**
          * Try to read an unsigned integer
@@ -418,6 +417,17 @@ namespace LiteScript {
          * (if error the return value is the opposite of the position where occurred)
          */
         int ReadClass(const char * text, std::vector<Instruction>& instrl, Script::ErrorType& errorType);
+
+        /**
+         * Try to read a namespace
+         *
+         * @param text The text that contain the namespace
+         * @param instrl The instructions list that result
+         * @param errorType The error type
+         * @return The number of characters read if success and a negative number if an error occurred
+         * (if error the return value is the opposite of the position where occurred)
+         */
+        int ReadNamespace(const char * text, std::vector<Instruction>& instrl, Script::ErrorType& errorType);
 
         /**
          * Try to read an instruction block
