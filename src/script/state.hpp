@@ -12,16 +12,23 @@
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
-#ifndef LITESCRIPT_LITESCRIPT_HPP
-
-#include "../litescript.hpp"
-
-#else
-
 #ifndef LITESCRIPT_SCRIPT_STATE_HPP
 #define LITESCRIPT_SCRIPT_STATE_HPP
 
+#include <vector>
+
+#include "../nullable.hpp"
+
+#include "../memory/type.hpp"
+#include "../memory/variable.hpp"
+#include "../memory/memory.hpp"
+
+#include "instruction.hpp"
+
 namespace LiteScript {
+
+    // Class declarations
+    class StateExecutor;
 
     class State {
 
@@ -219,5 +226,3 @@ namespace LiteScript {
 }
 
 #endif //LITESCRIPT_STATE_HPP
-
-#endif

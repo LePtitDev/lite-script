@@ -15,7 +15,10 @@
 #ifndef LITESCRIPT_SCRIPT_SYNTAX_HPP
 #define LITESCRIPT_SCRIPT_SYNTAX_HPP
 
-#include "../litescript.hpp"
+#include <array>
+
+#include "instruction.hpp"
+#include "script.hpp"
 
 namespace LiteScript {
 

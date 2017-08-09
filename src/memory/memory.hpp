@@ -12,19 +12,20 @@
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
-#ifndef LITESCRIPT_LITESCRIPT_HPP
-
-#include "../litescript.hpp"
-
-#else
-
 #ifndef LITESCRIPT_MEMORY_MEMORY_HPP
 #define LITESCRIPT_MEMORY_MEMORY_HPP
+
+#include "type.hpp"
+
+#include "../nullable.hpp"
 
 #define LITESCRIPT_MEMORY_SIZE 256
 #define LITESCRIPT_MEMORY_MAXCOUNT 16777216
 
 namespace LiteScript {
+
+    // Class declarations
+    class Variable;
 
     // Class Memory that contain objects
     class Memory {
@@ -110,5 +111,3 @@ namespace LiteScript {
 }
 
 #endif //LITESCRIPT_MEMORY_HPP
-
-#endif

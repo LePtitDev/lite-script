@@ -12,14 +12,10 @@
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
-#ifndef LITESCRIPT_LITESCRIPT_HPP
-
-#include "../litescript.hpp"
-
-#else
-
 #ifndef LITESCRIPT_SCRIPT_ASSEMBLY_HPP
 #define LITESCRIPT_SCRIPT_ASSEMBLY_HPP
+
+#include "state.hpp"
 
 namespace LiteScript {
 
@@ -184,5 +180,3 @@ namespace LiteScript {
 }
 
 #endif //LITESCRIPT_ASSEMBLY_HPP
-
-#endif

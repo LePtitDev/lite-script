@@ -12,16 +12,16 @@
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
-#ifndef LITESCRIPT_LITESCRIPT_HPP
-
-#include "../litescript.hpp"
-
-#else
-
 #ifndef LITESCRIPT_MEMORY_TYPE_HPP
 #define LITESCRIPT_MEMORY_TYPE_HPP
 
+#include <string>
+
 namespace LiteScript {
+
+    // Class declarations
+    class Object;
+    class Variable;
 
     // Abstract type of an object
     class Type {
@@ -527,5 +527,3 @@ namespace LiteScript {
 }
 
 #endif //LITESCRIPT_MEMORY_TYPE_HPP
-
-#endif //LITESCRIPT_LITESCRIPT_HPP

@@ -12,17 +12,18 @@
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
-#ifndef LITESCRIPT_LITESCRIPT_HPP
-
-#include "../litescript.hpp"
-
-#else
-
 #ifndef LITESCRIPT_MEMORY_VARIABLE_HPP
 #define LITESCRIPT_MEMORY_VARIABLE_HPP
 
+#include <vector>
+
 namespace LiteScript {
 
+    // Class declarations
+    class Object;
+    class Type;
+
+    // Variable class definition
     class Variable {
 
         // The object
@@ -383,5 +384,3 @@ namespace LiteScript {
 std::ostream& operator<<(std::ostream& stream, const LiteScript::Variable& object);
 
 #endif //LITESCRIPT_MEMORY_VARIABLE_HPP
-
-#endif

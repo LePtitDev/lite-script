@@ -12,16 +12,14 @@
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
-#ifndef LITESCRIPT_LITESCRIPT_HPP
-
-#include "../litescript.hpp"
-
-#else
-
 #ifndef LITESCRIPT_MEMORY_OBJECT_HPP
 #define LITESCRIPT_MEMORY_OBJECT_HPP
 
 namespace LiteScript {
+
+    // Class declarations
+    class Type;
+    class Memory;
 
     // Allocator of each objects
     extern std::allocator<char> ObjectAllocator;
@@ -132,5 +130,3 @@ namespace LiteScript {
 }
 
 #endif //LITESCRIPT_MEMORY_VARIABLE_HPP
-
-#endif //LITESCRIPT_LITESCRIPT_HPP

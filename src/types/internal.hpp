@@ -12,13 +12,13 @@
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
-#ifndef LITESCRIPT_LITESCRIPT_HPP
-#include "../litescript.hpp"
-
-#else
-
 #ifndef LITESCRIPT_TYPES_INTERNAL_HPP
 #define LITESCRIPT_TYPES_INTERNAL_HPP
+
+#include "../memory/variable.hpp"
+#include "../memory/memory.hpp"
+
+#include "../script/state.hpp"
 
 namespace LiteScript {
 
@@ -1358,5 +1358,3 @@ namespace LiteScript {
 }
 
 #endif //LITESCRIPT_INTERNAL_HPP
-
-#endif

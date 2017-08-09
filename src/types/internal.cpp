@@ -12,11 +12,10 @@
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
-#include "internal.hpp"
+#include "../litescript.hpp"
 
+#include "undefined.hpp"
 #include "character.hpp"
-
-#include "../types/undefined.hpp"
 
 /**************************/
 /****** CLASS NUMBER ******/
@@ -524,7 +523,6 @@ LiteScript::Variable LiteScript::Callback::operator()(std::vector<Variable> &arg
     }
     else {
         Variable result = this->call_ptr(*this->state, args);
-        this->state->ExecuteSingle(Instruction(InstrCode::INSTR_VALUE_UNDEFINED));
         this->state->ExecuteSingle(Instruction(InstrCode::INSTR_POP_NSP));
         this->state->ExecuteSingle(Instruction(InstrCode::INSTR_VALUE_POP));
         return result;

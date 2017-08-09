@@ -12,7 +12,8 @@
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
-#include "script.hpp"
+#include "../litescript.hpp"
+
 #include "syntax.hpp"
 
 std::array<const char *, LiteScript::Script::ErrorType::SCRPT_ERROR_NUMBER> LiteScript::Script::ErrorMsg({

@@ -81,6 +81,8 @@ LiteScript::Variable LiteScript::_Type_STRING::OEqual(const LiteScript::Variable
         Variable tmp = obj2.Convert(*this);
         if (tmp->GetType() == *this)
             res->GetData<bool>() = (obj1->GetData<String>() == tmp->GetData<String>());
+        else
+            res->GetData<bool>() = false;
         return res;
     }
     res->GetData<bool>() = (obj1->GetData<String>() == obj2->GetData<String>());
@@ -92,6 +94,8 @@ LiteScript::Variable LiteScript::_Type_STRING::ONotEqual(const LiteScript::Varia
         Variable tmp = obj2.Convert(*this);
         if (tmp->GetType() == *this)
             res->GetData<bool>() = (obj1->GetData<String>() != tmp->GetData<String>());
+        else
+            res->GetData<bool>() = true;
         return res;
     }
     res->GetData<bool>() = (obj1->GetData<String>() != obj2->GetData<String>());

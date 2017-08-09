@@ -14,6 +14,8 @@
 
 #include <cstdlib>
 
+#include "../litescript.hpp"
+
 #include "syntax.hpp"
 
 std::array<unsigned char, LiteScript::Syntax::Operators::OP_NUMBER> LiteScript::Syntax::OP_Priority({
