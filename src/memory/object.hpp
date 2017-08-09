@@ -21,11 +21,11 @@ namespace LiteScript {
     class Type;
     class Memory;
 
-    // Allocator of each objects
-    extern std::allocator<char> ObjectAllocator;
-
     // Basic class of an object
     class Object {
+
+        // Allocator of each objects
+        static std::allocator<char> allocator;
 
         ///////////////////////////////
         ////// OBJECT ATTRIBUTES //////

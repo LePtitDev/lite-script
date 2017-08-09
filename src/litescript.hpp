@@ -49,6 +49,7 @@ namespace LiteScript {
 #include "types/internal.hpp"
 
 #include "script/instruction.hpp"
+#include "script/namer.hpp"
 #include "script/state.hpp"
 #include "script/assembly.hpp"
 #include "script/script.hpp"

@@ -28,6 +28,7 @@ set(SOURCE_FILES
         src/memory/basic_memory.hpp src/memory/basic_memory.cpp
 
         src/script/instruction.hpp src/script/instruction.cpp
+        src/script/namer.hpp src/script/namer.cpp
         src/script/state.hpp src/script/state.cpp
         src/script/executor.hpp src/script/executor.cpp
         src/script/assembly.hpp src/script/assembly.cpp

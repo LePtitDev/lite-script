@@ -24,6 +24,7 @@
 #include "../memory/memory.hpp"
 
 #include "instruction.hpp"
+#include "namer.hpp"
 
 namespace LiteScript {
 
@@ -48,14 +49,8 @@ namespace LiteScript {
         // The current line number
         unsigned int line_num;
 
-        // The LIFO of namespaces
-        std::vector<Variable> nsp_list;
-
         // The global namespace
         Variable nsp_global;
-
-        // The current namespace
-        Nullable<Variable> nsp_current;
 
         // The LIFO of arguments
         std::vector<std::vector<Variable>> args;
@@ -73,7 +68,7 @@ namespace LiteScript {
         std::vector<std::array<unsigned int, 2>> call_lifo;
 
         // The namespace LIFO
-        std::vector<Variable> nsp_lifo;
+        std::vector<Namer> nsp_lifo;
 
     public:
 
@@ -152,9 +147,9 @@ namespace LiteScript {
         Variable GetVariable(const char * name) const;
 
         /**
-         * Return the current namespace
+         * Get the current namer
          */
-        Variable GetCurrentNamespace() const;
+        Namer& GetCurrentNamer();
 
         /**
          * Change the current namespace (if name == "global",
@@ -205,14 +200,6 @@ namespace LiteScript {
          * Pop the calling LIFO
          */
         void PopCall();
-
-        /**
-         * Jump to an other instruction
-         *
-         * @param index The index of instructions list
-         * @param line The line in the instructions list
-         */
-        void JumpTo(unsigned int index, unsigned int line);
 
         /**
          * Get a list of instruction

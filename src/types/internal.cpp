@@ -457,14 +457,14 @@ LiteScript::Callback::Callback() : state(nullptr), I(intrl_idx), L(line_num) {}
 
 LiteScript::Callback::Callback(const Callback &c) :
     state(c.state), intrl_idx(c.intrl_idx), line_num(c.line_num), call_ptr(c.call_ptr),
-    nsp(Nullable<Variable>(c.nsp)), I(intrl_idx), L(line_num)
+    nsp(Nullable<Namer>(c.nsp)), I(intrl_idx), L(line_num)
 {
 
 }
 
 LiteScript::Callback::Callback(LiteScript::State &s, unsigned int i, unsigned int l) :
     call_ptr(nullptr), state(&s), intrl_idx(i), line_num(l),
-    nsp(Nullable<Variable>(s.GetCurrentNamespace())), I(intrl_idx), L(line_num)
+    nsp(Nullable<Namer>(s.GetCurrentNamer())), I(intrl_idx), L(line_num)
 {
 
 }
@@ -516,8 +516,9 @@ LiteScript::Variable LiteScript::Callback::operator()(std::vector<Variable> &arg
         this->state->GetThis() = this->This;
     if (this->call_ptr == nullptr) {
         Nullable<Variable> last_nsp;
-        if (!this->nsp.isNull)
-            this->state->UseNamespace(*this->nsp);
+        Namer& namer = this->state->GetCurrentNamer();
+        namer = *this->nsp;
+        namer.Push(this->state->memory.Create(Type::NAMESPACE));
         this->state->PushCall(this->intrl_idx, this->line_num);
         return this->state->memory.Create(Type::UNDEFINED);
     }

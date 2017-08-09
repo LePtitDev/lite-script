@@ -14,7 +14,7 @@
 
 #include "../litescript.hpp"
 
-std::allocator<char> LiteScript::ObjectAllocator;
+std::allocator<char> LiteScript::Object::allocator;
 
 LiteScript::Object::Object(Memory& mem, unsigned int id) :
     ID(id), memory(mem), type(&Type::NIL), size(0), data(nullptr)
@@ -32,7 +32,7 @@ LiteScript::Object::~Object() {
     this->type->ODestroy(*this);
     if (this->size > 0) {
         this->size = 0;
-        ObjectAllocator.deallocate((char *)this->data, this->size);
+        allocator.deallocate((char *)this->data, this->size);
     }
 }
 
@@ -49,13 +49,13 @@ LiteScript::Object& LiteScript::Object::Reassign(Type& type, unsigned int size) 
         this->type->ODestroy(*this);
         if (this->size > 0) {
             this->size = 0;
-            ObjectAllocator.deallocate((char *) this->data, this->size);
+            allocator.deallocate((char *) this->data, this->size);
             this->data = nullptr;
         }
     }
     this->size = size;
     this->type = &type;
     if (size > 0)
-        this->data = ObjectAllocator.allocate(size);
+        this->data = allocator.allocate(size);
     return *this;
 }

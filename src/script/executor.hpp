@@ -44,6 +44,13 @@ namespace LiteScript {
         // The functions array (for speed execution increasing)
         static std::array<void(*)(State&, Instruction&), LiteScript::InstrCode::INSTR_NUMBER> ARRAY;
 
+        /**
+         * Pop a value on the heap with specificities
+         *
+         * @param st The state
+         */
+        static void PopValue(State& st);
+
         /******
          * All instructions are typed like this :
          * - Parameter: The script state

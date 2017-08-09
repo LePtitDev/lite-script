@@ -53,7 +53,7 @@ int main(int argc, char * argv[]) {
 
     Variable v1 = script.memory.Create(Type::CALLBACK);
     v1->GetData<Callback>() = Callback(script.state, print_var);
-    script.state.GetCurrentNamespace()->GetData<Namespace>().DefineVariable("print", v1);
+    script.state.GetCurrentNamer().Declare("print", v1);
 
     if (argc > 1) {
         unsigned int i;

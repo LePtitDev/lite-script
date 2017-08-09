@@ -797,7 +797,7 @@ namespace LiteScript {
         Variable (* call_ptr)(State&, std::vector<Variable>&);
 
         // The callback namespace
-        Nullable<Variable> nsp;
+        Nullable<Namer> nsp;
 
     public:
 
