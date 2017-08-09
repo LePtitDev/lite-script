@@ -1730,13 +1730,11 @@ int LiteScript::Syntax::ReadCallback(const char *text, std::vector<Instruction> 
         unsigned int ui;
     } tmp;
     std::string name;
-    instrl.push_back(Instruction(InstrCode::INSTR_JUMP_TO));
     i += (int)ReadWhitespace(text + i);
     // function {name}\(({name}(,{name})*(...)?)?\){instructionBlock}
-    if ((tmp.ui = ReadName(text + i, name)) == 0) {
-        errorType = Script::ErrorType::SCRPT_ERROR_NAME;
-        return -i;
-    }
+    if ((tmp.ui = ReadName(text + i, name)) == 0)
+        return 0;
+    instrl.push_back(Instruction(InstrCode::INSTR_JUMP_TO));
     i += (int)tmp.ui;
     i += (int)ReadWhitespace(text + i);
     if ((tmp.i = ReadCallbackArguments(text + i, instrl, errorType)) <= 0) {
@@ -1780,10 +1778,8 @@ int LiteScript::Syntax::ReadClass(const char *text, std::vector<Instruction> &in
     } tmp;
     std::string name;
     i += (int)ReadWhitespace(text + i);
-    if ((tmp.ui = ReadName(text + i, name)) == 0) {
-        errorType = Script::ErrorType::SCRPT_ERROR_NAME;
-        return -i;
-    }
+    if ((tmp.ui = ReadName(text + i, name)) == 0)
+        return 0;
     instrl.push_back(Instruction(InstrCode::INSTR_VALUE_CLASS));
     i += (int)tmp.ui;
     i += ReadWhitespace(text + i);
