@@ -28,6 +28,7 @@ std::array<void(*)(LiteScript::State&, LiteScript::Instruction&), LiteScript::In
 
     LiteScript::StateExecutor::I_VALUE_POP,
     LiteScript::StateExecutor::I_VALUE_COPY,
+    LiteScript::StateExecutor::I_VALUE_ASSIGN,
     LiteScript::StateExecutor::I_VALUE_UNDEFINED,
     LiteScript::StateExecutor::I_VALUE_NULL,
     LiteScript::StateExecutor::I_VALUE_BOOLEAN,
@@ -159,6 +160,14 @@ void LiteScript::StateExecutor::I_VALUE_COPY(State& state, Instruction& instr) {
     state.line_num++;
     if (state.op_lifo.size() > 0)
         state.op_lifo.push_back(Variable(state.op_lifo.back()));
+}
+void LiteScript::StateExecutor::I_VALUE_ASSIGN(State& state, Instruction& instr) {
+    state.line_num++;
+    if (state.op_lifo.size() == 0)
+        return;
+    Variable V = state.op_lifo.back();
+    state.op_lifo.pop_back();
+    state.op_lifo.push_back(state.memory.Create(Type::NIL) = V);
 }
 void LiteScript::StateExecutor::I_VALUE_UNDEFINED(State& state, Instruction& instr) {
     state.line_num++;

@@ -23,6 +23,8 @@ LiteScript::Variable LiteScript::_Type_UNDEFINED::OAssign(Variable &src, const V
         dest->GetType().AssignObject(*src);
         src->GetType().OAssign(src, dest);
     }
+    else
+        NullifyVariable(src);
     return Variable(src);
 }
 

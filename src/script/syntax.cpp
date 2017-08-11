@@ -1223,7 +1223,8 @@ int LiteScript::Syntax::ReadVariableDefinition(const char *text, std::vector<Ins
                 i += tmp.i;
             }
             else
-                instrl.push_back(Instruction(InstrCode::INSTR_VALUE_UNDEFINED));
+                instrl.push_back(Instruction(InstrCode::INSTR_VALUE_NULL));
+            instrl.push_back(Instruction(InstrCode::INSTR_VALUE_ASSIGN));
             instrl.push_back(Instruction(InstrCode::INSTR_DEFINE_VARIABLE, name.c_str()));
             need_name = false;
             index++;

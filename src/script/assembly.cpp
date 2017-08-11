@@ -140,6 +140,9 @@ LiteScript::Instruction LiteScript::Assembly::GetInstructionSingle(const char *c
         //value.copy
         if (strncmp(code + 6, "copy", 5) == 0)
             return Instruction(InstrCode::INSTR_VALUE_COPY);
+        //value.assign
+        if (strncmp(code + 6, "assign", 7) == 0)
+            return Instruction(InstrCode::INSTR_VALUE_ASSIGN);
         //value.undefined
         if (strncmp(code + 6, "undefined", 10) == 0)
             return Instruction(InstrCode::INSTR_VALUE_UNDEFINED);

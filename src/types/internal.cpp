@@ -643,18 +643,6 @@ void LiteScript::Class::Inherit(const Variable &v) {
     const Class& C = v->GetData<Class>();
     if (this == &C)
         return;
-    bool can_inherit;
-    for (unsigned int i = 0, sz = C.inherit.size(); i < sz; i++) {
-        can_inherit = true;
-        for (unsigned int j = 0, sz2 = 0; j < sz2; j++) {
-            if (this->inherit[i]->ID == C.inherit[i]->ID) {
-                can_inherit = false;
-                break;
-            }
-        }
-        if (can_inherit)
-            this->Inherit(C.inherit[i]);
-    }
     this->inherit.push_back(Variable(v));
     for (unsigned int i = 0, sz = C.s_members.size(); i < sz; i++)
         this->AddStatic(C.s_members[i].first.c_str(), C.s_members[i].second);
@@ -679,7 +667,7 @@ bool LiteScript::Class::DefineConstructor(const char *name) {
 void LiteScript::Class::AddStatic(const char *name, const Variable &v) {
     for (unsigned int i = 0, sz = this->s_members.size(); i < sz; i++) {
         if (this->s_members[i].first == name) {
-            this->s_members[i] = std::pair<std::string, Variable>(std::string(name), Variable(v));
+            this->s_members.emplace(this->s_members.begin() + i, std::pair<std::string, Variable>({ std::string(name), Variable(v) }));
             return;
         }
     }
@@ -689,7 +677,7 @@ void LiteScript::Class::AddStatic(const char *name, const Variable &v) {
 void LiteScript::Class::AddUnstatic(const char *name, const Variable &v) {
     for (unsigned int i = 0, sz = this->us_members.size(); i < sz; i++) {
         if (this->us_members[i].first == name) {
-            this->us_members[i] = std::pair<std::string, Variable>(std::string(name), Variable(v));
+            this->us_members.emplace(this->us_members.begin() + i, std::pair<std::string, Variable>({ std::string(name), Variable(v) }));
             return;
         }
     }

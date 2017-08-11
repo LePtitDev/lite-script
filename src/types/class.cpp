@@ -31,6 +31,10 @@ LiteScript::Variable LiteScript::_Type_CLASS::OAssign(Variable &src, const Varia
     return Variable(src);
 }
 
+LiteScript::Variable LiteScript::_Type_CLASS::OMember(Variable &object_src, const char *member_name) const {
+    return object_src->GetData<Class>().GetStaticMember(member_name);
+}
+
 LiteScript::Variable LiteScript::_Type_CLASS::OCall(Variable &object, std::vector<Variable> &args) const {
     return object->GetData<Class>().CreateElement(args);
 }

@@ -46,6 +46,15 @@ namespace LiteScript {
         Variable OAssign(Variable& object_target, const Variable& object_src) const override;
 
         /**
+         * Return the object contained in the object source and identified by the member name
+         *
+         * @param object_src The object source
+         * @param member_name The member name
+         * @return The object contained in the object source if success or the undefined object otherwise
+         */
+        Variable OMember(Variable& object_src, const char * member_name) const override;
+
+        /**
          * Return the result of calling operation
          *
          * @param object The callable object
