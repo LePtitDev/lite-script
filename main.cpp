@@ -23,7 +23,6 @@ std::string readfile(const char * name, unsigned int& i) {
 }
 
 Variable print_var(State& s, std::vector<Variable>& args) {
-    std::cout << "print: ";
     for (unsigned int i = 0, sz = args.size(); i < sz; i++) {
         std::cout << args[i];
         if (i < sz - 1)
@@ -109,7 +108,6 @@ int main(int argc, char * argv[]) {
         if (script.error != Script::ErrorType::SCRPT_ERROR_NO)
             std::cout << "ERROR(" << (script.line_error + 1) << "," << (script.col_error + 1) << "): " << script.GetError() << std::endl;
         else {
-            std::cout << (std::string) (result) << std::endl;
             std::ofstream file("instr.txt");
             if (!file.is_open())
                 std::cout << "error : open file" << std::endl;

@@ -18,6 +18,25 @@ LiteScript::_Type_UNDEFINED LiteScript::_type_undefined;
 
 LiteScript::_Type_UNDEFINED::_Type_UNDEFINED() : Type("UNDEFINED") {}
 
+LiteScript::Object & LiteScript::_Type_UNDEFINED::AssignObject(Object &object) {
+    object.Reassign(*this, 0);
+    return object;
+}
+
+
+LiteScript::Variable LiteScript::_Type_UNDEFINED::Convert(const Variable &object, const Type &type) const {
+    if (type == Type::STRING) {
+        Variable res = object->memory.Create(Type::STRING);
+        res->GetData<String>() = String((std::string)(object));
+        return res;
+    }
+    else if (type == Type::BOOLEAN) {
+        Variable v = object->memory.Create(Type::BOOLEAN);
+        v->GetData<bool>() = false;
+        return v;
+    }
+}
+
 LiteScript::Variable LiteScript::_Type_UNDEFINED::OAssign(Variable &src, const Variable &dest) const {
     if (dest->GetType() != *this) {
         dest->GetType().AssignObject(*src);
@@ -26,11 +45,6 @@ LiteScript::Variable LiteScript::_Type_UNDEFINED::OAssign(Variable &src, const V
     else
         NullifyVariable(src);
     return Variable(src);
-}
-
-LiteScript::Object & LiteScript::_Type_UNDEFINED::AssignObject(Object &object) {
-    object.Reassign(*this, 0);
-    return object;
 }
 
 LiteScript::Variable LiteScript::_Type_UNDEFINED::OEqual(const Variable &obj1, const Variable &obj2) const {

@@ -92,7 +92,7 @@ LiteScript::Variable LiteScript::Type::OLogicalOr(const LiteScript::Variable& ob
 
 LiteScript::Variable LiteScript::Type::OBitwiseNot(const LiteScript::Variable& obj) const { return obj->memory.Create(Type::NIL); }
 LiteScript::Variable LiteScript::Type::OBitwiseAnd(const LiteScript::Variable& obj, const LiteScript::Variable&) const { return obj->memory.Create(Type::NIL); }
-LiteScript::Variable LiteScript::Type::OBitwiseOr(const LiteScript::Variable& obj, const LiteScript::Variable&) const { return obj->memory.Create(Type::NIL); }
+LiteScript::Variable LiteScript::Type::OBitwiseOr(const LiteScript::Variable& obj, const LiteScript::Variable&) const { return Variable(obj); }
 LiteScript::Variable LiteScript::Type::OBitwiseXor(const LiteScript::Variable& obj, const LiteScript::Variable&) const { return obj->memory.Create(Type::NIL); }
 LiteScript::Variable LiteScript::Type::OLeftShift(const LiteScript::Variable& obj, const LiteScript::Variable&) const { return obj->memory.Create(Type::NIL); }
 LiteScript::Variable LiteScript::Type::ORightShift(const LiteScript::Variable& obj, const LiteScript::Variable&) const { return obj->memory.Create(Type::NIL); }

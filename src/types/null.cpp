@@ -24,6 +24,11 @@ LiteScript::Variable LiteScript::_Type_NIL::Convert(const LiteScript::Variable& 
         res->GetData<String>() = String((std::string)(obj));
         return res;
     }
+    else if (type == Type::BOOLEAN) {
+        Variable v = obj->memory.Create(Type::BOOLEAN);
+        v->GetData<bool>() = false;
+        return v;
+    }
     return obj;
 }
 LiteScript::Object& LiteScript::_Type_NIL::AssignObject(LiteScript::Object& obj) {

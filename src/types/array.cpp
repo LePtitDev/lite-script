@@ -74,7 +74,8 @@ LiteScript::Variable LiteScript::_Type_ARRAY::OArray(Variable &obj1, const Varia
 }
 
 LiteScript::Variable LiteScript::_Type_ARRAY::OMember(Variable &object, const char *name) const {
-    return object->GetData<Array>()[name];
+    return object->memory.Create(Type::UNDEFINED);
+    // A COMPLETER
 }
 
 std::string LiteScript::_Type_ARRAY::ToString(const Variable &object) const {

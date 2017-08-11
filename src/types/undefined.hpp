@@ -45,6 +45,15 @@ namespace LiteScript {
          */
         Object& AssignObject(Object& object) override;
 
+        /**
+         * Convert the referenced object to an other typed object
+         *
+         * @param object The referenced object
+         * @param type The type of the converted object
+         * @return The converted object if success and a null object otherwise
+         */
+        Variable Convert(const Variable& object, const Type& type) const override;
+
         ////// OPERATIONS //////
 
         /**

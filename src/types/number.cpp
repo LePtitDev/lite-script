@@ -156,24 +156,18 @@ LiteScript::Variable LiteScript::_Type_NUMBER::OModulo(const LiteScript::Variabl
 
 LiteScript::Variable LiteScript::_Type_NUMBER::OEqual(const LiteScript::Variable& obj1, const LiteScript::Variable& obj2) const {
     Variable res = obj1->memory.Create(Type::BOOLEAN);
-    if (obj2->GetType() != *this) {
-        Variable tmp = obj2.Convert(*this);
-        if (tmp->GetType() == *this)
-            res->GetData<bool>() = (obj1->GetData<Number>() == tmp->GetData<Number>());
-        return res;
-    }
-    res->GetData<bool>() = (obj1->GetData<Number>() == obj2->GetData<Number>());
+    if (obj2->GetType() != *this)
+        res->GetData<bool>() = false;
+    else
+        res->GetData<bool>() = (obj1->GetData<Number>() == obj2->GetData<Number>());
     return res;
 }
 LiteScript::Variable LiteScript::_Type_NUMBER::ONotEqual(const LiteScript::Variable& obj1, const LiteScript::Variable& obj2) const {
     Variable res = obj1->memory.Create(Type::BOOLEAN);
-    if (obj2->GetType() != *this) {
-        Variable tmp = obj2.Convert(*this);
-        if (tmp->GetType() == *this)
-            res->GetData<bool>() = (obj1->GetData<Number>() != tmp->GetData<Number>());
-        return res;
-    }
-    res->GetData<bool>() = (obj1->GetData<Number>() != obj2->GetData<Number>());
+    if (obj2->GetType() != *this)
+        res->GetData<bool>() = true;
+    else
+        res->GetData<bool>() = (obj1->GetData<Number>() != obj2->GetData<Number>());
     return res;
 }
 LiteScript::Variable LiteScript::_Type_NUMBER::OGreater(const LiteScript::Variable& obj1, const LiteScript::Variable& obj2) const {

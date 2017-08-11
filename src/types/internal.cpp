@@ -380,9 +380,8 @@ LiteScript::Variable LiteScript::String::GetChar(LiteScript::Memory& memory, uns
 
 LiteScript::Variable LiteScript::String::GetMember(LiteScript::Memory& memory, const char * name) {
     if (strcmp(name, "length") == 0) {
-        Variable result = memory.Create(_type_character);
-        std::allocator<Character> allocator;
-        allocator.construct(&result->GetData<Number>(), (int)this->str.size());
+        Variable result = memory.Create(Type::NUMBER);
+        result->GetData<Number>() = Number((int)this->str.size());
         return result;
     }
     else {

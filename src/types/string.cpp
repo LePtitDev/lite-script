@@ -15,6 +15,7 @@
 #include "string.hpp"
 
 #include "undefined.hpp"
+#include "character.hpp"
 
 LiteScript::_Type_STRING LiteScript::_type_string;
 
@@ -78,27 +79,25 @@ LiteScript::Variable LiteScript::_Type_STRING::OMultiply(const LiteScript::Varia
 LiteScript::Variable LiteScript::_Type_STRING::OEqual(const LiteScript::Variable& obj1, const LiteScript::Variable& obj2) const {
     Variable res = obj1->memory.Create(Type::BOOLEAN);
     if (obj2->GetType() != *this) {
-        Variable tmp = obj2.Convert(*this);
-        if (tmp->GetType() == *this)
-            res->GetData<bool>() = (obj1->GetData<String>() == tmp->GetData<String>());
+        if (obj2->GetType() == _type_character)
+            res->GetData<bool>() = (obj1->GetData<String>() == String((char32_t)obj2->GetData<Character>()));
         else
             res->GetData<bool>() = false;
-        return res;
     }
-    res->GetData<bool>() = (obj1->GetData<String>() == obj2->GetData<String>());
+    else
+        res->GetData<bool>() = (obj1->GetData<String>() == obj2->GetData<String>());
     return res;
 }
 LiteScript::Variable LiteScript::_Type_STRING::ONotEqual(const LiteScript::Variable& obj1, const LiteScript::Variable& obj2) const {
     Variable res = obj1->memory.Create(Type::BOOLEAN);
     if (obj2->GetType() != *this) {
-        Variable tmp = obj2.Convert(*this);
-        if (tmp->GetType() == *this)
-            res->GetData<bool>() = (obj1->GetData<String>() != tmp->GetData<String>());
+        if (obj2->GetType() == _type_character)
+            res->GetData<bool>() = (obj1->GetData<String>() != String((char32_t)obj2->GetData<Character>()));
         else
             res->GetData<bool>() = true;
-        return res;
     }
-    res->GetData<bool>() = (obj1->GetData<String>() != obj2->GetData<String>());
+    else
+        res->GetData<bool>() = (obj1->GetData<String>() != obj2->GetData<String>());
     return res;
 }
 LiteScript::Variable LiteScript::_Type_STRING::OGreater(const LiteScript::Variable& obj1, const LiteScript::Variable& obj2) const {
@@ -183,7 +182,8 @@ LiteScript::Variable LiteScript::_Type_STRING::OArray(LiteScript::Variable& obj1
 }
 LiteScript::Variable LiteScript::_Type_STRING::OMember(LiteScript::Variable& obj, const char * name) const {
     Variable result = obj->GetData<String>().GetMember(obj->memory, name);
-    // AJOUTER LE THIS POUR UN CALLBACK
+    if (result->GetType() == Type::CALLBACK)
+        result->GetData<Callback>().This = obj;
     return result;
 }
 

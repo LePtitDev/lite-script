@@ -680,6 +680,11 @@ void LiteScript::StateExecutor::I_JUMP_IF(State& state, Instruction& instr) {
     PopValue(state);
     if (v1->GetType() == Type::BOOLEAN && v1->GetData<bool>())
         state.line_num = (unsigned int) instr.comp_value.v_integer;
+    else {
+        Variable tmp = v1.Convert(Type::BOOLEAN);
+        if (tmp->GetType() == Type::BOOLEAN && tmp->GetData<bool>())
+            state.line_num = (unsigned int) instr.comp_value.v_integer;
+    }
 }
 void LiteScript::StateExecutor::I_JUMP_ELSE(State& state, Instruction& instr) {
     state.line_num++;
@@ -689,6 +694,11 @@ void LiteScript::StateExecutor::I_JUMP_ELSE(State& state, Instruction& instr) {
     PopValue(state);
     if (v1->GetType() == Type::BOOLEAN && !v1->GetData<bool>())
         state.line_num = (unsigned int) instr.comp_value.v_integer;
+    else {
+        Variable tmp = v1.Convert(Type::BOOLEAN);
+        if (tmp->GetType() == Type::BOOLEAN && !tmp->GetData<bool>())
+            state.line_num = (unsigned int) instr.comp_value.v_integer;
+    }
 }
 
 // COMPLEX VALUES COMPLETION
