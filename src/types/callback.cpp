@@ -44,7 +44,7 @@ LiteScript::Variable LiteScript::_Type_CALLBACK::Convert(const Variable &object,
 LiteScript::Object & LiteScript::_Type_CALLBACK::AssignObject(Object &object) {
     object.Reassign(*this, sizeof(Callback));
     std::allocator<Callback> allocator;
-    allocator.construct(&object.GetData<Callback>());
+    allocator.construct(&object.GetData<Callback>(), object.memory);
 }
 
 LiteScript::Variable LiteScript::_Type_CALLBACK::OAssign(Variable &obj1, const Variable &obj2) const {
@@ -80,8 +80,8 @@ LiteScript::Variable LiteScript::_Type_CALLBACK::OBitwiseOr(const Variable &obj1
     return Variable(obj1);
 }
 
-LiteScript::Variable LiteScript::_Type_CALLBACK::OCall(Variable &object, std::vector<Variable> &args) const {
-    return (object->GetData<Callback>())(args);
+LiteScript::Variable LiteScript::_Type_CALLBACK::OCall(Variable &object, State& state, std::vector<Variable> &args) const {
+    return (object->GetData<Callback>())(state, args);
 }
 
 std::string LiteScript::_Type_CALLBACK::ToString(const Variable &object) const {

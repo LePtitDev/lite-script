@@ -55,15 +55,6 @@ namespace LiteScript {
         Variable OMember(Variable& object_src, const char * member_name) const override;
 
         /**
-         * Return the result of calling operation
-         *
-         * @param object The callable object
-         * @param args The argument list
-         * @return The return result of calling operation
-         */
-        Variable OCall(Variable& object, std::vector<Variable>& args) const override;
-
-        /**
          * Return a string for describe the content of the object referenced
          *
          * @param object The object to describe

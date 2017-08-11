@@ -22,6 +22,7 @@ namespace LiteScript {
     // Class declarations
     class Object;
     class Variable;
+    class State;
 
     // Abstract type of an object
     class Type {
@@ -502,10 +503,11 @@ namespace LiteScript {
          * Return the result of calling operation
          *
          * @param object The callable object
+         * @param state The script state
          * @param args The argument list
          * @return The return result of calling operation
          */
-        virtual Variable OCall(Variable& object, std::vector<Variable>& args) const;
+        virtual Variable OCall(Variable& object, State& state, std::vector<Variable>& args) const;
 
 
         // !!!!!!!!!!!!!!!!!!!!!!!!!! TO HERE !!!!!!!!!!!!!!!!!!!!!!!!!!!

@@ -452,38 +452,33 @@ LiteScript::String& LiteScript::Character::operator*=(unsigned int nb) {
 /****** CLASS CALLBACK ******/
 /****************************/
 
-LiteScript::Callback::Callback() : state(nullptr), I(intrl_idx), L(line_num) {}
+LiteScript::Callback::Callback(Memory& mem) : memory(mem), I(intrl_idx), L(line_num) {}
 
 LiteScript::Callback::Callback(const Callback &c) :
-    state(c.state), intrl_idx(c.intrl_idx), line_num(c.line_num), call_ptr(c.call_ptr),
+    memory(c.memory), intrl_idx(c.intrl_idx), line_num(c.line_num), call_ptr(c.call_ptr),
     nsp(Nullable<Namer>(c.nsp)), I(intrl_idx), L(line_num)
 {
 
 }
 
 LiteScript::Callback::Callback(LiteScript::State &s, unsigned int i, unsigned int l) :
-    call_ptr(nullptr), state(&s), intrl_idx(i), line_num(l),
+    call_ptr(nullptr), memory(s.memory), intrl_idx(i), line_num(l),
     nsp(Nullable<Namer>(s.GetCurrentNamer())), I(intrl_idx), L(line_num)
 {
 
 }
 
-LiteScript::Callback::Callback(State &s, Variable (* cptr)(State &, std::vector<Variable>&)) :
-    state(&s), call_ptr(cptr), I(intrl_idx), L(line_num)
+LiteScript::Callback::Callback(Memory& mem, Variable (* cptr)(State &, std::vector<Variable>&)) :
+    memory(mem), call_ptr(cptr), I(intrl_idx), L(line_num)
 {
 
 }
 
-bool LiteScript::Callback::isAssigned() const {
-    return this->state != nullptr;
-}
-
 bool LiteScript::Callback::isInternal() const {
-    return this->state != nullptr && this->call_ptr != nullptr;
+    return this->call_ptr != nullptr;
 }
 
 LiteScript::Callback & LiteScript::Callback::operator=(const Callback &c) {
-    this->state = c.state;
     this->intrl_idx = c.intrl_idx;
     this->line_num = c.line_num;
     this->call_ptr = c.call_ptr;
@@ -492,11 +487,7 @@ LiteScript::Callback & LiteScript::Callback::operator=(const Callback &c) {
 }
 
 bool LiteScript::Callback::operator==(const Callback &c) const {
-    if (this->state != c.state)
-        return false;
-    else if (this->state == nullptr)
-        return true;
-    else if (this->call_ptr == nullptr)
+    if (this->call_ptr == nullptr)
         return (this->intrl_idx == c.intrl_idx && this->line_num == c.line_num);
     else
         return (this->call_ptr == c.call_ptr);
@@ -506,25 +497,22 @@ bool LiteScript::Callback::operator!=(const Callback &c) const {
     return !(*this == c);
 }
 
-LiteScript::Variable LiteScript::Callback::operator()(std::vector<Variable> &args) {
-    if (this->state == nullptr)
-        return this->state->memory.Create(Type::UNDEFINED);
-
-    this->state->ExecuteSingle(Instruction(InstrCode::INSTR_PUSH_NSP));
+LiteScript::Variable LiteScript::Callback::operator()(State& state, std::vector<Variable> &args) {
+    state.ExecuteSingle(Instruction(InstrCode::INSTR_PUSH_NSP));
     if (!this->This.isNull)
-        this->state->GetThis() = this->This;
+        state.GetThis() = this->This;
     if (this->call_ptr == nullptr) {
         Nullable<Variable> last_nsp;
-        Namer& namer = this->state->GetCurrentNamer();
+        Namer& namer = state.GetCurrentNamer();
         namer = *this->nsp;
-        namer.Push(this->state->memory.Create(Type::NAMESPACE));
-        this->state->PushCall(this->intrl_idx, this->line_num);
-        return this->state->memory.Create(Type::UNDEFINED);
+        namer.Push(state.memory.Create(Type::NAMESPACE));
+        state.PushCall(this->intrl_idx, this->line_num);
+        return state.memory.Create(Type::UNDEFINED);
     }
     else {
-        Variable result = this->call_ptr(*this->state, args);
-        this->state->ExecuteSingle(Instruction(InstrCode::INSTR_POP_NSP));
-        this->state->ExecuteSingle(Instruction(InstrCode::INSTR_VALUE_POP));
+        Variable result = this->call_ptr(state, args);
+        state.ExecuteSingle(Instruction(InstrCode::INSTR_POP_NSP));
+        state.ExecuteSingle(Instruction(InstrCode::INSTR_VALUE_POP));
         return result;
     }
 }
@@ -714,7 +702,7 @@ LiteScript::Variable LiteScript::Class::GetOperator(OperatorType op) const {
         return Variable(*this->op_members[op]);
 }
 
-LiteScript::Variable LiteScript::Class::CreateElement(std::vector<Variable>& args) {
+LiteScript::Variable LiteScript::Class::CreateElement(State& state, std::vector<Variable>& args) {
     Variable v = this->memory.Create(Type::CLASS_OBJECT);
     ClassObject& co = v->GetData<ClassObject>();
     co.ClassBase = Nullable<Class>(*this);
@@ -727,8 +715,9 @@ LiteScript::Variable LiteScript::Class::CreateElement(std::vector<Variable>& arg
     }
     if (this->constructor_index != -1 && this->us_members[this->constructor_index].second->GetType() == Type::CALLBACK) {
         this->us_members[this->constructor_index].second->GetData<Callback>().This = Nullable<Variable>(v);
-        this->us_members[this->constructor_index].second(args);
+        this->us_members[this->constructor_index].second(state, args);
     }
+    co.ScriptState = state;
     return v;
 }
 
@@ -762,6 +751,18 @@ LiteScript::Variable LiteScript::Class::GetUnstaticMember(unsigned int i) const 
 
 int LiteScript::Class::GetConstructorIndex() const {
     return this->constructor_index;
+}
+
+LiteScript::Class& LiteScript::Class::operator=(const Class &c) {
+    for (unsigned int i = 0, sz = c.inherit.size(); i < sz; i++)
+        this->inherit.push_back(c.inherit[i]);
+    for (unsigned int i = 0, sz = c.s_members.size(); i < sz; i++)
+        this->s_members.push_back(c.s_members[i]);
+    for (unsigned int i = 0, sz = c.us_members.size(); i < sz; i++)
+        this->us_members.push_back(c.us_members[i]);
+    for (unsigned int i = 0, sz = OperatorType::OP_TYPE_NUMBER; i < sz; i++)
+        this->op_members[i] = c.op_members[i];
+    this->constructor_index = c.constructor_index;
 }
 
 bool LiteScript::Class::operator==(const Class &c) const {

@@ -35,10 +35,6 @@ LiteScript::Variable LiteScript::_Type_CLASS::OMember(Variable &object_src, cons
     return object_src->GetData<Class>().GetStaticMember(member_name);
 }
 
-LiteScript::Variable LiteScript::_Type_CLASS::OCall(Variable &object, std::vector<Variable> &args) const {
-    return object->GetData<Class>().CreateElement(args);
-}
-
 std::string LiteScript::_Type_CLASS::ToString(const Variable &object) const {
     std::stringstream ss;
     ss << "{";

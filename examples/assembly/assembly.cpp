@@ -160,7 +160,7 @@ int main(int argc, char * argv[]) {
 
     // We add the "print" callback in the global namespace
     Variable v1 = assembly.memory.Create(Type::CALLBACK);
-    v1->GetData<Callback>() = Callback(assembly.state, print_var);
+    v1->GetData<Callback>() = Callback(assembly.memory, print_var);
     assembly.state.GetCurrentNamer().Declare("print", v1);
 
     // If there is a parameter, it's a file assembly script to execute

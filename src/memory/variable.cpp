@@ -158,8 +158,8 @@ LiteScript::Variable LiteScript::Variable::GetMember(const char * name) {
     return this->obj.GetType().OMember(*this, name);
 }
 
-LiteScript::Variable LiteScript::Variable::operator()(std::vector<LiteScript::Variable>& args) {
-    return this->obj.GetType().OCall(*this, args);
+LiteScript::Variable LiteScript::Variable::operator()(State& state, std::vector<LiteScript::Variable>& args) {
+    return this->obj.GetType().OCall(*this, state, args);
 }
 
 LiteScript::Variable::operator std::string() const {

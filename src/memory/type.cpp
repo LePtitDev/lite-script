@@ -105,6 +105,6 @@ LiteScript::Variable LiteScript::Type::ODivideAndAssign(LiteScript::Variable& x,
 LiteScript::Variable LiteScript::Type::OArray(LiteScript::Variable& x, const LiteScript::Variable&) const { return x->memory.Create(_type_undefined); }
 LiteScript::Variable LiteScript::Type::OMember(LiteScript::Variable& x, const char *) const { return x->memory.Create(_type_undefined); }
 
-LiteScript::Variable LiteScript::Type::OCall(LiteScript::Variable& obj, std::vector<LiteScript::Variable>&) const { return obj->memory.Create(_type_undefined); }
+LiteScript::Variable LiteScript::Type::OCall(LiteScript::Variable& obj, State& state, std::vector<LiteScript::Variable>&) const { return obj->memory.Create(_type_undefined); }
 
 std::string LiteScript::Type::ToString(const LiteScript::Variable&) const { return this->name; }

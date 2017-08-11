@@ -96,10 +96,11 @@ namespace LiteScript {
          * Return the result of calling operation
          *
          * @param object The callable object
+         * @param state The script state
          * @param args The argument list
          * @return The return result of calling operation
          */
-        Variable OCall(Variable& object, std::vector<Variable>& args) const override;
+        Variable OCall(Variable& object, State& state, std::vector<Variable>& args) const override;
 
         /**
          * Create a string that contain the reference of the callback object

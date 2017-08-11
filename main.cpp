@@ -51,7 +51,7 @@ int main(int argc, char * argv[]) {
     Script script;
 
     Variable v1 = script.memory.Create(Type::CALLBACK);
-    v1->GetData<Callback>() = Callback(script.state, print_var);
+    v1->GetData<Callback>() = Callback(script.memory, print_var);
     script.state.GetCurrentNamer().Declare("print", v1);
 
     if (argc > 1) {

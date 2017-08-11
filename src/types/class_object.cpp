@@ -45,7 +45,7 @@ LiteScript::Variable LiteScript::_Type_CLASS_OBJECT::OAssign(Variable &object_ta
         call.This = Nullable<Variable>(object_target);
         std::vector<Variable> args;
         args.push_back(Variable(object_src));
-        return call(args);
+        return call(*(object_target->GetData<ClassObject>().ScriptState), args);
     }
     else {
         object_src->GetType().AssignObject(*object_target);
@@ -60,7 +60,7 @@ LiteScript::Variable LiteScript::_Type_CLASS_OBJECT::OUnaryPlus(const Variable& 
         Callback &call = v->GetData<Callback>();
         call.This = Nullable<Variable>(object);
         std::vector<Variable> args;
-        return call(args);
+        return call(*(Variable(object)->GetData<ClassObject>().ScriptState), args);
     }
     else {
         return object->memory.Create(Type::NIL);
@@ -73,7 +73,7 @@ LiteScript::Variable LiteScript::_Type_CLASS_OBJECT::OUnaryMinus(const Variable&
         Callback &call = v->GetData<Callback>();
         call.This = Nullable<Variable>(object);
         std::vector<Variable> args;
-        return call(args);
+        return call(*(Variable(object)->GetData<ClassObject>().ScriptState), args);
     }
     else {
         return object->memory.Create(Type::NIL);
@@ -86,7 +86,7 @@ LiteScript::Variable LiteScript::_Type_CLASS_OBJECT::OPreIncrement(Variable& obj
         Callback &call = v->GetData<Callback>();
         call.This = Nullable<Variable>(object);
         std::vector<Variable> args;
-        return call(args);
+        return call(*(object->GetData<ClassObject>().ScriptState), args);
     }
     else {
         return object->memory.Create(Type::NIL);
@@ -99,7 +99,7 @@ LiteScript::Variable LiteScript::_Type_CLASS_OBJECT::OPostIncrement(Variable& ob
         Callback &call = v->GetData<Callback>();
         call.This = Nullable<Variable>(object);
         std::vector<Variable> args;
-        return call(args);
+        return call(*(object->GetData<ClassObject>().ScriptState), args);
     }
     else {
         return object->memory.Create(Type::NIL);
@@ -112,7 +112,7 @@ LiteScript::Variable LiteScript::_Type_CLASS_OBJECT::OPreDecrement(Variable& obj
         Callback &call = v->GetData<Callback>();
         call.This = Nullable<Variable>(object);
         std::vector<Variable> args;
-        return call(args);
+        return call(*(object->GetData<ClassObject>().ScriptState), args);
     }
     else {
         return object->memory.Create(Type::NIL);
@@ -125,7 +125,7 @@ LiteScript::Variable LiteScript::_Type_CLASS_OBJECT::OPostDecrement(Variable& ob
         Callback &call = v->GetData<Callback>();
         call.This = Nullable<Variable>(object);
         std::vector<Variable> args;
-        return call(args);
+        return call(*(object->GetData<ClassObject>().ScriptState), args);
     }
     else {
         return object->memory.Create(Type::NIL);
@@ -139,7 +139,7 @@ LiteScript::Variable LiteScript::_Type_CLASS_OBJECT::OAdd(const Variable& object
         call.This = Nullable<Variable>(object_1);
         std::vector<Variable> args;
         args.push_back(Variable(object_2));
-        return call(args);
+        return call(*(Variable(object_1)->GetData<ClassObject>().ScriptState), args);
     }
     else {
         return object_1->memory.Create(Type::NIL);
@@ -153,7 +153,7 @@ LiteScript::Variable LiteScript::_Type_CLASS_OBJECT::OSubstract(const Variable& 
         call.This = Nullable<Variable>(object_1);
         std::vector<Variable> args;
         args.push_back(Variable(object_2));
-        return call(args);
+        return call(*(Variable(object_1)->GetData<ClassObject>().ScriptState), args);
     }
     else {
         return object_1->memory.Create(Type::NIL);
@@ -167,7 +167,7 @@ LiteScript::Variable LiteScript::_Type_CLASS_OBJECT::OMultiply(const Variable& o
         call.This = Nullable<Variable>(object_1);
         std::vector<Variable> args;
         args.push_back(Variable(object_2));
-        return call(args);
+        return call(*(Variable(object_1)->GetData<ClassObject>().ScriptState), args);
     }
     else {
         return object_1->memory.Create(Type::NIL);
@@ -181,7 +181,7 @@ LiteScript::Variable LiteScript::_Type_CLASS_OBJECT::ODivide(const Variable& obj
         call.This = Nullable<Variable>(object_1);
         std::vector<Variable> args;
         args.push_back(Variable(object_2));
-        return call(args);
+        return call(*(Variable(object_1)->GetData<ClassObject>().ScriptState), args);
     }
     else {
         return object_1->memory.Create(Type::NIL);
@@ -195,7 +195,7 @@ LiteScript::Variable LiteScript::_Type_CLASS_OBJECT::OModulo(const Variable& obj
         call.This = Nullable<Variable>(object_1);
         std::vector<Variable> args;
         args.push_back(Variable(object_2));
-        return call(args);
+        return call(*(Variable(object_1)->GetData<ClassObject>().ScriptState), args);
     }
     else {
         return object_1->memory.Create(Type::NIL);
@@ -209,7 +209,7 @@ LiteScript::Variable LiteScript::_Type_CLASS_OBJECT::OEqual(const Variable& obje
         call.This = Nullable<Variable>(object_1);
         std::vector<Variable> args;
         args.push_back(Variable(object_2));
-        return call(args);
+        return call(*(Variable(object_1)->GetData<ClassObject>().ScriptState), args);
     }
     else {
         return object_1->memory.Create(Type::NIL);
@@ -223,7 +223,7 @@ LiteScript::Variable LiteScript::_Type_CLASS_OBJECT::ONotEqual(const Variable& o
         call.This = Nullable<Variable>(object_1);
         std::vector<Variable> args;
         args.push_back(Variable(object_2));
-        return call(args);
+        return call(*(Variable(object_1)->GetData<ClassObject>().ScriptState), args);
     }
     else {
         return object_1->memory.Create(Type::NIL);
@@ -237,7 +237,7 @@ LiteScript::Variable LiteScript::_Type_CLASS_OBJECT::OGreater(const Variable& ob
         call.This = Nullable<Variable>(object_1);
         std::vector<Variable> args;
         args.push_back(Variable(object_2));
-        return call(args);
+        return call(*(Variable(object_1)->GetData<ClassObject>().ScriptState), args);
     }
     else {
         return object_1->memory.Create(Type::NIL);
@@ -251,7 +251,7 @@ LiteScript::Variable LiteScript::_Type_CLASS_OBJECT::OLess(const Variable& objec
         call.This = Nullable<Variable>(object_1);
         std::vector<Variable> args;
         args.push_back(Variable(object_2));
-        return call(args);
+        return call(*(Variable(object_1)->GetData<ClassObject>().ScriptState), args);
     }
     else {
         return object_1->memory.Create(Type::NIL);
@@ -265,7 +265,7 @@ LiteScript::Variable LiteScript::_Type_CLASS_OBJECT::OGreaterOrEqual(const Varia
         call.This = Nullable<Variable>(object_1);
         std::vector<Variable> args;
         args.push_back(Variable(object_2));
-        return call(args);
+        return call(*(Variable(object_1)->GetData<ClassObject>().ScriptState), args);
     }
     else {
         return object_1->memory.Create(Type::NIL);
@@ -279,7 +279,7 @@ LiteScript::Variable LiteScript::_Type_CLASS_OBJECT::OLessOrEqual(const Variable
         call.This = Nullable<Variable>(object_1);
         std::vector<Variable> args;
         args.push_back(Variable(object_2));
-        return call(args);
+        return call(*(Variable(object_1)->GetData<ClassObject>().ScriptState), args);
     }
     else {
         return object_1->memory.Create(Type::NIL);
@@ -292,7 +292,7 @@ LiteScript::Variable LiteScript::_Type_CLASS_OBJECT::OLogicalNot(const Variable&
         Callback &call = v->GetData<Callback>();
         call.This = Nullable<Variable>(object);
         std::vector<Variable> args;
-        return call(args);
+        return call(*(Variable(object)->GetData<ClassObject>().ScriptState), args);
     }
     else {
         return object->memory.Create(Type::NIL);
@@ -306,7 +306,7 @@ LiteScript::Variable LiteScript::_Type_CLASS_OBJECT::OLogicalAnd(const Variable&
         call.This = Nullable<Variable>(object_1);
         std::vector<Variable> args;
         args.push_back(Variable(object_2));
-        return call(args);
+        return call(*(Variable(object_1)->GetData<ClassObject>().ScriptState), args);
     }
     else {
         return object_1->memory.Create(Type::NIL);
@@ -320,7 +320,7 @@ LiteScript::Variable LiteScript::_Type_CLASS_OBJECT::OLogicalOr(const Variable& 
         call.This = Nullable<Variable>(object_1);
         std::vector<Variable> args;
         args.push_back(Variable(object_2));
-        return call(args);
+        return call(*(Variable(object_1)->GetData<ClassObject>().ScriptState), args);
     }
     else {
         return object_1->memory.Create(Type::NIL);
@@ -333,7 +333,7 @@ LiteScript::Variable LiteScript::_Type_CLASS_OBJECT::OBitwiseNot(const Variable&
         Callback &call = v->GetData<Callback>();
         call.This = Nullable<Variable>(object);
         std::vector<Variable> args;
-        return call(args);
+        return call(*(Variable(object)->GetData<ClassObject>().ScriptState), args);
     }
     else {
         return object->memory.Create(Type::NIL);
@@ -347,7 +347,7 @@ LiteScript::Variable LiteScript::_Type_CLASS_OBJECT::OBitwiseAnd(const Variable&
         call.This = Nullable<Variable>(object_1);
         std::vector<Variable> args;
         args.push_back(Variable(object_2));
-        return call(args);
+        return call(*(Variable(object_1)->GetData<ClassObject>().ScriptState), args);
     }
     else {
         return object_1->memory.Create(Type::NIL);
@@ -361,7 +361,7 @@ LiteScript::Variable LiteScript::_Type_CLASS_OBJECT::OBitwiseOr(const Variable& 
         call.This = Nullable<Variable>(object_1);
         std::vector<Variable> args;
         args.push_back(Variable(object_2));
-        return call(args);
+        return call(*(Variable(object_1)->GetData<ClassObject>().ScriptState), args);
     }
     else {
         return object_1->memory.Create(Type::NIL);
@@ -375,7 +375,7 @@ LiteScript::Variable LiteScript::_Type_CLASS_OBJECT::OBitwiseXor(const Variable&
         call.This = Nullable<Variable>(object_1);
         std::vector<Variable> args;
         args.push_back(Variable(object_2));
-        return call(args);
+        return call(*(Variable(object_1)->GetData<ClassObject>().ScriptState), args);
     }
     else {
         return object_1->memory.Create(Type::NIL);
@@ -389,7 +389,7 @@ LiteScript::Variable LiteScript::_Type_CLASS_OBJECT::OLeftShift(const Variable& 
         call.This = Nullable<Variable>(object_1);
         std::vector<Variable> args;
         args.push_back(Variable(object_2));
-        return call(args);
+        return call(*(Variable(object_1)->GetData<ClassObject>().ScriptState), args);
     }
     else {
         return object_1->memory.Create(Type::NIL);
@@ -403,7 +403,7 @@ LiteScript::Variable LiteScript::_Type_CLASS_OBJECT::ORightShift(const Variable&
         call.This = Nullable<Variable>(object_1);
         std::vector<Variable> args;
         args.push_back(Variable(object_2));
-        return call(args);
+        return call(*(Variable(object_1)->GetData<ClassObject>().ScriptState), args);
     }
     else {
         return object_1->memory.Create(Type::NIL);
@@ -417,7 +417,7 @@ LiteScript::Variable LiteScript::_Type_CLASS_OBJECT::OAddAndAssign(Variable& obj
         call.This = Nullable<Variable>(object_target);
         std::vector<Variable> args;
         args.push_back(Variable(object_src));
-        return call(args);
+        return call(*(object_target->GetData<ClassObject>().ScriptState), args);
     }
     else {
         return object_target->memory.Create(Type::NIL);
@@ -431,7 +431,7 @@ LiteScript::Variable LiteScript::_Type_CLASS_OBJECT::OSubstractAndAssign(Variabl
         call.This = Nullable<Variable>(object_target);
         std::vector<Variable> args;
         args.push_back(Variable(object_src));
-        return call(args);
+        return call(*(object_target->GetData<ClassObject>().ScriptState), args);
     }
     else {
         return object_target->memory.Create(Type::NIL);
@@ -445,7 +445,7 @@ LiteScript::Variable LiteScript::_Type_CLASS_OBJECT::OMultiplyAndAssign(Variable
         call.This = Nullable<Variable>(object_target);
         std::vector<Variable> args;
         args.push_back(Variable(object_src));
-        return call(args);
+        return call(*(object_target->GetData<ClassObject>().ScriptState), args);
     }
     else {
         return object_target->memory.Create(Type::NIL);
@@ -459,7 +459,7 @@ LiteScript::Variable LiteScript::_Type_CLASS_OBJECT::ODivideAndAssign(Variable& 
         call.This = Nullable<Variable>(object_target);
         std::vector<Variable> args;
         args.push_back(Variable(object_src));
-        return call(args);
+        return call(*(object_target->GetData<ClassObject>().ScriptState), args);
     }
     else {
         return object_target->memory.Create(Type::NIL);
@@ -473,7 +473,7 @@ LiteScript::Variable LiteScript::_Type_CLASS_OBJECT::OArray(Variable& object_src
         call.This = Nullable<Variable>(object_src);
         std::vector<Variable> args;
         args.push_back(Variable(object_key));
-        return call(args);
+        return call(*(object_src->GetData<ClassObject>().ScriptState), args);
     }
     else {
         return object_src->memory.Create(Type::NIL);
@@ -484,12 +484,12 @@ LiteScript::Variable LiteScript::_Type_CLASS_OBJECT::OMember(Variable& object_sr
     return object_src->GetData<ClassObject>().GetMember(member_name);
 }
 
-LiteScript::Variable LiteScript::_Type_CLASS_OBJECT::OCall(Variable& object, std::vector<Variable>& args) const {
+LiteScript::Variable LiteScript::_Type_CLASS_OBJECT::OCall(Variable& object, State& state, std::vector<Variable>& args) const {
     Variable v = object->GetData<ClassObject>().ClassBase->GetOperator(Class::OperatorType::OP_TYPE_CALL);
     if (v->GetType() == Type::CALLBACK) {
         Callback &call = v->GetData<Callback>();
         call.This = Nullable<Variable>(object);
-        return call(args);
+        return call(state, args);
     }
     else {
         return object->memory.Create(Type::NIL);

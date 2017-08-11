@@ -359,9 +359,10 @@ namespace LiteScript {
         /**
          * Apply calling operation
          *
+         * @param state The script state
          * @param args The argument list
          */
-        Variable operator()(std::vector<Variable>& args);
+        Variable operator()(State& state, std::vector<Variable>& args);
 
         ////// STRING CONVERSION //////
 

@@ -784,9 +784,6 @@ namespace LiteScript {
         ////// ATTRIBUTES //////
         ////////////////////////
 
-        // The state of the script
-        State * state;
-
         // The instructions list index
         unsigned int intrl_idx;
 
@@ -800,6 +797,9 @@ namespace LiteScript {
         Nullable<Namer> nsp;
 
     public:
+
+        // The main memory
+        Memory& memory;
 
         // The current this
         Nullable<Variable> This;
@@ -820,8 +820,10 @@ namespace LiteScript {
 
         /**
          * Basic constructor
+         *
+         * @param mem The main memory
          */
-        Callback();
+        Callback(Memory& mem);
 
         /**
          * Constructor for script callback
@@ -835,10 +837,10 @@ namespace LiteScript {
         /**
          * Constructor for internal callback
          *
-         * @param s The state of the script
+         * @param mem The main memory
          * @param cptr The internal fonction pointer
          */
-        Callback(State& s, Variable (* cptr)(State&, std::vector<Variable>&));
+        Callback(Memory& mem, Variable (* cptr)(State&, std::vector<Variable>&));
 
         /**
          * Copy constructor
@@ -848,11 +850,6 @@ namespace LiteScript {
         /////////////////////
         ////// METHODS //////
         /////////////////////
-
-        /**
-         * Indicate if the callback is assigned
-         */
-        bool isAssigned() const;
 
         /**
          * Indicate if the callback is internal
@@ -869,7 +866,7 @@ namespace LiteScript {
         bool operator!=(const Callback& c) const;
 
         // The calling operator
-        Variable operator()(std::vector<Variable>& args);
+        Variable operator()(State& state, std::vector<Variable>& args);
 
     };
 
@@ -1148,9 +1145,10 @@ namespace LiteScript {
         /**
          * Create an element by this class
          *
+         * @param state The script state
          * @param args Constructor arguments
          */
-        Variable CreateElement(std::vector<Variable>& args);
+        Variable CreateElement(State& state, std::vector<Variable>& args);
 
         /**
          * Get the class inherits
@@ -1200,6 +1198,9 @@ namespace LiteScript {
          */
         int GetConstructorIndex() const;
 
+        // The assign operator
+        Class& operator=(const Class& c);
+
         // The equal comparison operator
         bool operator==(const Class& c) const;
 
@@ -1222,6 +1223,9 @@ namespace LiteScript {
 
         // The base class
         Nullable<Class> ClassBase;
+
+        // The script state
+        Nullable<State> ScriptState;
 
         //////////////////////////
         ////// CONSTRUCTORS //////
