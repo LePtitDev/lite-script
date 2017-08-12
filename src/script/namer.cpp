@@ -58,6 +58,11 @@ void LiteScript::Namer::Declare(const char *name, const Variable &v) {
     (*tmp)->GetData<Namespace>().DefineVariable(name, v);
 }
 
+void LiteScript::Namer::GarbageCollector(void (Memory::*caller)(unsigned int)) const {
+    for (unsigned int i = 0, sz = this->heap.size(); i < sz; i++)
+        Variable(this->heap[i]).GarbageCollector(caller);
+}
+
 LiteScript::Namer& LiteScript::Namer::operator=(const Namer &n) {
     this->current = n.current;
     this->heap.clear();

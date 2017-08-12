@@ -524,6 +524,18 @@ namespace LiteScript {
          */
         virtual std::string ToString(const Variable& object) const;
 
+
+        ////// GARBAGE COLLECTOR //////
+
+
+        /**
+         * Refer itself and all variables in the referenced object for the garbage collector
+         *
+         * @param object The object to refer
+         * @param caller The calling function for referring
+         */
+        virtual void GarbageCollector(const Variable& object, void (Memory::*caller)(unsigned int)) const;
+
     };
 
 }

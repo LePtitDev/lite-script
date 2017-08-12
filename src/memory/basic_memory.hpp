@@ -49,6 +49,9 @@ namespace LiteScript {
         // Object allocator
         std::allocator<Object> allocator;
 
+        // Flags
+        std::array<bool, LITESCRIPT_MEMORY_0_SIZE> flags;
+
     public:
 
         // The main memory
@@ -116,6 +119,25 @@ namespace LiteScript {
         inline Object& operator[](unsigned int index) {
             return ((Object *)this->arr)[index];
         }
+
+    public:
+
+        /**
+         * Initialise garbage collector flags
+         */
+        void FlagsInit();
+
+        /**
+         * Protect an object of the erasing
+         *
+         * @param i The index of the object
+         */
+        void FlagsProtect(unsigned int i);
+
+        /**
+         * Apply the garbage collector
+         */
+        void FlagsErase();
 
     };
 
@@ -198,6 +220,23 @@ namespace LiteScript {
          * @return The variable
          */
         Nullable<Variable> GetVariable(unsigned int id);
+
+        /**
+         * Initialise garbage collector flags
+         */
+        void FlagsInit();
+
+        /**
+         * Protect an object of the erasing
+         *
+         * @param i The index of the object
+         */
+        void FlagsProtect(unsigned int i);
+
+        /**
+         * Apply the garbage collector
+         */
+        void FlagsErase();
 
     };
 

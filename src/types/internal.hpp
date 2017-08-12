@@ -1143,6 +1143,13 @@ namespace LiteScript {
         Variable GetOperator(Class::OperatorType op) const;
 
         /**
+         * Get the operator member
+         *
+         * @param op The operator type
+         */
+        Variable GetOperator(unsigned int op) const;
+
+        /**
          * Create an element by this class
          *
          * @param state The script state

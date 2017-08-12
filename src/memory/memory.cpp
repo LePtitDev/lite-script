@@ -71,6 +71,27 @@ LiteScript::Nullable<LiteScript::Variable> LiteScript::Memory::GetVariable(unsig
     return Nullable<Variable>();
 }
 
-void LiteScript::Memory::GarbageCollector() {
+void LiteScript::Memory::GarbageCollector(const State& state) {
+    std::vector<const State *> tmp;
+    tmp.push_back(&state);
+    this->GarbageCollector(1, tmp.data());
+}
 
+void LiteScript::Memory::GarbageCollector(int scount, const State ** sarray) {
+    for (unsigned int i = 0; i < LITESCRIPT_MEMORY_SIZE; i++) {
+        if (this->arr[i] != nullptr)
+            ((LiteScript::_BasicMemory_1 *)this->arr[i])->FlagsInit();
+    }
+    for (unsigned int i = 0, sz = (unsigned int)scount; i < sz; i++)
+        sarray[i]->GarbageCollector(&Memory::ProtectVariable);
+    for (unsigned int i = 0; i < LITESCRIPT_MEMORY_SIZE; i++) {
+        if (this->arr[i] != nullptr)
+            ((LiteScript::_BasicMemory_1 *)this->arr[i])->FlagsErase();
+    }
+}
+
+void LiteScript::Memory::ProtectVariable(unsigned int i) {
+    unsigned int block = i >> 16;
+    if (this->arr[block] != nullptr)
+        ((LiteScript::_BasicMemory_1 *)(this->arr[block]))->FlagsProtect(i & 0xffff);
 }

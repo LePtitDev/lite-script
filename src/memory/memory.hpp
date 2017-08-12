@@ -26,6 +26,7 @@ namespace LiteScript {
 
     // Class declarations
     class Variable;
+    class State;
 
     // Class Memory that contain objects
     class Memory {
@@ -103,8 +104,29 @@ namespace LiteScript {
 
         /**
          * Execute the garbage collector
+         * (remark: use this after a complete update for no problem)
+         *
+         * @param state The script state
          */
-        void GarbageCollector();
+        void GarbageCollector(const State& state);
+
+        /**
+         * Execute the garbage collector
+         * (remark: use this after a complete update for no problem)
+         *
+         * @param scount The states count
+         * @param sarray The script states array
+         */
+        void GarbageCollector(int scount, const State ** sarray);
+
+    private:
+
+        /**
+         * Protect a variable
+         *
+         * @param i The id of the variable
+         */
+        void ProtectVariable(unsigned int i);
 
     };
 

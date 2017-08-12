@@ -166,6 +166,10 @@ LiteScript::Variable::operator std::string() const {
     return this->obj.GetType().ToString(*this);
 }
 
+void LiteScript::Variable::GarbageCollector(void (Memory::*caller)(unsigned int)) {
+    this->obj.GetType().GarbageCollector(*this, caller);
+}
+
 std::ostream& operator<<(std::ostream& stream, const LiteScript::Variable& obj) {
     stream << (std::string)(obj);
     return stream;

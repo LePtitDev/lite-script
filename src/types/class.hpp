@@ -62,6 +62,14 @@ namespace LiteScript {
          */
         std::string ToString(const Variable& object) const override;
 
+        /**
+         * Refer itself and all variables in the referenced object for the garbage collector
+         *
+         * @param object The object to refer
+         * @param caller The calling function for referring
+         */
+        void GarbageCollector(const Variable& object, void (Memory::*caller)(unsigned int)) const override;
+
     };
 
     extern _Type_CLASS _type_class;

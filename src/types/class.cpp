@@ -75,3 +75,17 @@ std::string LiteScript::_Type_CLASS::ToString(const Variable &object) const {
     ss << "}";
     return ss.str();
 }
+
+void LiteScript::_Type_CLASS::GarbageCollector(const Variable &object, void (Memory::*caller)(unsigned int)) const {
+    (object->memory.*caller)(object->ID);
+    const Class& C = object->GetData<Class>();
+    const std::vector<LiteScript::Variable>& inherits = C.GetInherits();
+    for (unsigned int i = 0, sz = inherits.size(); i < sz; i++)
+        Variable(inherits[i]).GarbageCollector(caller);
+    for (unsigned int i = 0, sz = C.GetStaticCount(); i < sz; i++)
+        C.GetStaticMember(i).GarbageCollector(caller);
+    for (unsigned int i = 0, sz = C.GetUnstaticCount(); i < sz; i++)
+        C.GetUnstaticMember(i).GarbageCollector(caller);
+    for (unsigned int i = 0, sz = Class::OperatorType::OP_TYPE_NUMBER; i < sz; i++)
+        C.GetOperator(i).GarbageCollector(caller);
+}

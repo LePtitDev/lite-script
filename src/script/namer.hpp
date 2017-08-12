@@ -97,6 +97,13 @@ namespace LiteScript {
          */
         void Declare(const char * name, const Variable& v);
 
+        /**
+         * Refer all variables in the namer for the garbage collector
+         *
+         * @param caller The calling function for referring
+         */
+        void GarbageCollector(void (Memory::*caller)(unsigned int)) const;
+
         // The assign operator overloading
         Namer& operator=(const Namer& n);
 

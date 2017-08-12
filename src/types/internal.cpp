@@ -702,6 +702,13 @@ LiteScript::Variable LiteScript::Class::GetOperator(OperatorType op) const {
         return Variable(*this->op_members[op]);
 }
 
+LiteScript::Variable LiteScript::Class::GetOperator(unsigned int op) const {
+    if (this->op_members[op].isNull)
+        return this->memory.Create(Type::UNDEFINED);
+    else
+        return Variable(*this->op_members[op]);
+}
+
 LiteScript::Variable LiteScript::Class::CreateElement(State& state, std::vector<Variable>& args) {
     Variable v = this->memory.Create(Type::CLASS_OBJECT);
     ClassObject& co = v->GetData<ClassObject>();

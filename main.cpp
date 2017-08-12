@@ -52,8 +52,7 @@ int main(int argc, char * argv[]) {
     State state(memory);
     Script script(state);
 
-    Variable v1 = script.memory.Create(Type::CALLBACK);
-    v1->GetData<Callback>() = Callback(script.memory, print_var);
+    Variable v1 = CreateVariable(memory, print_var);
     script.state.GetNamer().Declare("print", v1);
 
     if (argc > 1) {
@@ -116,6 +115,7 @@ int main(int argc, char * argv[]) {
             else
                 Instruction::Save(file, script.state.GetInstruction(script.state.InstructionIndex));
             file.close();
+            memory.GarbageCollector(state);
         }
     }
 }

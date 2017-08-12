@@ -41,3 +41,10 @@ std::string LiteScript::_Type_NAMESPACE::ToString(const Variable &object) const 
     ss << "}";
     return ss.str();
 }
+
+void LiteScript::_Type_NAMESPACE::GarbageCollector(const Variable &object, void (Memory::*caller)(unsigned int)) const {
+    (object->memory.*caller)(object->ID);
+    const Namespace& nsp = object->GetData<Namespace>();
+    for (unsigned int i = 0, sz = nsp.Count(); i < sz; i++)
+        nsp.GetVariable(i).GarbageCollector(caller);
+}

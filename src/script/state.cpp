@@ -177,3 +177,23 @@ void LiteScript::State::RemoveCallback() {
     this->line_num = cp[1];
     this->call_lifo.pop_back();
 }
+
+void LiteScript::State::GarbageCollector(void (Memory::*caller)(unsigned int)) const {
+    Variable(this->nsp_global).GarbageCollector(caller);
+    for (unsigned int i = 0, sz_i = this->args.size(); i < sz_i; i++) {
+        for (unsigned int j = 0, sz_j = this->args[i].size(); j < sz_j; j++)
+            Variable(this->args[i][j]).GarbageCollector(caller);
+    }
+    for (unsigned int i = 0, sz_i = this->ths.size(); i < sz_i; i++) {
+        if (!this->ths[i].isNull)
+            Variable(*this->ths[i]).GarbageCollector(caller);
+    }
+    for (unsigned int i = 0, sz_i = this->rets.size(); i < sz_i; i++) {
+        if (!this->rets[i].isNull)
+            Variable(*this->rets[i]).GarbageCollector(caller);
+    }
+    for (unsigned int i = 0, sz = this->op_lifo.size(); i < sz; i++)
+        Variable(this->op_lifo[i]).GarbageCollector(caller);
+    for (unsigned int i = 0, sz = this->nsp_lifo.size(); i < sz; i++)
+        this->nsp_lifo[i].GarbageCollector(caller);
+}

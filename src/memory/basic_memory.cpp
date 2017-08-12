@@ -60,6 +60,21 @@ LiteScript::Nullable<LiteScript::Variable> LiteScript::_BasicMemory_0::GetVariab
         return Nullable<Variable>();
 }
 
+void LiteScript::_BasicMemory_0::FlagsInit() {
+    this->flags.fill(false);
+}
+
+void LiteScript::_BasicMemory_0::FlagsProtect(unsigned int i) {
+    this->flags[i] = true;
+}
+
+void LiteScript::_BasicMemory_0::FlagsErase() {
+    for (unsigned int i = 0, sz = LITESCRIPT_MEMORY_0_SIZE; i < sz; i++) {
+        if (this->free[i] == -1 && !this->flags[i])
+            this->Remove(i);
+    }
+}
+
 ////// BASIC_MEMORY_1 //////
 
 LiteScript::_BasicMemory_1::_BasicMemory_1(Memory &memory) :
@@ -115,4 +130,35 @@ LiteScript::Nullable<LiteScript::Variable> LiteScript::_BasicMemory_1::GetVariab
     if (this->arr[block] != nullptr)
         return Nullable<Variable>(this->arr[block]->GetVariable(id & 0xff));
     return Nullable<Variable>();
+}
+
+void LiteScript::_BasicMemory_1::FlagsInit() {
+    for (unsigned int i = 0, sz = LITESCRIPT_MEMORY_1_SIZE; i < sz; i++) {
+        if (this->arr[i] != nullptr)
+            this->arr[i]->FlagsInit();
+    }
+}
+
+void LiteScript::_BasicMemory_1::FlagsProtect(unsigned int i) {
+    unsigned int block = i >> 8;
+    if (this->arr[block] != nullptr)
+        this->arr[block]->FlagsProtect(i & 0xff);
+}
+
+void LiteScript::_BasicMemory_1::FlagsErase() {
+    for (unsigned int i = 0, sz = LITESCRIPT_MEMORY_1_SIZE; i < sz; i++) {
+        if (this->arr[i] != nullptr) {
+            bool wasFull = this->arr[i]->isFull();
+            unsigned int nb = this->arr[i]->Count;
+            this->arr[i]->FlagsErase();
+            // Si le block n'est plus plein, on le place en premier
+            if (wasFull && !this->arr[i]->isFull()) {
+                this->nfull[i] = this->first_nfull;
+                this->first_nfull = (short)i;
+            }
+            // Si le nombre d'objet à diminué, on décrémente le compteur
+            if (nb != this->arr[i]->Count)
+                this->count--;
+        }
+    }
 }

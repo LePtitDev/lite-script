@@ -371,6 +371,17 @@ namespace LiteScript {
          */
         operator std::string() const;
 
+        ///////////////////////////////
+        ////// GARBAGE COLLECTOR //////
+        ///////////////////////////////
+
+        /**
+         * Refer itself and all variables in the object for the garbage collector
+         *
+         * @param caller The calling function for referring
+         */
+        void GarbageCollector(void (Memory::*caller)(unsigned int));
+
     };
 
 }

@@ -218,6 +218,15 @@ namespace LiteScript {
          */
         void RemoveCallback();
 
+
+
+        /**
+         * Refer all variables in the state for the garbage collector
+         *
+         * @param caller The calling function for referring
+         */
+        void GarbageCollector(void (Memory::*caller)(unsigned int)) const;
+
     };
 
 }

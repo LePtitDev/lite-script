@@ -102,3 +102,12 @@ std::string LiteScript::_Type_ARRAY::ToString(const Variable &object) const {
     ss << "}";
     return ss.str();
 }
+
+void LiteScript::_Type_ARRAY::GarbageCollector(const Variable &object, void (Memory::*caller)(unsigned int)) const {
+    (object->memory.*caller)(object->ID);
+    const Array& obj = object->GetData<Array>();
+    for (unsigned int i = 0, sz = obj.UnamedCount(); i < sz; i++)
+        obj.ConstantGet(i).GarbageCollector(caller);
+    for (unsigned int i = 0, sz = obj.NamedCount(); i < sz; i++)
+        obj.GetNamedVariable(i).GarbageCollector(caller);
+}

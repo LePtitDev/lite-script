@@ -495,3 +495,10 @@ LiteScript::Variable LiteScript::_Type_CLASS_OBJECT::OCall(Variable& object, Sta
         return object->memory.Create(Type::NIL);
     }
 }
+
+void LiteScript::_Type_CLASS_OBJECT::GarbageCollector(const Variable &object, void (Memory::*caller)(unsigned int)) const {
+    (object->memory.*caller)(object->ID);
+    const ClassObject& co = object->GetData<ClassObject>();
+    for (unsigned int i = 0, sz = co.GetMemberCount(); i < sz; i++)
+        co.GetMemberVariable(i).GarbageCollector(caller);
+}
