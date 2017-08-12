@@ -295,7 +295,7 @@ void LiteScript::StateExecutor::I_RETURN(State& state, Instruction& instr) {
     state.ExecuteSingle(Instruction(InstrCode::INSTR_POP_NSP));
     if (!obj.isNull)
         PopValue(state);
-    state.PopCall();
+    state.RemoveCallback();
 }
 
 // OPERATIONS

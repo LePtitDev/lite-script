@@ -42,32 +42,15 @@ namespace LiteScript {
         // List of message errors
         static std::array<const char *, ErrorType::ASSM_ERROR_NUMBER> ErrorMsg;
 
-    private:
-
         ////////////////////////
         ////// ATTRIBUTES //////
         ////////////////////////
-
-        // Data for memory if created
-        char _mem_d[sizeof(Memory)];
-
-        // Indicate if memory is internal
-        bool _mem_a;
-
-        // Data for state
-        char _sta_d[sizeof(State)];
-
-    public:
 
         // The last error code
         ErrorType error;
 
         // The line number of the last error
         unsigned int line_error;
-
-        ///////////////////////
-        ////// ACCESSORS //////
-        ///////////////////////
 
         // The main memory
         Memory& memory;
@@ -80,21 +63,18 @@ namespace LiteScript {
         //////////////////////////
 
         /**
-         * Basic constructor (create internal memory)
-         */
-        Assembly();
-
-        /**
-         * Constructor by referencing memory
+         * Basic constructor
          *
-         * @param mem The main memory
+         * @param state The script state
          */
-        Assembly(Memory& mem);
+        Assembly(State& state);
 
         /**
-         * Destructor
+         * Copy constructor
+         *
+         * @param ass The assembly to copy
          */
-        ~Assembly();
+        Assembly(const Assembly& ass);
 
         /////////////////////
         ////// METHODS //////

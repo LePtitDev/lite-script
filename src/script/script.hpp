@@ -78,22 +78,9 @@ namespace LiteScript {
         // List of message errors
         static std::array<const char *, ErrorType::SCRPT_ERROR_NUMBER> ErrorMsg;
 
-    private:
-
         ////////////////////////
         ////// ATTRIBUTES //////
         ////////////////////////
-
-        // Data for memory if created
-        char _mem_d[sizeof(Memory)];
-
-        // Indicate if memory is internal
-        bool _mem_a;
-
-        // Data for state
-        char _sta_d[sizeof(State)];
-
-    public:
 
         // The last error code
         ErrorType error;
@@ -103,10 +90,6 @@ namespace LiteScript {
 
         // The column number of the last error
         unsigned int col_error;
-
-        ///////////////////////
-        ////// ACCESSORS //////
-        ///////////////////////
 
         // The main memory
         Memory& memory;
@@ -119,21 +102,18 @@ namespace LiteScript {
         //////////////////////////
 
         /**
-         * Basic constructor of a script
-         */
-        Script();
-
-        /**
-         * Constructor by referencing memory
+         * Basic constructor
          *
-         * @param mem The main memory
+         * @param state The script state
          */
-        Script(Memory& mem);
+        Script(State& state);
 
         /**
-         * Destructor
+         * Copy constructor
+         *
+         * @param sc The script to copy
          */
-        ~Script();
+        Script(const Script& sc);
 
         /////////////////////
         ////// METHODS //////

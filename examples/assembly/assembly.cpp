@@ -155,8 +155,11 @@ void display_commands(int commnds_c, const char ** commnds_v) {
  * The main fonction
  */
 int main(int argc, char * argv[]) {
+    // We create the main memory and the script state
+    Memory memory;
+    State state(memory);
     // We create an assembly object
-    Assembly assembly;
+    Assembly assembly(state);
 
     // We add the "print" callback in the global namespace
     Variable v1 = assembly.memory.Create(Type::CALLBACK);

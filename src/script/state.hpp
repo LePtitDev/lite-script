@@ -122,6 +122,8 @@ namespace LiteScript {
          */
         Variable ExecuteSingle(const Instruction& instr);
 
+
+
         /**
          * Add a single instruction in the current instruction list
          *
@@ -137,6 +139,15 @@ namespace LiteScript {
         void AddInstructions(const std::vector<Instruction>& in_list);
 
         /**
+         * Get a list of instruction
+         *
+         * @param i The index of instructions list
+         */
+        const std::vector<Instruction>& GetInstruction(unsigned int i) const;
+
+
+
+        /**
          * Find a variable by its name, search in :
          * - the last namespace
          * - the current namespace
@@ -149,7 +160,7 @@ namespace LiteScript {
         /**
          * Get the current namer
          */
-        Namer& GetCurrentNamer();
+        Namer& GetNamer();
 
         /**
          * Change the current namespace (if name == "global",
@@ -159,12 +170,7 @@ namespace LiteScript {
          */
         void UseNamespace(const char * name = "global");
 
-        /**
-         * Change the current namespace
-         *
-         * @param n The target namespace
-         */
-        void UseNamespace(const Variable& n);
+
 
         /**
          * Return the count of args in the top of LIFO
@@ -181,32 +187,36 @@ namespace LiteScript {
         /**
          * Get the current this
          */
-        Nullable<Variable>& GetThis();
+        Variable GetThis();
 
         /**
-         * Get the current return
+         * Set the current this
+         *
+         * @param v The variable to assign
          */
-        Nullable<Variable>& GetReturn();
+        void SetThis(const Variable& v);
 
         /**
-         * Push the calling LIFO
+         * Set the current return
+         *
+         * @param v The variable to assign
+         */
+        void SetReturn(const Variable& v);
+
+
+
+        /**
+         * Add a calling return
          *
          * @param index The index of instructions list
          * @param line The line in the instructions list
          */
-        void PushCall(unsigned int index, unsigned int line);
+        void AddCallback(unsigned int index, unsigned int line);
 
         /**
-         * Pop the calling LIFO
+         * Remove a calling return
          */
-        void PopCall();
-
-        /**
-         * Get a list of instruction
-         *
-         * @param i The index of instructions list
-         */
-        const std::vector<Instruction>& GetInstruction(unsigned int i) const;
+        void RemoveCallback();
 
     };
 

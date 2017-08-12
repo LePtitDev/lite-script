@@ -95,32 +95,13 @@ std::array<const char *, LiteScript::Script::ErrorType::SCRPT_ERROR_NUMBER> Lite
     "Unknow element"
 });
 
-LiteScript::Script::Script() :
-        _mem_a(true), memory(*(LiteScript::Memory *)&_mem_d), state(*(LiteScript::State *)&_sta_d),
-        error(Script::ErrorType::SCRPT_ERROR_NO), line_error(0), col_error(0)
-{
-    std::allocator<Memory> mem_allocator;
-    mem_allocator.construct(&this->memory);
-    std::allocator<State> sta_allocator;
-    sta_allocator.construct(&this->state, this->memory);
-}
+LiteScript::Script::Script(State &state) :
+        memory(state.memory), state(state),
+        error(Script::ErrorType::SCRPT_ERROR_NO), line_error(0), col_error(0) {}
 
-LiteScript::Script::Script(Memory &mem) :
-        _mem_a(false), memory(mem), state(*(LiteScript::State *)&_sta_d),
-        error(Script::ErrorType::SCRPT_ERROR_NO), line_error(0), col_error(0)
-{
-    std::allocator<State> sta_allocator;
-    sta_allocator.construct(&this->state, this->memory);
-}
-
-LiteScript::Script::~Script() {
-    std::allocator<State> sta_allocator;
-    sta_allocator.destroy(&this->state);
-    if (this->_mem_a) {
-        std::allocator<Memory> mem_allocator;
-        mem_allocator.destroy(&this->memory);
-    }
-}
+LiteScript::Script::Script(const Script &sc) :
+        memory(sc.memory), state(sc.state),
+        error(sc.error), line_error(sc.line_error), col_error(sc.col_error) {}
 
 LiteScript::Variable LiteScript::Script::Execute(const char *code) {
     this->error = Script::ErrorType::SCRPT_ERROR_NO;

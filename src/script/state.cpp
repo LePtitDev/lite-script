@@ -93,11 +93,15 @@ void LiteScript::State::AddInstructions(const std::vector<Instruction> &in_list)
     this->instr.push_back(in_list);
 }
 
+const std::vector<LiteScript::Instruction> & LiteScript::State::GetInstruction(unsigned int i) const {
+    return this->instr[i];
+}
+
 LiteScript::Variable LiteScript::State::GetVariable(const char *name) const {
     return this->nsp_lifo.back().Get(name);
 }
 
-LiteScript::Namer& LiteScript::State::GetCurrentNamer() {
+LiteScript::Namer& LiteScript::State::GetNamer() {
     return this->nsp_lifo.back();
 }
 
@@ -133,12 +137,6 @@ void LiteScript::State::UseNamespace(const char *name) {
     this->nsp_lifo.back().Use(*v);
 }
 
-void LiteScript::State::UseNamespace(const Variable& n) {
-    if (n->GetType() != Type::NAMESPACE)
-        return;
-    this->nsp_lifo.back().Use(n);
-}
-
 unsigned int LiteScript::State::GetArgsCount() const {
     if (this->args.size() > 0)
         return this->args.back().size();
@@ -153,29 +151,29 @@ LiteScript::Variable LiteScript::State::GetArg(unsigned int i) const {
         return this->memory.Create(Type::UNDEFINED);
 }
 
-LiteScript::Nullable<LiteScript::Variable>& LiteScript::State::GetThis() {
-    return this->ths.back();
+LiteScript::Variable LiteScript::State::GetThis() {
+    return *this->ths.back();
 }
 
-LiteScript::Nullable<LiteScript::Variable> & LiteScript::State::GetReturn() {
-    return this->rets.back();
+void LiteScript::State::SetThis(const Variable &v) {
+    this->ths.back() = v;
 }
 
-void LiteScript::State::PushCall(unsigned int index, unsigned int line) {
+void LiteScript::State::SetReturn(const Variable &v) {
+    this->rets.back() = v;
+}
+
+void LiteScript::State::AddCallback(unsigned int index, unsigned int line) {
     this->call_lifo.push_back({ this->instr_index, this->line_num });
     this->instr_index = index;
     this->line_num = line;
 }
 
-void LiteScript::State::PopCall() {
+void LiteScript::State::RemoveCallback() {
     if (this->call_lifo.size() == 0)
         return;
     std::array<unsigned int, 2>& cp = this->call_lifo.back();
     this->instr_index = cp[0];
     this->line_num = cp[1];
     this->call_lifo.pop_back();
-}
-
-const std::vector<LiteScript::Instruction> & LiteScript::State::GetInstruction(unsigned int i) const {
-    return this->instr[i];
 }

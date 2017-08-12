@@ -25,32 +25,13 @@ std::array<const char *, LiteScript::Assembly::ErrorType::ASSM_ERROR_NUMBER> Lit
     "String argument expected"
 });
 
-LiteScript::Assembly::Assembly() :
-    _mem_a(true), memory(*(LiteScript::Memory *)&_mem_d), state(*(LiteScript::State *)&_sta_d),
-    error(Assembly::ErrorType::ASSM_ERROR_NO), line_error(0)
-{
-    std::allocator<Memory> mem_allocator;
-    mem_allocator.construct(&this->memory);
-    std::allocator<State> sta_allocator;
-    sta_allocator.construct(&this->state, this->memory);
-}
+LiteScript::Assembly::Assembly(State &state) :
+    memory(state.memory), state(state),
+    error(Assembly::ErrorType::ASSM_ERROR_NO), line_error(0) {}
 
-LiteScript::Assembly::Assembly(Memory &mem) :
-    _mem_a(false), memory(mem), state(*(LiteScript::State *)&_sta_d),
-    error(Assembly::ErrorType::ASSM_ERROR_NO), line_error(0)
-{
-    std::allocator<State> sta_allocator;
-    sta_allocator.construct(&this->state, this->memory);
-}
-
-LiteScript::Assembly::~Assembly() {
-    std::allocator<State> sta_allocator;
-    sta_allocator.destroy(&this->state);
-    if (this->_mem_a) {
-        std::allocator<Memory> mem_allocator;
-        mem_allocator.destroy(&this->memory);
-    }
-}
+LiteScript::Assembly::Assembly(const Assembly &ass) :
+    memory(ass.memory), state(ass.state),
+    error(ass.error), line_error(ass.line_error) {}
 
 LiteScript::Variable LiteScript::Assembly::Execute(const char *code) {
     this->error = Assembly::ErrorType::ASSM_ERROR_NO;

@@ -48,11 +48,13 @@ void display_commands(int commnds_c, const char ** commnds_v) {
 }
 
 int main(int argc, char * argv[]) {
-    Script script;
+    Memory memory;
+    State state(memory);
+    Script script(state);
 
     Variable v1 = script.memory.Create(Type::CALLBACK);
     v1->GetData<Callback>() = Callback(script.memory, print_var);
-    script.state.GetCurrentNamer().Declare("print", v1);
+    script.state.GetNamer().Declare("print", v1);
 
     if (argc > 1) {
         unsigned int i;

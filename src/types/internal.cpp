@@ -463,7 +463,7 @@ LiteScript::Callback::Callback(const Callback &c) :
 
 LiteScript::Callback::Callback(LiteScript::State &s, unsigned int i, unsigned int l) :
     call_ptr(nullptr), memory(s.memory), intrl_idx(i), line_num(l),
-    nsp(Nullable<Namer>(s.GetCurrentNamer())), I(intrl_idx), L(line_num)
+    nsp(Nullable<Namer>(s.GetNamer())), I(intrl_idx), L(line_num)
 {
 
 }
@@ -503,10 +503,10 @@ LiteScript::Variable LiteScript::Callback::operator()(State& state, std::vector<
         state.GetThis() = this->This;
     if (this->call_ptr == nullptr) {
         Nullable<Variable> last_nsp;
-        Namer& namer = state.GetCurrentNamer();
+        Namer& namer = state.GetNamer();
         namer = *this->nsp;
         namer.Push(state.memory.Create(Type::NAMESPACE));
-        state.PushCall(this->intrl_idx, this->line_num);
+        state.AddCallback(this->intrl_idx, this->line_num);
         return state.memory.Create(Type::UNDEFINED);
     }
     else {
