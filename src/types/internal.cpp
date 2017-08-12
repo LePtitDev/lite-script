@@ -500,7 +500,7 @@ bool LiteScript::Callback::operator!=(const Callback &c) const {
 LiteScript::Variable LiteScript::Callback::operator()(State& state, std::vector<Variable> &args) {
     state.ExecuteSingle(Instruction(InstrCode::INSTR_PUSH_NSP));
     if (!this->This.isNull)
-        state.GetThis() = this->This;
+        state.SetThis(*this->This);
     if (this->call_ptr == nullptr) {
         Nullable<Variable> last_nsp;
         Namer& namer = state.GetNamer();
@@ -763,6 +763,7 @@ LiteScript::Class& LiteScript::Class::operator=(const Class &c) {
     for (unsigned int i = 0, sz = OperatorType::OP_TYPE_NUMBER; i < sz; i++)
         this->op_members[i] = c.op_members[i];
     this->constructor_index = c.constructor_index;
+    return *this;
 }
 
 bool LiteScript::Class::operator==(const Class &c) const {
