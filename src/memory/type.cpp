@@ -12,7 +12,10 @@
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
-#include "../litescript.hpp"
+#include "type.hpp"
+#include "object.hpp"
+#include "variable.hpp"
+#include "memory.hpp"
 
 #include "../types/undefined.hpp"
 #include "../types/null.hpp"

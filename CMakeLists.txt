@@ -35,6 +35,7 @@ set(SOURCE_FILES
         src/script/syntax.hpp src/script/syntax.cpp
         src/script/script.hpp src/script/script.cpp
 
-        src/api/types.hpp src/api/types.cpp)
+        src/api/types.hpp src/api/types.cpp
+        src/api/script.hpp src/api/script.cpp)
 
 add_executable(LiteScript main.cpp ${SOURCE_FILES})

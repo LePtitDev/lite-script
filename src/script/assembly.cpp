@@ -12,8 +12,9 @@
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
-#include "../litescript.hpp"
+#include <cstring>
 
+#include "assembly.hpp"
 #include "syntax.hpp"
 
 std::array<const char *, LiteScript::Assembly::ErrorType::ASSM_ERROR_NUMBER> LiteScript::Assembly::ErrorMsg({

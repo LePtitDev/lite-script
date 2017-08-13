@@ -12,7 +12,13 @@
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
+#include <sstream>
+
+#include "../memory/object.hpp"
+#include "../memory/variable.hpp"
+#include "../memory/memory.hpp"
 #include "namespace.hpp"
+#include "internal.hpp"
 
 LiteScript::_Type_NAMESPACE LiteScript::_type_namespace;
 

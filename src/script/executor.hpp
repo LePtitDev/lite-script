@@ -15,7 +15,7 @@
 #ifndef LITESCRIPT_SCRIPT_EXECUTOR_HPP
 #define LITESCRIPT_SCRIPT_EXECUTOR_HPP
 
-#include "../litescript.hpp"
+#include "state.hpp"
 
 namespace LiteScript {
 

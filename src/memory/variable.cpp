@@ -12,7 +12,10 @@
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
-#include "../litescript.hpp"
+#include "type.hpp"
+#include "object.hpp"
+#include "variable.hpp"
+#include "memory.hpp"
 
 LiteScript::Variable::Variable(Object& obj, unsigned int& nb_ref) :
     obj(obj), nb_ref(nb_ref)

@@ -12,9 +12,11 @@
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
-#include "../litescript.hpp"
-
+#include "type.hpp"
+#include "object.hpp"
+#include "memory.hpp"
 #include "basic_memory.hpp"
+#include "../script/state.hpp"
 
 LiteScript::Memory::Memory() :
     first_nfull(0), count(0), Count(count)

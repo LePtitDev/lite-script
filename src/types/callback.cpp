@@ -12,7 +12,13 @@
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
+#include <sstream>
+
+#include "../memory/object.hpp"
+#include "../memory/variable.hpp"
+#include "../memory/memory.hpp"
 #include "callback.hpp"
+#include "internal.hpp"
 
 LiteScript::_Type_CALLBACK LiteScript::_type_callback;
 

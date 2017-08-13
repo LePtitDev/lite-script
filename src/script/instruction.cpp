@@ -12,7 +12,10 @@
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
-#include "../litescript.hpp"
+#include <cstring>
+
+#include "instruction.hpp"
+#include "assembly.hpp"
 
 LiteScript::Instruction::Instruction() {}
 LiteScript::Instruction::Instruction(InstrCode code) :

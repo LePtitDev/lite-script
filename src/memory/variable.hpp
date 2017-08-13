@@ -15,6 +15,7 @@
 #ifndef LITESCRIPT_MEMORY_VARIABLE_HPP
 #define LITESCRIPT_MEMORY_VARIABLE_HPP
 
+#include <string>
 #include <vector>
 
 namespace LiteScript {
@@ -22,6 +23,8 @@ namespace LiteScript {
     // Class declarations
     class Object;
     class Type;
+    class Memory;
+    class State;
 
     // Variable class definition
     class Variable {

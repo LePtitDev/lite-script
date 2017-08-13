@@ -12,7 +12,11 @@
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
+#include "../memory/object.hpp"
+#include "../memory/variable.hpp"
+#include "../memory/memory.hpp"
 #include "number.hpp"
+#include "internal.hpp"
 
 LiteScript::_Type_NUMBER LiteScript::_type_number;
 

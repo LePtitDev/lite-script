@@ -1,3 +1,4 @@
+#include <cstring>
 #include <iostream>
 #include <fstream>
 
@@ -162,8 +163,7 @@ int main(int argc, char * argv[]) {
     Assembly assembly(state);
 
     // We add the "print" callback in the global namespace
-    Variable v1 = CreateVariable(memory, print_var);
-    assembly.state.GetCurrentNamer().Declare("print", v1);
+    DeclareVariable(state, "print", CreateVariable(memory, print_var));
 
     // If there is a parameter, it's a file assembly script to execute
     if (argc > 1) {

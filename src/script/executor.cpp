@@ -12,7 +12,9 @@
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
+#include "../memory/object.hpp"
 #include "executor.hpp"
+#include "../types/internal.hpp"
 
 void LiteScript::StateExecutor::Execute(State &state, Instruction &instr) {
     StateExecutor::ARRAY[instr.code](state, instr);

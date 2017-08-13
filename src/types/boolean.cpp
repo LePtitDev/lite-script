@@ -12,7 +12,11 @@
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
+#include "../memory/object.hpp"
+#include "../memory/variable.hpp"
+#include "../memory/memory.hpp"
 #include "boolean.hpp"
+#include "internal.hpp"
 
 LiteScript::_Type_BOOLEAN LiteScript::_type_boolean;
 

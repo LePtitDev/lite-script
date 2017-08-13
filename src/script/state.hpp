@@ -148,14 +148,19 @@ namespace LiteScript {
 
 
         /**
-         * Find a variable by its name, search in :
-         * - the last namespace
-         * - the current namespace
-         * - the global if different
+         * Find a variable by its name in the current namespace
          *
          * @param name The name of the variable
          */
         Variable GetVariable(const char * name) const;
+
+        /**
+         * Declare a variable
+         *
+         * @param name The name of the variable
+         * @param v The variable to add
+         */
+        void DeclareVariable(const char * name, const Variable& v);
 
         /**
          * Get the current namer

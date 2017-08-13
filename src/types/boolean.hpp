@@ -15,7 +15,7 @@
 #ifndef LITESCRIPT_TYPES_BOOL_HPP
 #define LITESCRIPT_TYPES_BOOL_HPP
 
-#include "../litescript.hpp"
+#include "../memory/type.hpp"
 
 namespace LiteScript {
 

@@ -12,7 +12,11 @@
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
+#include "../memory/object.hpp"
+#include "../memory/variable.hpp"
 #include "undefined.hpp"
+#include "internal.hpp"
+#include "../api/types.hpp"
 
 LiteScript::_Type_UNDEFINED LiteScript::_type_undefined;
 
@@ -35,6 +39,7 @@ LiteScript::Variable LiteScript::_Type_UNDEFINED::Convert(const Variable &object
         v->GetData<bool>() = false;
         return v;
     }
+    return object->memory.Create(Type::UNDEFINED);
 }
 
 LiteScript::Variable LiteScript::_Type_UNDEFINED::OAssign(Variable &src, const Variable &dest) const {

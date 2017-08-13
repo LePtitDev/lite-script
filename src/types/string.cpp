@@ -12,10 +12,15 @@
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
-#include "string.hpp"
+#include <sstream>
 
+#include "../memory/object.hpp"
+#include "../memory/variable.hpp"
+#include "../memory/memory.hpp"
+#include "string.hpp"
 #include "undefined.hpp"
 #include "character.hpp"
+#include "internal.hpp"
 
 LiteScript::_Type_STRING LiteScript::_type_string;
 

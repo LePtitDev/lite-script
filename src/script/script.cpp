@@ -12,8 +12,10 @@
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
-#include "../litescript.hpp"
+#include <cstring>
 
+#include "../types/internal.hpp"
+#include "script.hpp"
 #include "syntax.hpp"
 
 std::array<const char *, LiteScript::Script::ErrorType::SCRPT_ERROR_NUMBER> LiteScript::Script::ErrorMsg({
@@ -103,14 +105,12 @@ LiteScript::Script::Script(const Script &sc) :
         memory(sc.memory), state(sc.state),
         error(sc.error), line_error(sc.line_error), col_error(sc.col_error) {}
 
-LiteScript::Variable LiteScript::Script::Execute(const char *code) {
+void LiteScript::Script::Execute(const char *code) {
     this->error = Script::ErrorType::SCRPT_ERROR_NO;
     std::vector<Instruction> list = Script::GetInstructionList(code, this->error, this->line_error, this->col_error);
-    if (this->error != Script::ErrorType::SCRPT_ERROR_NO)
-        return this->memory.Create(Type::UNDEFINED);
-    else {
+    if (this->error == Script::ErrorType::SCRPT_ERROR_NO) {
         this->state.AddInstructions(list);
-        return this->state.Execute();
+        this->state.Execute();
     }
 }
 

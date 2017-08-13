@@ -12,8 +12,14 @@
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
-#include "../litescript.hpp"
+#include <cmath>
+#include <cstring>
+#include <string>
+#include <sstream>
+#include <bitset>
 
+#include "../memory/object.hpp"
+#include "internal.hpp"
 #include "undefined.hpp"
 #include "character.hpp"
 

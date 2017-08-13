@@ -20,6 +20,7 @@
 #define LITESCRIPT_MEMORY_1_SIZE 256
 #define LITESCRIPT_MEMORY_1_MAXCOUNT 65536
 
+#include "object.hpp"
 #include "memory.hpp"
 
 namespace LiteScript {

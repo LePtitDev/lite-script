@@ -15,6 +15,8 @@
 #ifndef LITESCRIPT_MEMORY_OBJECT_HPP
 #define LITESCRIPT_MEMORY_OBJECT_HPP
 
+#include <memory>
+
 namespace LiteScript {
 
     // Class declarations

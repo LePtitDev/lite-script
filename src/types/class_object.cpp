@@ -12,7 +12,13 @@
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
+#include <sstream>
+
+#include "../memory/object.hpp"
+#include "../memory/variable.hpp"
+#include "../memory/memory.hpp"
 #include "class_object.hpp"
+#include "internal.hpp"
 
 LiteScript::_Type_CLASS_OBJECT LiteScript::_type_class_object;
 

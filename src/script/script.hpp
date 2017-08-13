@@ -125,7 +125,7 @@ namespace LiteScript {
          * @param code The oriented-object script code
          * @return The last variable returned
          */
-        Variable Execute(const char * code);
+        void Execute(const char * code);
 
         /**
          * Get the formated string error

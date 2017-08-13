@@ -15,7 +15,7 @@
 #ifndef LITESCRIPT_TYPES_CHARACTER_HPP
 #define LITESCRIPT_TYPES_CHARACTER_HPP
 
-#include "../litescript.hpp"
+#include "../memory/type.hpp"
 
 namespace LiteScript {
 

@@ -12,7 +12,10 @@
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
-#include "../litescript.hpp"
+#include "namer.hpp"
+#include "../memory/type.hpp"
+#include "../memory/object.hpp"
+#include "../types/internal.hpp"
 
 LiteScript::Namer::Namer(const Variable &global) : global(global), current(Variable(global)) {}
 LiteScript::Namer::Namer(const Namer &n) :

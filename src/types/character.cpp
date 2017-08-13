@@ -12,7 +12,11 @@
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
+#include "../memory/object.hpp"
+#include "../memory/variable.hpp"
+#include "../memory/memory.hpp"
 #include "character.hpp"
+#include "internal.hpp"
 
 LiteScript::_Type_CHARACTER LiteScript::_type_character;
 

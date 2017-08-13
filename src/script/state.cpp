@@ -12,9 +12,10 @@
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
-#include "../litescript.hpp"
-
+#include "../memory/object.hpp"
+#include "state.hpp"
 #include "executor.hpp"
+#include "../types/internal.hpp"
 
 LiteScript::State::State(Memory &memory) :
     instr_index(0), line_num(0), memory(memory),
@@ -99,6 +100,10 @@ const std::vector<LiteScript::Instruction> & LiteScript::State::GetInstruction(u
 
 LiteScript::Variable LiteScript::State::GetVariable(const char *name) const {
     return this->nsp_lifo.back().Get(name);
+}
+
+void LiteScript::State::DeclareVariable(const char *name, const Variable &v) {
+    nsp_global->GetData<Namespace>().DefineVariable(name, v);
 }
 
 LiteScript::Namer& LiteScript::State::GetNamer() {

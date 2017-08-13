@@ -15,7 +15,7 @@
 #ifndef LITESCRIPT_TYPES_NAMESPACE_HPP
 #define LITESCRIPT_TYPES_NAMESPACE_HPP
 
-#include "../litescript.hpp"
+#include "../memory/type.hpp"
 
 namespace LiteScript {
 

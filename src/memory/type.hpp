@@ -16,12 +16,14 @@
 #define LITESCRIPT_MEMORY_TYPE_HPP
 
 #include <string>
+#include <vector>
 
 namespace LiteScript {
 
     // Class declarations
     class Object;
     class Variable;
+    class Memory;
     class State;
 
     // Abstract type of an object

@@ -1,3 +1,4 @@
+#include <cstring>
 #include <iostream>
 #include <fstream>
 
@@ -52,8 +53,7 @@ int main(int argc, char * argv[]) {
     State state(memory);
     Script script(state);
 
-    Variable v1 = CreateVariable(memory, print_var);
-    script.state.GetCurrentNamer().Declare("print", v1);
+    DeclareVariable(state, "print", CreateVariable(memory, print_var));
 
     if (argc > 1) {
         unsigned int i;
@@ -63,13 +63,11 @@ int main(int argc, char * argv[]) {
             return -1;
         }
 
-        Variable result = script.Execute(code.c_str());
+        script.Execute(code.c_str());
         if (script.error != Script::ErrorType::SCRPT_ERROR_NO) {
             std::cout << "ERROR(" << (script.line_error + 1) << "," << (script.col_error + 1) << "): " << script.GetError() << std::endl;
             return 1;
         }
-        else
-            std::cout << (std::string)(result) << std::endl;
         return 0;
     }
 
@@ -105,7 +103,7 @@ int main(int argc, char * argv[]) {
         }
         code.pop_back();
 
-        Variable result = script.Execute(code.c_str());
+        script.Execute(code.c_str());
         if (script.error != Script::ErrorType::SCRPT_ERROR_NO)
             std::cout << "ERROR(" << (script.line_error + 1) << "," << (script.col_error + 1) << "): " << script.GetError() << std::endl;
     }

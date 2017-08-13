@@ -12,25 +12,25 @@
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
-#ifndef LITESCRIPT_LITESCRIPT_HPP
-#define LITESCRIPT_LITESCRIPT_HPP
+#ifndef LITESCRIPT_SCRIPT_HPP
+#define LITESCRIPT_SCRIPT_HPP
 
-#include "nullable.hpp"
+namespace LiteScript {
 
-#include "memory/type.hpp"
-#include "memory/object.hpp"
-#include "memory/variable.hpp"
-#include "memory/memory.hpp"
+    // Class declarations
+    class Variable;
+    class Memory;
+    class State;
 
-#include "types/internal.hpp"
+    /**
+     * Declare a variable in the script state
+     *
+     * @param state The script state
+     * @param name The name of the variable
+     * @param v The variable
+     */
+    void DeclareVariable(State& state, const char * name, const Variable& v);
 
-#include "script/instruction.hpp"
-#include "script/namer.hpp"
-#include "script/state.hpp"
-#include "script/assembly.hpp"
-#include "script/script.hpp"
+}
 
-#include "api/types.hpp"
-#include "api/script.hpp"
-
-#endif //LITESCRIPT_LITESCRIPT_HPP
+#endif //LITESCRIPT_SCRIPT_HPP
