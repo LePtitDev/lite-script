@@ -48,6 +48,13 @@ namespace LiteScript {
         ////// OPERATIONS //////
 
         /**
+         * Frees allocated memory of an object (called when an object is destroyed)
+         *
+         * @param object The object which will be destroyed
+         */
+        void ODestroy(Object& object) const override;
+
+        /**
          * Get the member object contained on the referenced object
          *
          * @param object The referenced object

@@ -25,6 +25,11 @@ LiteScript::Object& LiteScript::_Type_NAMESPACE::AssignObject(Object &obj) {
     return obj;
 }
 
+void LiteScript::_Type_NAMESPACE::ODestroy(Object &object) const {
+    std::allocator<Namespace> allocator;
+    allocator.destroy(&object.GetData<Namespace>());
+}
+
 LiteScript::Variable LiteScript::_Type_NAMESPACE::OMember(Variable &object, const char *name) const {
     return object->GetData<Namespace>()[name];
 }

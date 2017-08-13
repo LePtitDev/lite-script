@@ -41,6 +41,11 @@ LiteScript::Object & LiteScript::_Type_ARRAY::AssignObject(Object &object) {
     return object;
 }
 
+void LiteScript::_Type_ARRAY::ODestroy(Object &object) const {
+    std::allocator<Array> allocator;
+    allocator.destroy(&object.GetData<Array>());
+}
+
 LiteScript::Variable LiteScript::_Type_ARRAY::OAssign(Variable &obj1, const Variable &obj2) const {
     if (obj2->GetType() == *this) {
         obj1->GetData<Array>() = obj2->GetData<Array>();

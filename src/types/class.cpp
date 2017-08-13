@@ -31,6 +31,11 @@ LiteScript::Variable LiteScript::_Type_CLASS::OAssign(Variable &src, const Varia
     return Variable(src);
 }
 
+void LiteScript::_Type_CLASS::ODestroy(Object &object) const {
+    std::allocator<Class> allocator;
+    allocator.destroy(&object.GetData<Class>());
+}
+
 LiteScript::Variable LiteScript::_Type_CLASS::OMember(Variable &object_src, const char *member_name) const {
     return object_src->GetData<Class>().GetStaticMember(member_name);
 }

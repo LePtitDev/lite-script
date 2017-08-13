@@ -38,6 +38,11 @@ std::string LiteScript::_Type_CLASS_OBJECT::ToString(const Variable &object) con
     return ss.str();
 }
 
+void LiteScript::_Type_CLASS_OBJECT::ODestroy(Object &object) const {
+    std::allocator<ClassObject> allocator;
+    allocator.destroy(&object.GetData<ClassObject>());
+}
+
 LiteScript::Variable LiteScript::_Type_CLASS_OBJECT::OAssign(Variable &object_target, const Variable &object_src) const {
     Variable v = object_target->GetData<ClassObject>().ClassBase->GetOperator(Class::OperatorType::OP_TYPE_ASSIGN);
     if (v->GetType() == Type::CALLBACK) {

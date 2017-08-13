@@ -38,6 +38,11 @@ LiteScript::Object& LiteScript::_Type_STRING::AssignObject(LiteScript::Object& o
     return obj;
 }
 
+void LiteScript::_Type_STRING::ODestroy(Object &object) const {
+    std::allocator<String> allocator;
+    allocator.destroy(&object.GetData<String>());
+}
+
 LiteScript::Variable LiteScript::_Type_STRING::OAssign(LiteScript::Variable& src, const LiteScript::Variable& dest) const {
     if (dest->GetType() != *this) {
         dest->GetType().AssignObject(*src);

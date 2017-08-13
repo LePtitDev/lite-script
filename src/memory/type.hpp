@@ -154,7 +154,7 @@ namespace LiteScript {
          *
          * @param object The object which will be destroyed
          */
-        virtual void ODestroy(Object& object);
+        virtual void ODestroy(Object& object) const;
 
         /**
          * Assign an object with the content of an other object

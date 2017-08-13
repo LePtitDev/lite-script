@@ -38,6 +38,13 @@ namespace LiteScript {
         Object& AssignObject(Object& obj) override;
 
         /**
+         * Frees allocated memory of an object (called when an object is destroyed)
+         *
+         * @param object The object which will be destroyed
+         */
+        void ODestroy(Object& object) const override;
+
+        /**
          * Assign an object with the content of an other object
          *
          * @param object_target The object which must be assign
