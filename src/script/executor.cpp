@@ -136,9 +136,9 @@ void LiteScript::StateExecutor::I_DEFINE_VARIABLE(State& state, Instruction& ins
 }
 void LiteScript::StateExecutor::I_DEFINE_ARG(State& state, Instruction& instr) {
     state.line_num++;
-    if (state.op_lifo.size() == 0 || state.args.size() == 0 || instr.comp_type != Instruction::CompType::COMP_TYPE_INTEGER)
+    if (state.op_lifo.size() == 0 || state.args_tmp.size() == 0 || instr.comp_type != Instruction::CompType::COMP_TYPE_INTEGER)
         return;
-    std::vector<Variable>& args = state.args.back();
+    std::vector<Variable>& args = state.args_tmp.back();
     while (args.size() < instr.comp_value.v_integer)
         args.push_back(state.memory.Create(Type::UNDEFINED));
     args.emplace(args.begin() + instr.comp_value.v_integer, state.op_lifo.back());
@@ -223,14 +223,15 @@ void LiteScript::StateExecutor::I_VALUE_CLASS(State& state, Instruction& instr) 
 }
 void LiteScript::StateExecutor::I_VALUE_OBJECT(State& state, Instruction& instr) {
     state.line_num++;
-    if (state.op_lifo.size() == 0 || state.args.size() == 0)
+    if (state.op_lifo.size() == 0 || state.args_tmp.size() == 0)
         return;
     Variable oc(state.op_lifo.back());
     PopValue(state);
     if (oc->GetType() != Type::CLASS)
         return;
-    std::vector<Variable>& args = state.args.back();
+    std::vector<Variable>& args = state.args_tmp.back();
     state.op_lifo.push_back(oc->GetData<Class>().CreateElement(state, args));
+    state.args_tmp.pop_back();
 }
 void LiteScript::StateExecutor::I_VALUE_ARG(State& state, Instruction& instr) {
     state.line_num++;
@@ -267,7 +268,7 @@ void LiteScript::StateExecutor::I_PUSH_NSP(State& state, Instruction& instr) {
 }
 void LiteScript::StateExecutor::I_PUSH_ARGS(State& state, Instruction& instr) {
     state.line_num++;
-    state.args.push_back(std::vector<Variable>());
+    state.args_tmp.push_back(std::vector<Variable>());
 }
 void LiteScript::StateExecutor::I_POP_NSP(State& state, Instruction& instr) {
     state.line_num++;
@@ -282,8 +283,8 @@ void LiteScript::StateExecutor::I_POP_NSP(State& state, Instruction& instr) {
 }
 void LiteScript::StateExecutor::I_POP_ARGS(State& state, Instruction& instr) {
     state.line_num++;
-    if (state.args.size() > 0)
-        state.args.pop_back();
+    if (state.args_tmp.size() > 0)
+        state.args_tmp.pop_back();
 }
 void LiteScript::StateExecutor::I_RETURN(State& state, Instruction& instr) {
     state.line_num++;
@@ -298,6 +299,8 @@ void LiteScript::StateExecutor::I_RETURN(State& state, Instruction& instr) {
     if (!obj.isNull)
         PopValue(state);
     state.RemoveCallback();
+    if (state.args_def.size() > 0)
+        state.args_def.pop_back();
 }
 
 // OPERATIONS
@@ -664,7 +667,8 @@ void LiteScript::StateExecutor::I_OP_CALL(State& state, Instruction& instr) {
         return;
     Variable v1(state.op_lifo.back());
     PopValue(state);
-    state.op_lifo.push_back(v1(state, state.args.back()));
+    state.op_lifo.push_back(v1(state, state.args_tmp.back()));
+    state.args_tmp.pop_back();
 }
 
 // CONTROL INSTRUCTIONS

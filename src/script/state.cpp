@@ -24,7 +24,8 @@ LiteScript::State::State(Memory &memory) :
 {
     this->nsp_lifo.push_back(Namer(this->nsp_global));
     this->instr.push_back(std::vector<Instruction>());
-    this->args.push_back(std::vector<Variable>());
+    this->args_tmp.push_back(std::vector<Variable>());
+    this->args_def.push_back(std::vector<Variable>());
     this->ths.push_back(Nullable<Variable>(this->memory.Create(Type::UNDEFINED)));
     this->rets.push_back(Nullable<Variable>(this->memory.Create(Type::UNDEFINED)));
 }
@@ -33,7 +34,7 @@ LiteScript::State::State(const State &state) :
     instr_index(state.instr_index), line_num(state.line_num), memory(state.memory),
     nsp_global(Variable(state.nsp_global)),
     InstructionIndex(instr_index), InstructionLine(line_num),
-    instr(state.instr), args(state.args), ths(state.ths), rets(state.rets),
+    instr(state.instr), args_tmp(state.args_tmp), args_def(state.args_def), ths(state.ths), rets(state.rets),
     op_lifo(state.op_lifo), call_lifo(state.call_lifo), nsp_lifo(state.nsp_lifo)
 {
 
@@ -142,18 +143,30 @@ void LiteScript::State::UseNamespace(const char *name) {
     this->nsp_lifo.back().Use(*v);
 }
 
+void LiteScript::State::DefineArgs(const std::vector<Variable> &args) {
+    this->args_def.push_back(args);
+}
+
 unsigned int LiteScript::State::GetArgsCount() const {
-    if (this->args.size() > 0)
-        return this->args.back().size();
+    if (this->args_def.size() > 0)
+        return this->args_def.back().size();
     else
         return 0;
 }
 
 LiteScript::Variable LiteScript::State::GetArg(unsigned int i) const {
-    if (this->args.size() > 0 && this->args.back().size() > i)
-        return Variable(this->args.back().at(i));
+    if (this->args_def.size() > 0 && this->args_def.back().size() > i)
+        return Variable(this->args_def.back().at(i));
     else
         return this->memory.Create(Type::UNDEFINED);
+}
+
+void LiteScript::State::SetArg(unsigned int i, const Variable& v) {
+    if (this->args_tmp.size() == 0)
+        return;
+    while (this->args_tmp.back().size() <= i)
+        this->args_tmp.back().push_back(this->memory.Create(Type::UNDEFINED));
+    this->args_tmp.back().emplace(this->args_tmp.back().begin() + i, v);
 }
 
 LiteScript::Variable LiteScript::State::GetThis() {
@@ -185,9 +198,13 @@ void LiteScript::State::RemoveCallback() {
 
 void LiteScript::State::GarbageCollector(void (Memory::*caller)(unsigned int)) const {
     Variable(this->nsp_global).GarbageCollector(caller);
-    for (unsigned int i = 0, sz_i = this->args.size(); i < sz_i; i++) {
-        for (unsigned int j = 0, sz_j = this->args[i].size(); j < sz_j; j++)
-            Variable(this->args[i][j]).GarbageCollector(caller);
+    for (unsigned int i = 0, sz_i = this->args_tmp.size(); i < sz_i; i++) {
+        for (unsigned int j = 0, sz_j = this->args_tmp[i].size(); j < sz_j; j++)
+            Variable(this->args_tmp[i][j]).GarbageCollector(caller);
+    }
+    for (unsigned int i = 0, sz_i = this->args_def.size(); i < sz_i; i++) {
+        for (unsigned int j = 0, sz_j = this->args_def[i].size(); j < sz_j; j++)
+            Variable(this->args_def[i][j]).GarbageCollector(caller);
     }
     for (unsigned int i = 0, sz_i = this->ths.size(); i < sz_i; i++) {
         if (!this->ths[i].isNull)

@@ -513,6 +513,7 @@ LiteScript::Variable LiteScript::Callback::operator()(State& state, std::vector<
         namer = *this->nsp;
         namer.Push(state.memory.Create(Type::NAMESPACE));
         state.AddCallback(this->intrl_idx, this->line_num);
+        state.DefineArgs(args);
         return state.memory.Create(Type::UNDEFINED);
     }
     else {

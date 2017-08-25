@@ -940,7 +940,6 @@ int LiteScript::Syntax::ReadOperator(const char *text, std::vector<Operators> &o
         }
         else
             instrl.push_back(Instruction(InstrCode::INSTR_OP_CALL));
-        instrl.push_back(Instruction(InstrCode::INSTR_POP_ARGS));
         need_value = false;
         return i + 1;
     }

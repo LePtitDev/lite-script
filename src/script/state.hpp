@@ -52,8 +52,11 @@ namespace LiteScript {
         // The global namespace
         Variable nsp_global;
 
-        // The LIFO of arguments
-        std::vector<std::vector<Variable>> args;
+        // The LIFO of arguments temporary
+        std::vector<std::vector<Variable>> args_tmp;
+
+        // The LIFO of arguments effective
+        std::vector<std::vector<Variable>> args_def;
 
         // The LIFO of this
         std::vector<LiteScript::Nullable<LiteScript::Variable>> ths;
@@ -178,6 +181,13 @@ namespace LiteScript {
 
 
         /**
+         * Define an effective list of arguments
+         *
+         * @param args List of arguments
+         */
+        void DefineArgs(const std::vector<Variable>& args);
+
+        /**
          * Return the count of args in the top of LIFO
          */
         unsigned int GetArgsCount() const;
@@ -188,6 +198,14 @@ namespace LiteScript {
          * @param i The index of the argument
          */
         Variable GetArg(unsigned int i) const;
+
+        /**
+         * Set a temporary argument in the top of LIFO
+         *
+         * @param i The index of the argument
+         * @param v Variable to assign
+         */
+        void SetArg(unsigned int i, const Variable& v);
 
         /**
          * Get the current this
