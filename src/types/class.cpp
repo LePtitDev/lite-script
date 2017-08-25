@@ -87,8 +87,9 @@ std::string LiteScript::_Type_CLASS::ToString(const Variable &object) const {
     return ss.str();
 }
 
-void LiteScript::_Type_CLASS::GarbageCollector(const Variable &object, void (Memory::*caller)(unsigned int)) const {
-    (object->memory.*caller)(object->ID);
+void LiteScript::_Type_CLASS::GarbageCollector(const Variable &object, bool (Memory::*caller)(unsigned int)) const {
+    if ((object->memory.*caller)(object->ID))
+        return;
     const Class& C = object->GetData<Class>();
     const std::vector<LiteScript::Variable>& inherits = C.GetInherits();
     for (unsigned int i = 0, sz = inherits.size(); i < sz; i++)

@@ -609,6 +609,8 @@ int LiteScript::Syntax::ReadClassOperator(const char *text, std::vector<Instruct
         return -i;
     }
 
+    instrl.push_back(Instruction(InstrCode::INSTR_JUMP_TO));
+    int call_pos = instrl.size();
     i += (int)tmp.ui;
     i += ReadWhitespace(text + i);
     if ((tmp.i = ReadCallbackArguments(text + i, instrl, errorType)) <= 0) {
@@ -630,6 +632,8 @@ int LiteScript::Syntax::ReadClassOperator(const char *text, std::vector<Instruct
         }
     }
     i += tmp.i;
+    instrl[call_pos - 1] = Instruction(InstrCode::INSTR_JUMP_TO, (int)instrl.size());
+    instrl.push_back(Instruction(InstrCode::INSTR_VALUE_CALLBACK, (int)call_pos));
     instrl.push_back(Instruction(InstrCode::INSTR_CLASS_PUSH_OPERATOR, (int)op));
     return i;
 }

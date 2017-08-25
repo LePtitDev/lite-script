@@ -92,8 +92,9 @@ void LiteScript::Memory::GarbageCollector(int scount, const State ** sarray) {
     }
 }
 
-void LiteScript::Memory::ProtectVariable(unsigned int i) {
+bool LiteScript::Memory::ProtectVariable(unsigned int i) {
     unsigned int block = i >> 16;
     if (this->arr[block] != nullptr)
-        ((LiteScript::_BasicMemory_1 *)(this->arr[block]))->FlagsProtect(i & 0xffff);
+        return ((LiteScript::_BasicMemory_1 *)(this->arr[block]))->FlagsProtect(i & 0xffff);
+    return false;
 }

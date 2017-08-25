@@ -169,7 +169,7 @@ LiteScript::Variable::operator std::string() const {
     return this->obj.GetType().ToString(*this);
 }
 
-void LiteScript::Variable::GarbageCollector(void (Memory::*caller)(unsigned int)) {
+void LiteScript::Variable::GarbageCollector(bool (Memory::*caller)(unsigned int)) const {
     this->obj.GetType().GarbageCollector(*this, caller);
 }
 

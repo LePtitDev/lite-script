@@ -50,17 +50,24 @@ void LiteScript::_Type_CLASS_OBJECT::ODestroy(Object &object) const {
 }
 
 LiteScript::Variable LiteScript::_Type_CLASS_OBJECT::OAssign(Variable &object_target, const Variable &object_src) const {
-    Variable v = object_target->GetData<ClassObject>().ClassBase->GetOperator(Class::OperatorType::OP_TYPE_ASSIGN);
-    if (v->GetType() == Type::CALLBACK) {
-        Callback &call = v->GetData<Callback>();
-        call.This = Nullable<Variable>(object_target);
-        std::vector<Variable> args;
-        args.push_back(Variable(object_src));
-        return call(*(object_target->GetData<ClassObject>().ScriptState), args);
+    if (object_target->GetData<ClassObject>().ClassBase == nullptr) {
+        if (object_src->GetType() == *this)
+            object_target->GetData<ClassObject>() = object_src->GetData<ClassObject>();
+        else
+            return object_target->memory.Create(Type::NIL);
     }
     else {
-        object_src->GetType().AssignObject(*object_target);
-        object_target->GetType().OAssign(object_target, object_src);
+        Variable v = object_target->GetData<ClassObject>().ClassBase->GetOperator(Class::OperatorType::OP_TYPE_ASSIGN);
+        if (v->GetType() == Type::CALLBACK) {
+            Callback &call = v->GetData<Callback>();
+            call.This = Nullable<Variable>(object_target);
+            std::vector<Variable> args;
+            args.push_back(Variable(object_src));
+            return call(*(object_target->GetData<ClassObject>().ScriptState), args);
+        } else {
+            object_src->GetType().AssignObject(*object_target);
+            object_target->GetType().OAssign(object_target, object_src);
+        }
     }
     return object_src;
 }
@@ -507,8 +514,9 @@ LiteScript::Variable LiteScript::_Type_CLASS_OBJECT::OCall(Variable& object, Sta
     }
 }
 
-void LiteScript::_Type_CLASS_OBJECT::GarbageCollector(const Variable &object, void (Memory::*caller)(unsigned int)) const {
-    (object->memory.*caller)(object->ID);
+void LiteScript::_Type_CLASS_OBJECT::GarbageCollector(const Variable &object, bool (Memory::*caller)(unsigned int)) const {
+    if ((object->memory.*caller)(object->ID))
+        return;
     const ClassObject& co = object->GetData<ClassObject>();
     for (unsigned int i = 0, sz = co.GetMemberCount(); i < sz; i++)
         co.GetMemberVariable(i).GarbageCollector(caller);

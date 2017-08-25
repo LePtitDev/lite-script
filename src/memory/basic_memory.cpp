@@ -63,8 +63,11 @@ void LiteScript::_BasicMemory_0::FlagsInit() {
     this->flags.fill(false);
 }
 
-void LiteScript::_BasicMemory_0::FlagsProtect(unsigned int i) {
+bool LiteScript::_BasicMemory_0::FlagsProtect(unsigned int i) {
+    if (this->flags[i] == true)
+        return true;
     this->flags[i] = true;
+    return false;
 }
 
 void LiteScript::_BasicMemory_0::FlagsErase() {
@@ -138,10 +141,11 @@ void LiteScript::_BasicMemory_1::FlagsInit() {
     }
 }
 
-void LiteScript::_BasicMemory_1::FlagsProtect(unsigned int i) {
+bool LiteScript::_BasicMemory_1::FlagsProtect(unsigned int i) {
     unsigned int block = i >> 8;
     if (this->arr[block] != nullptr)
-        this->arr[block]->FlagsProtect(i & 0xff);
+        return this->arr[block]->FlagsProtect(i & 0xff);
+    return false;
 }
 
 void LiteScript::_BasicMemory_1::FlagsErase() {

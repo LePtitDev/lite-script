@@ -132,8 +132,9 @@ namespace LiteScript {
          * Protect an object of the erasing
          *
          * @param i The index of the object
+         * @return true if already protected
          */
-        void FlagsProtect(unsigned int i);
+        bool FlagsProtect(unsigned int i);
 
         /**
          * Apply the garbage collector
@@ -231,8 +232,9 @@ namespace LiteScript {
          * Protect an object of the erasing
          *
          * @param i The index of the object
+         * @return true if already protected
          */
-        void FlagsProtect(unsigned int i);
+        bool FlagsProtect(unsigned int i);
 
         /**
          * Apply the garbage collector

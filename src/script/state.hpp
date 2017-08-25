@@ -200,14 +200,6 @@ namespace LiteScript {
         Variable GetArg(unsigned int i) const;
 
         /**
-         * Set a temporary argument in the top of LIFO
-         *
-         * @param i The index of the argument
-         * @param v Variable to assign
-         */
-        void SetArg(unsigned int i, const Variable& v);
-
-        /**
          * Get the current this
          */
         Variable GetThis();
@@ -248,7 +240,7 @@ namespace LiteScript {
          *
          * @param caller The calling function for referring
          */
-        void GarbageCollector(void (Memory::*caller)(unsigned int)) const;
+        void GarbageCollector(bool (Memory::*caller)(unsigned int)) const;
 
     };
 

@@ -536,7 +536,7 @@ namespace LiteScript {
          * @param object The object to refer
          * @param caller The calling function for referring
          */
-        virtual void GarbageCollector(const Variable& object, void (Memory::*caller)(unsigned int)) const;
+        virtual void GarbageCollector(const Variable& object, bool (Memory::*caller)(unsigned int)) const;
 
     };
 

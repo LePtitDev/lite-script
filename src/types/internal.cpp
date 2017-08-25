@@ -504,11 +504,14 @@ bool LiteScript::Callback::operator!=(const Callback &c) const {
 }
 
 LiteScript::Variable LiteScript::Callback::operator()(State& state, std::vector<Variable> &args) {
+    ClassObject * co = nullptr;
+    if (!this->This.isNull && (*this->This)->GetType() == Type::CLASS_OBJECT) {
+        co = &(*this->This)->GetData<ClassObject>();
+    }
     state.ExecuteSingle(Instruction(InstrCode::INSTR_PUSH_NSP));
     if (!this->This.isNull)
         state.SetThis(*this->This);
     if (this->call_ptr == nullptr) {
-        Nullable<Variable> last_nsp;
         Namer& namer = state.GetNamer();
         namer = *this->nsp;
         namer.Push(state.memory.Create(Type::NAMESPACE));
@@ -719,7 +722,7 @@ LiteScript::Variable LiteScript::Class::GetOperator(unsigned int op) const {
 LiteScript::Variable LiteScript::Class::CreateElement(State& state, std::vector<Variable>& args) {
     Variable v = this->memory.Create(Type::CLASS_OBJECT);
     ClassObject& co = v->GetData<ClassObject>();
-    co.ClassBase = Nullable<Class>(*this);
+    co.ClassBase = this;
     for (unsigned int i = 0, j = 0, sz = this->us_members.size(); i < sz; i++) {
         if (this->us_members[i].second->GetType() != Type::CALLBACK) {
             co.AddMember(this->us_members[i].first.c_str(), this->memory.Create(Type::NIL));
@@ -731,7 +734,7 @@ LiteScript::Variable LiteScript::Class::CreateElement(State& state, std::vector<
         this->us_members[this->constructor_index].second->GetData<Callback>().This = Nullable<Variable>(v);
         this->us_members[this->constructor_index].second(state, args);
     }
-    co.ScriptState = state;
+    co.ScriptState = &state;
     return v;
 }
 
@@ -829,6 +832,15 @@ LiteScript::Variable LiteScript::ClassObject::GetMember(const char *name) {
             return Variable(this->members[i].second);
     }
     return this->ClassBase->GetUnstaticMember(name);
+}
+
+LiteScript::ClassObject& LiteScript::ClassObject::operator=(const ClassObject &obj) {
+    this->members.clear();
+    for (unsigned int i = 0, sz = this->members.size(); i < sz; i++)
+        this->members.push_back(obj.members[i]);
+    this->ClassBase = obj.ClassBase;
+    this->ScriptState = obj.ScriptState;
+    return *this;
 }
 
 /*****************************/

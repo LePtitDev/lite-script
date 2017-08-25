@@ -125,8 +125,9 @@ namespace LiteScript {
          * Protect a variable
          *
          * @param i The id of the variable
+         * @return true if already protected
          */
-        void ProtectVariable(unsigned int i);
+        bool ProtectVariable(unsigned int i);
 
     };
 

@@ -99,3 +99,13 @@ std::string LiteScript::_Type_CALLBACK::ToString(const Variable &object) const {
         ss << "f(I=" << C.I << ",L=" << C.L << ")";
     return ss.str();
 }
+
+void LiteScript::_Type_CALLBACK::GarbageCollector(const Variable &object, bool (Memory::*caller)(unsigned int)) const {
+    if ((object->memory.*caller)(object->ID))
+        return;
+    const Callback& c = object->GetData<Callback>();
+    if (!c.This.isNull)
+        c.This->GarbageCollector(caller);
+    if (!c.nsp.isNull)
+        c.nsp->GarbageCollector(caller);
+}

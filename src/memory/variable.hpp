@@ -383,7 +383,7 @@ namespace LiteScript {
          *
          * @param caller The calling function for referring
          */
-        void GarbageCollector(void (Memory::*caller)(unsigned int));
+        void GarbageCollector(bool (Memory::*caller)(unsigned int)) const;
 
     };
 

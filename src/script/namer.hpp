@@ -102,7 +102,7 @@ namespace LiteScript {
          *
          * @param caller The calling function for referring
          */
-        void GarbageCollector(void (Memory::*caller)(unsigned int)) const;
+        void GarbageCollector(bool (Memory::*caller)(unsigned int)) const;
 
         // The assign operator overloading
         Namer& operator=(const Namer& n);

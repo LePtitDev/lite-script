@@ -793,9 +793,6 @@ namespace LiteScript {
         // The internal callback
         Variable (* call_ptr)(State&, std::vector<Variable>&);
 
-        // The callback namespace
-        Nullable<Namer> nsp;
-
     public:
 
         // The main memory
@@ -803,6 +800,9 @@ namespace LiteScript {
 
         // The current this
         Nullable<Variable> This;
+
+        // The callback namespace
+        Nullable<Namer> nsp;
 
         ///////////////////////
         ////// ACCESSORS //////
@@ -1229,10 +1229,10 @@ namespace LiteScript {
     public:
 
         // The base class
-        Nullable<Class> ClassBase;
+        Class * ClassBase;
 
         // The script state
-        Nullable<State> ScriptState;
+        State * ScriptState;
 
         //////////////////////////
         ////// CONSTRUCTORS //////
@@ -1285,6 +1285,9 @@ namespace LiteScript {
          * @param name The name of the member
          */
         Variable GetMember(const char * name);
+
+        // Assign operator
+        ClassObject& operator=(const ClassObject& obj);
 
     };
 

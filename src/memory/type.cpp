@@ -112,4 +112,4 @@ LiteScript::Variable LiteScript::Type::OCall(LiteScript::Variable& obj, State& s
 
 std::string LiteScript::Type::ToString(const LiteScript::Variable&) const { return this->name; }
 
-void LiteScript::Type::GarbageCollector(const Variable &object, void (Memory::*caller)(unsigned int)) const { (object->memory.*caller)(object->ID); }
+void LiteScript::Type::GarbageCollector(const Variable &object, bool (Memory::*caller)(unsigned int)) const { (object->memory.*caller)(object->ID); }

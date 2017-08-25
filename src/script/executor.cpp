@@ -226,12 +226,14 @@ void LiteScript::StateExecutor::I_VALUE_OBJECT(State& state, Instruction& instr)
     if (state.op_lifo.size() == 0 || state.args_tmp.size() == 0)
         return;
     Variable oc(state.op_lifo.back());
+    std::vector<Variable> args, &tmp_args = state.args_tmp.back();
+    for (unsigned int i = 0, sz = tmp_args.size(); i < sz; i++)
+        args.push_back(tmp_args[i]);
+    state.args_tmp.pop_back();
     PopValue(state);
     if (oc->GetType() != Type::CLASS)
         return;
-    std::vector<Variable>& args = state.args_tmp.back();
     state.op_lifo.push_back(oc->GetData<Class>().CreateElement(state, args));
-    state.args_tmp.pop_back();
 }
 void LiteScript::StateExecutor::I_VALUE_ARG(State& state, Instruction& instr) {
     state.line_num++;
