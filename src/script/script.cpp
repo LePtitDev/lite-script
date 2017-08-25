@@ -23,27 +23,27 @@ std::array<const char *, LiteScript::Script::ErrorType::SCRPT_ERROR_NUMBER> Lite
     "No error",
 
     // SCRPT_ERROR_SIMPLEARRAY_END
-    "Closing bracket expected for array",
+    "Closing bracket \"]\" expected for array",
     // SCRPT_ERROR_NAMEDARRAY_COLON
-    "Colon character expected after array member name",
+    "Colon \":\" character expected after array member name",
     // SCRPT_ERROR_NAMEDARRAY_EXPRESSION
     "Expression expected after array member name",
     // SCRPT_ERROR_NAMEDARRAY_END
-    "Closing brace expected for array closing",
+	"Closing brace \"}\" expected for array closing",
 
     // SCRPT_ERROR_CALLBACK_ARGUMENTS
     "Arguments expected for callback definition",
     // SCRPT_ERROR_CALLBACK_ARGUMENT_NAME
     "Variable name expected for arguments",
     // SCRPT_ERROR_CALLBACK_ARGUMENT_END
-    "Closing parenthesis expected for arguments",
+    "Closing parenthesis \")\" expected for arguments",
     // SCRPT_ERROR_CALLBACK_INSTRUCTIONS
     "Instructions expected for callback definition",
 
     // SCRPT_ERROR_CLASS_INHERIT
     "Class to inherit expected for class definition",
     // SCRPT_ERROR_CLASS_BEGIN
-    "Opening brace expected for class definition",
+    "Opening brace \"{\" expected for class definition",
     // SCRPT_ERROR_CLASS_INVALID
     "Invalid member inside class definition",
     // SCRPT_ERROR_CLASS_OPERATOR_NAME
@@ -51,7 +51,7 @@ std::array<const char *, LiteScript::Script::ErrorType::SCRPT_ERROR_NUMBER> Lite
     // SCRPT_ERROR_CLASS_OPERATOR_INVALID
     "Invalid operator name for class definition",
     // SCRPT_ERROR_CLASS_END
-    "Closing brace expected for class definition",
+    "Closing brace \"}\" expected for class definition",
 
     // SCRPT_ERROR_FOR_INITIALISATION
     "Initialisation expected in for control statement",

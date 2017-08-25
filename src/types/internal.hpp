@@ -1359,7 +1359,7 @@ namespace LiteScript {
          * @param name The name of the variable
          * @return The index if exists and -1 otherwise
          */
-        int IndexOf(const char * name) const;;
+        int IndexOf(const char * name) const;
 
         // The access operator
         Variable operator[](const char * name) const;
