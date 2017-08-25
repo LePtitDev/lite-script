@@ -626,12 +626,18 @@ LiteScript::Variable LiteScript::Array::operator[](const char *name) {
 /****** CLASS CLASS ******/
 /*************************/
 
-LiteScript::Class::Class(Memory& memory) : memory(memory), constructor_index(-1) {}
+LiteScript::Class::Class(Memory& memory) : memory(memory), constructor_index(-1) {
+    std::allocator<Nullable<Variable>> allocator;
+    for (unsigned int i = 0; i < (unsigned int)OperatorType::OP_TYPE_NUMBER; i++)
+        allocator.construct(&this->op_members[i]);
+}
 LiteScript::Class::Class(const Class &c) :
     inherit(c.inherit), s_members(c.s_members), us_members(c.us_members), op_members(c.op_members),
     memory(c.memory), constructor_index(c.constructor_index)
 {
-
+    std::allocator<Nullable<Variable>> allocator;
+    for (unsigned int i = 0; i < (unsigned int)OperatorType::OP_TYPE_NUMBER; i++)
+        allocator.construct(&this->op_members[i]);
 }
 
 void LiteScript::Class::Inherit(const Variable &v) {
@@ -803,9 +809,9 @@ bool LiteScript::Class::operator!=(const Class &c) const {
 /****** CLASS CLASSOBJECT ******/
 /*******************************/
 
-LiteScript::ClassObject::ClassObject() {}
+LiteScript::ClassObject::ClassObject() : ClassBase(nullptr), ScriptState(nullptr) {}
 LiteScript::ClassObject::ClassObject(const ClassObject &c) :
-    ClassBase(c.ClassBase), members(c.members)
+    ClassBase(c.ClassBase), ScriptState(c.ScriptState), members(c.members)
 {
 
 }
@@ -836,7 +842,7 @@ LiteScript::Variable LiteScript::ClassObject::GetMember(const char *name) {
 
 LiteScript::ClassObject& LiteScript::ClassObject::operator=(const ClassObject &obj) {
     this->members.clear();
-    for (unsigned int i = 0, sz = this->members.size(); i < sz; i++)
+    for (unsigned int i = 0, sz = obj.members.size(); i < sz; i++)
         this->members.push_back(obj.members[i]);
     this->ClassBase = obj.ClassBase;
     this->ScriptState = obj.ScriptState;
