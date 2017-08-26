@@ -56,7 +56,7 @@ LiteScript::Variable LiteScript::CreateVariable(Memory &memory, Variable (* valu
     return v;
 }
 
-LiteScript::Variable LiteScript::CreateVariable(Memory &memory, int count, Variable *values) {
+LiteScript::Variable LiteScript::CreateVariable(Memory &memory, int count, const Variable *values) {
     Variable v = memory.Create(Type::ARRAY);
     Array& a = v->GetData<Array>();
     for (unsigned int i = 0, sz = (unsigned int)count; i < sz; i++)
@@ -64,7 +64,7 @@ LiteScript::Variable LiteScript::CreateVariable(Memory &memory, int count, Varia
     return v;
 }
 
-LiteScript::Variable LiteScript::CreateVariable(Memory &memory, int count, const char **keys, Variable *values) {
+LiteScript::Variable LiteScript::CreateVariable(Memory &memory, int count, const char **keys, const Variable *values) {
     Variable v = memory.Create(Type::ARRAY);
     Array& a = v->GetData<Array>();
     for (unsigned int i = 0, sz = (unsigned int)count; i < sz; i++)
@@ -78,7 +78,7 @@ LiteScript::Variable LiteScript::CreateVariable(Memory &memory, Class &value) {
     return v;
 }
 
-LiteScript::Variable LiteScript::CreateNamespace(Memory &memory, int count, const char **names, Variable *values) {
+LiteScript::Variable LiteScript::CreateNamespace(Memory &memory, int count, const char **names, const Variable *values) {
     Variable v = memory.Create(Type::NAMESPACE);
     Namespace& n = v->GetData<Namespace>();
     for (unsigned int i = 0, sz = (unsigned int)count; i < sz; i++)

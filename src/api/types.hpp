@@ -90,7 +90,7 @@ namespace LiteScript {
      * @param count The values count
      * @param values The values array
      */
-    Variable CreateVariable(Memory& memory, int count, Variable * values);
+    Variable CreateVariable(Memory& memory, int count, const Variable * values);
 
     /**
      * Create an array variable (named index)
@@ -100,7 +100,7 @@ namespace LiteScript {
      * @param keys The keys array
      * @param values The values array
      */
-    Variable CreateVariable(Memory& memory, int count, const char * keys[], Variable * values);
+    Variable CreateVariable(Memory& memory, int count, const char * keys[], const Variable * values);
 
     /**
      * Create a class variable
@@ -118,7 +118,7 @@ namespace LiteScript {
      * @param keys The names array
      * @param values The variables array
      */
-    Variable CreateNamespace(Memory& memory, int count, const char * names[], Variable * values);
+    Variable CreateNamespace(Memory& memory, int count, const char * names[], const Variable * values);
 
 }
 

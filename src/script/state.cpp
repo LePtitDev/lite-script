@@ -81,6 +81,10 @@ LiteScript::Variable LiteScript::State::ExecuteSingle(const Instruction &instr) 
         return this->memory.Create(Type::UNDEFINED);
 }
 
+bool LiteScript::State::Finished() const {
+    return (this->instr_index >= this->instr.size() && this->line_num >= this->instr[this->instr_index].size());
+}
+
 void LiteScript::State::AddInstruction(const Instruction &in) {
     if (this->instr.size() == 0)
         this->instr.push_back(std::vector<Instruction>());

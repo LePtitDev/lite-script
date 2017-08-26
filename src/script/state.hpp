@@ -125,6 +125,11 @@ namespace LiteScript {
          */
         Variable ExecuteSingle(const Instruction& instr);
 
+        /**
+         * Indicate if script execution is finished
+         */
+        bool Finished() const;
+
 
 
         /**
