@@ -725,7 +725,7 @@ LiteScript::Variable LiteScript::Class::GetOperator(unsigned int op) const {
         return Variable(*this->op_members[op]);
 }
 
-LiteScript::Variable LiteScript::Class::CreateElement(State& state, std::vector<Variable>& args) {
+LiteScript::Variable LiteScript::Class::CreateElement(State& state, std::vector<Variable>& args, const Variable& self) {
     Variable v = this->memory.Create(Type::CLASS_OBJECT);
     ClassObject& co = v->GetData<ClassObject>();
     co.ClassBase = this;
@@ -741,6 +741,7 @@ LiteScript::Variable LiteScript::Class::CreateElement(State& state, std::vector<
         this->us_members[this->constructor_index].second(state, args);
     }
     co.ScriptState = &state;
+    co.class_base = self;
     return v;
 }
 
@@ -811,7 +812,7 @@ bool LiteScript::Class::operator!=(const Class &c) const {
 
 LiteScript::ClassObject::ClassObject() : ClassBase(nullptr), ScriptState(nullptr) {}
 LiteScript::ClassObject::ClassObject(const ClassObject &c) :
-    ClassBase(c.ClassBase), ScriptState(c.ScriptState), members(c.members)
+    ClassBase(c.ClassBase), class_base(c.class_base), ScriptState(c.ScriptState), members(c.members)
 {
 
 }

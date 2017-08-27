@@ -233,7 +233,7 @@ void LiteScript::StateExecutor::I_VALUE_OBJECT(State& state, Instruction& instr)
     PopValue(state);
     if (oc->GetType() != Type::CLASS)
         return;
-    state.op_lifo.push_back(oc->GetData<Class>().CreateElement(state, args));
+    state.op_lifo.push_back(oc->GetData<Class>().CreateElement(state, args, oc));
 }
 void LiteScript::StateExecutor::I_VALUE_ARG(State& state, Instruction& instr) {
     state.line_num++;

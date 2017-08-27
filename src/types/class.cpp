@@ -32,8 +32,6 @@ LiteScript::Object & LiteScript::_Type_CLASS::AssignObject(Object &obj) {
 }
 
 LiteScript::Variable LiteScript::_Type_CLASS::OAssign(Variable &src, const Variable &dest) const {
-    dest->GetType().AssignObject(*src);
-    src->GetType().OAssign(src, dest);
     return Variable(src);
 }
 

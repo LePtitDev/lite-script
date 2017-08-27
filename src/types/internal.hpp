@@ -1154,8 +1154,9 @@ namespace LiteScript {
          *
          * @param state The script state
          * @param args Constructor arguments
+         * @param self Variable that contain the class
          */
-        Variable CreateElement(State& state, std::vector<Variable>& args);
+        Variable CreateElement(State& state, std::vector<Variable>& args, const Variable& self);
 
         /**
          * Get the class inherits
@@ -1227,6 +1228,9 @@ namespace LiteScript {
         std::vector<std::pair<std::string, Variable>> members;
 
     public:
+
+        // Class base
+        Nullable<Variable> class_base;
 
         // The base class
         Class * ClassBase;
