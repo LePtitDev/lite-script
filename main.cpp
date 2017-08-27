@@ -107,12 +107,13 @@ int main(int argc, char * argv[]) {
         if (script.error != Script::ErrorType::SCRPT_ERROR_NO)
             std::cout << "ERROR(" << (script.line_error + 1) << "," << (script.col_error + 1) << "): " << script.GetError() << std::endl;
         else {
-            std::ofstream file("instr.txt");
-            if (!file.is_open())
+            std::ofstream file_o("instr", std::ios::binary);
+            if (!file_o.is_open())
                 std::cout << "error : open file" << std::endl;
-            else
-                Instruction::Save(file, script.state.GetInstruction(script.state.InstructionIndex));
-            file.close();
+            else {
+                Instruction::SaveBinary(file_o, script.state.GetInstruction(script.state.InstructionIndex));
+            }
+            file_o.close();
             memory.GarbageCollector(state);
         }
     }

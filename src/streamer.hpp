@@ -56,24 +56,8 @@ namespace LiteScript {
 
         ////// STATIC METHODS //////
 
-        template <typename T = unsigned char>
+        template <typename T>
         inline static void Write(std::ostream& stream, T v) { stream << v; }
-        template <char>
-        inline static void Write(std::ostream& stream, char v) { stream << v; }
-        template <unsigned short>
-        inline static void Write(std::ostream& stream, unsigned short v) {
-            stream << (uint8_t)(v & 0xff);
-            stream << (uint8_t)((v >> 8) & 0xff);
-        }
-        template <short>
-        inline static void Write(std::ostream& stream, short v) { Write<unsigned short>(stream, (unsigned short)v); }
-        template <unsigned int>
-        inline static void Write(std::ostream& stream, unsigned int v) {
-            Write(stream, (unsigned short)(v & 0xffff));
-            Write(stream, (unsigned short)((v >> 16) & 0xffff));
-        }
-        template <int>
-        inline static void Write(std::ostream& stream, int v) { Write<unsigned int>(stream, (unsigned int)v); }
 
         ////// NON STATIC METHOD //////
 
@@ -85,6 +69,27 @@ namespace LiteScript {
         }
 
     };
+
+    template <>
+    inline void OStreamer::Write(std::ostream& stream, unsigned char v) { stream << v; }
+    template <>
+    inline void OStreamer::Write(std::ostream& stream, char v) { stream << v; }
+    template <>
+    inline void OStreamer::Write(std::ostream& stream, unsigned short v) {
+        stream << (uint8_t)(v & 0xff);
+        stream << (uint8_t)((v >> 8) & 0xff);
+    }
+    template <>
+    inline void OStreamer::Write(std::ostream& stream, short v) { Write<unsigned short>(stream, (unsigned short)v); }
+    template <>
+    inline void OStreamer::Write(std::ostream& stream, unsigned int v) {
+        Write(stream, (unsigned short)(v & 0xffff));
+        Write(stream, (unsigned short)((v >> 16) & 0xffff));
+    }
+    template <>
+    inline void OStreamer::Write(std::ostream& stream, int v) { Write<unsigned int>(stream, (unsigned int)v); }
+    template <>
+    inline void OStreamer::Write(std::ostream& stream, float v) { Write<unsigned int>(stream, *(unsigned int *)&v); }
 
     // Class to simplify reading on little endian
     class IStreamer {
@@ -122,22 +127,8 @@ namespace LiteScript {
 
         ////// STATIC METHODS //////
 
-        template <typename T = unsigned char>
+        template <typename T>
         inline static T Read(std::istream& stream) { return (T)stream.get(); }
-        template <char>
-        inline static char Read(std::istream& stream) { return (char)stream.get(); }
-        template <unsigned short>
-        inline static unsigned short Read(std::istream& stream) {
-            return (unsigned short)Read<unsigned char>(stream) | ((unsigned short)Read<unsigned char>(stream) << 8);
-        }
-        template <short>
-        inline static short Read(std::istream& stream) { return (short)Read<unsigned short>(stream); }
-        template <unsigned int>
-        inline static unsigned int Read(std::istream& stream) {
-            return (unsigned int)Read<unsigned short>(stream) | ((unsigned int)Read<unsigned short>(stream) << 16);
-        }
-        template <int>
-        inline static int Read(std::istream& stream) { return (int)Read<unsigned int>(stream); }
 
         ////// NON STATIC METHOD //////
 
@@ -149,6 +140,28 @@ namespace LiteScript {
         }
 
     };
+
+    template <>
+    inline unsigned char IStreamer::Read(std::istream& stream) { return (unsigned char)stream.get(); }
+    template <>
+    inline char IStreamer::Read(std::istream& stream) { return (char)stream.get(); }
+    template <>
+    inline unsigned short IStreamer::Read(std::istream& stream) {
+        return (unsigned short)Read<unsigned char>(stream) | ((unsigned short)Read<unsigned char>(stream) << 8);
+    }
+    template <>
+    inline short IStreamer::Read(std::istream& stream) { return (short)Read<unsigned short>(stream); }
+    template <>
+    inline unsigned int IStreamer::Read(std::istream& stream) {
+        return (unsigned int)Read<unsigned short>(stream) | ((unsigned int)Read<unsigned short>(stream) << 16);
+    }
+    template <>
+    inline int IStreamer::Read(std::istream& stream) { return (int)Read<unsigned int>(stream); }
+    template <>
+    inline float IStreamer::Read(std::istream& stream) {
+        unsigned int r = Read<unsigned int>(stream);
+        return *(float *)&r;
+    }
 
 }
 

@@ -357,6 +357,7 @@ std::vector<LiteScript::Instruction> LiteScript::Instruction::Load(std::istream 
 
 void LiteScript::Instruction::SaveBinary(std::ostream &stream, const std::vector<Instruction> &instr) {
     OStreamer streamer(stream);
+    streamer << instr.size();
     for (unsigned int i = 0, sz = instr.size(); i < sz; i++) {
         stream << instr[i].code;
         switch (instr[i].comp_type) {
@@ -367,7 +368,7 @@ void LiteScript::Instruction::SaveBinary(std::ostream &stream, const std::vector
                 streamer << (unsigned char)2 << instr[i].comp_value.v_integer;
                 break;
             case CompType::COMP_TYPE_FLOAT:
-                streamer << (unsigned char)3 << (*(unsigned int *)&instr[i].comp_value.v_float);
+                streamer << (unsigned char)3 << instr[i].comp_value.v_float;
                 break;
             case CompType::COMP_TYPE_STRING:
                 stream << (unsigned char)4 << instr[i].comp_value.v_string;
@@ -382,10 +383,12 @@ std::vector<LiteScript::Instruction> LiteScript::Instruction::LoadBinary(std::is
     IStreamer streamer(stream);
     std::string s_tmp;
     unsigned char c_tmp;
-    while (!stream.eof()) {
+    unsigned int sz;
+    streamer >> sz;
+    for (unsigned int i = 0; i < sz; i++) {
         Instruction instr;
-        stream >> instr.code;
-        stream >> instr.comp_type;
+        streamer >> instr.code;
+        streamer >> instr.comp_type;
         switch (instr.comp_type) {
             case CompType::COMP_TYPE_BOOLEAN:
                 stream >> instr.comp_value.v_boolean;
@@ -394,7 +397,7 @@ std::vector<LiteScript::Instruction> LiteScript::Instruction::LoadBinary(std::is
                 streamer >> instr.comp_value.v_integer;
                 break;
             case CompType::COMP_TYPE_FLOAT:
-                streamer >> (*(unsigned int *)&instr.comp_value.v_float);
+                streamer >> instr.comp_value.v_float;
                 break;
             case CompType::COMP_TYPE_STRING:
                 s_tmp.clear();
