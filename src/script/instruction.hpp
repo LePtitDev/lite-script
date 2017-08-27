@@ -218,6 +218,22 @@ namespace LiteScript {
          */
         static std::vector<Instruction> Load(std::istream& stream);
 
+        /**
+         * Save an instruction in a binary stream (little endian)
+         *
+         * @param stream The stream
+         * @param instr The instruction
+         */
+        static void SaveBinary(std::ostream& stream, const std::vector<Instruction>& instr);
+
+        /**
+         * Load an instruction from a binary stream (little endian)
+         *
+         * @param stream The stream
+         * @return The instruction
+         */
+        static std::vector<Instruction> LoadBinary(std::istream& stream);
+
     };
 
 }

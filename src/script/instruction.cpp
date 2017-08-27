@@ -17,6 +17,8 @@
 #include "instruction.hpp"
 #include "assembly.hpp"
 
+#include "../streamer.hpp"
+
 LiteScript::Instruction::Instruction() {}
 LiteScript::Instruction::Instruction(InstrCode code) :
     code(code), comp_type(CompType::COMP_TYPE_NONE) {}
@@ -351,4 +353,60 @@ std::vector<LiteScript::Instruction> LiteScript::Instruction::Load(std::istream 
     while (!stream.eof())
         code += (char)stream.get();
     return Assembly::GetInstructionList(code.c_str());
+}
+
+void LiteScript::Instruction::SaveBinary(std::ostream &stream, const std::vector<Instruction> &instr) {
+    OStreamer streamer(stream);
+    for (unsigned int i = 0, sz = instr.size(); i < sz; i++) {
+        stream << instr[i].code;
+        switch (instr[i].comp_type) {
+            case CompType::COMP_TYPE_BOOLEAN:
+                streamer << (unsigned char)1 << (unsigned char)instr[i].comp_value.v_boolean;
+                break;
+            case CompType::COMP_TYPE_INTEGER:
+                streamer << (unsigned char)2 << instr[i].comp_value.v_integer;
+                break;
+            case CompType::COMP_TYPE_FLOAT:
+                streamer << (unsigned char)3 << (*(unsigned int *)&instr[i].comp_value.v_float);
+                break;
+            case CompType::COMP_TYPE_STRING:
+                stream << (unsigned char)4 << instr[i].comp_value.v_string;
+            default:
+                stream << (unsigned char)0;
+        }
+    }
+}
+
+std::vector<LiteScript::Instruction> LiteScript::Instruction::LoadBinary(std::istream &stream) {
+    std::vector<Instruction> res;
+    IStreamer streamer(stream);
+    std::string s_tmp;
+    unsigned char c_tmp;
+    while (!stream.eof()) {
+        Instruction instr;
+        stream >> instr.code;
+        stream >> instr.comp_type;
+        switch (instr.comp_type) {
+            case CompType::COMP_TYPE_BOOLEAN:
+                stream >> instr.comp_value.v_boolean;
+                break;
+            case CompType::COMP_TYPE_INTEGER:
+                streamer >> instr.comp_value.v_integer;
+                break;
+            case CompType::COMP_TYPE_FLOAT:
+                streamer >> (*(unsigned int *)&instr.comp_value.v_float);
+                break;
+            case CompType::COMP_TYPE_STRING:
+                s_tmp.clear();
+                while (!stream.eof() && (c_tmp = (unsigned char)stream.get()) != 0)
+                    s_tmp += c_tmp;
+                instr.comp_value.v_string = new char[s_tmp.size() + 1];
+                memcpy(instr.comp_value.v_string, s_tmp.c_str(), s_tmp.size() + 1);
+                break;
+            default:
+                instr.comp_type = 0;
+        }
+        res.push_back(instr);
+    }
+    return res;
 }
