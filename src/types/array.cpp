@@ -17,6 +17,7 @@
 #include "../memory/object.hpp"
 #include "array.hpp"
 #include "internal.hpp"
+#include "../streamer.hpp"
 
 LiteScript::_Type_ARRAY LiteScript::_type_array;
 
@@ -110,6 +111,37 @@ std::string LiteScript::_Type_ARRAY::ToString(const Variable &object) const {
     }
     ss << "}";
     return ss.str();
+}
+
+void LiteScript::_Type_ARRAY::Save(std::ostream &stream, Object &object, bool (Memory::*caller)(std::ostream&, unsigned int)) const {
+    Array& obj = object.GetData<Array>();
+    OStreamer::Write<unsigned int>(stream, obj.UnamedCount());
+    for (unsigned int i = 0, sz = obj.UnamedCount(); i < sz; i++)
+        (object.memory.*caller)(stream, obj.ConstantGet(i)->ID);
+    OStreamer::Write<unsigned int>(stream, obj.UnamedCount());
+    for (unsigned int i = 0, sz = obj.NamedCount(); i < sz; i++) {
+        stream << obj.GetNamedKey(i) << (uint8_t)0;
+        (object.memory.*caller)(stream, obj.GetNamedVariable(i)->ID);
+    }
+}
+
+void LiteScript::_Type_ARRAY::Load(std::istream &stream, Object &object, unsigned int (Memory::*caller)(std::istream&)) const {
+    object.Reassign(Type::ARRAY, sizeof(Array));
+    std::allocator<Array> allocator;
+    allocator.construct(&object.GetData<Array>(), object.memory);
+    Array& obj = object.GetData<Array>();
+    unsigned int sz = IStreamer::Read<unsigned int>(stream);
+    for (unsigned int i = 0; i < sz; i++)
+        obj.Add(i, *object.memory.GetVariable((object.memory.*caller)(stream)));
+    sz = IStreamer::Read<unsigned int>(stream);
+    std::string key;
+    unsigned char c;
+    for (unsigned int i = 0; i < sz; i++) {
+        key.clear();
+        while (!stream.eof() && (c = (unsigned char)stream.get()) != 0)
+            key += c;
+        obj.Add(key.c_str(), *object.memory.GetVariable((object.memory.*caller)(stream)));
+    }
 }
 
 void LiteScript::_Type_ARRAY::GarbageCollector(const Variable &object, bool (Memory::*caller)(unsigned int)) const {

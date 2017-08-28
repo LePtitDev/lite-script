@@ -43,6 +43,15 @@ LiteScript::Variable LiteScript::_BasicMemory_0::Create(Type &type, unsigned int
     return Variable((*this)[index], this->ref_cpt[index]);
 }
 
+LiteScript::Object& LiteScript::_BasicMemory_0::CreateAt(unsigned int id) {
+    unsigned int i = id & 0xff;
+    this->allocator.construct(&((*this)[i]), this->memory, id);
+    this->free[i] = this->first_free;
+    this->first_free = (short)i;
+    this->count++;
+    return (*this)[i];
+}
+
 void LiteScript::_BasicMemory_0::Remove(unsigned int id) {
     if (this->free[id] != -1)
         return;
@@ -108,6 +117,26 @@ LiteScript::Variable LiteScript::_BasicMemory_1::Create(Type &type, unsigned int
     this->count++;
     // On retourne la variable
     return result;
+}
+
+LiteScript::Object& LiteScript::_BasicMemory_1::CreateAt(unsigned int id) {
+    unsigned int block = id >> 8;
+    if (this->arr[block] == nullptr) {
+        this->arr[block] = new LiteScript::_BasicMemory_0(this->memory);
+        this->nfull[block] = this->first_nfull;
+        this->first_nfull = (short)block;
+    }
+    Object& obj = this->arr[block]->CreateAt(id);
+    this->count++;
+    if (this->arr[block]->isFull()) {
+        unsigned int j;
+        for (j = 0; j < LITESCRIPT_MEMORY_1_SIZE && this->nfull[j] != block; j++);
+        if (j == LITESCRIPT_MEMORY_1_SIZE)
+            this->first_nfull = this->nfull[block];
+        else
+            this->nfull[j] = this->nfull[block];
+    }
+    return obj;
 }
 
 void LiteScript::_BasicMemory_1::Remove(unsigned int id) {

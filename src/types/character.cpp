@@ -12,11 +12,14 @@
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
+#include <sstream>
+
 #include "../memory/object.hpp"
 #include "../memory/variable.hpp"
 #include "../memory/memory.hpp"
 #include "character.hpp"
 #include "internal.hpp"
+#include "../streamer.hpp"
 
 LiteScript::_Type_CHARACTER LiteScript::_type_character;
 
@@ -36,6 +39,11 @@ LiteScript::Variable LiteScript::_Type_CHARACTER::Convert(const LiteScript::Vari
     else {
         return obj->memory.Create(Type::NIL);
     }
+}
+
+void LiteScript::_Type_CHARACTER::ODestroy(Object &object) const {
+    std::allocator<Character> allocator;
+    allocator.destroy(&object.GetData<Character>());
 }
 
 LiteScript::Variable LiteScript::_Type_CHARACTER::OAssign(LiteScript::Variable& src, const LiteScript::Variable& dest) const {
@@ -174,4 +182,26 @@ LiteScript::Variable LiteScript::_Type_CHARACTER::OMultiplyAndAssign(LiteScript:
 
 std::string LiteScript::_Type_CHARACTER::ToString(const LiteScript::Variable& obj) const {
     return String(obj->GetData<Character>());
+}
+
+void LiteScript::_Type_CHARACTER::Save(std::ostream &stream, Object &object, bool (Memory::*caller)(std::ostream&, unsigned int)) const {
+    Character& C = object.GetData<Character>();
+    OStreamer::Write<unsigned int>(stream, C.Index);
+    (object.memory.*caller)(stream, (*C.obj_string)->ID);
+}
+
+void LiteScript::_Type_CHARACTER::Load(std::istream &stream, Object &object, unsigned int (Memory::*caller)(std::istream&)) const {
+    unsigned int index = IStreamer::Read<unsigned int>(stream);
+    Variable V = *object.memory.GetVariable((object.memory.*caller)(stream));
+    object.Reassign(_type_character, sizeof(Character));
+    std::allocator<Character> allocator;
+    allocator.construct(&object.GetData<Character>(), V->GetData<String>(), index);
+    object.GetData<Character>().obj_string = V;
+}
+
+void LiteScript::_Type_CHARACTER::GarbageCollector(const Variable &object, bool (Memory::*caller)(unsigned int)) const {
+    (object->memory.*caller)(object->ID);
+    const Character& C = object->GetData<Character>();
+    if (!C.obj_string.isNull)
+        (object->memory.*caller)((*C.obj_string)->ID);
 }

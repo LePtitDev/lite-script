@@ -98,6 +98,25 @@ namespace LiteScript {
         void Declare(const char * name, const Variable& v);
 
         /**
+         * Save the content of the namer in a binary stream
+         *
+         * @param stream The stream
+         * @param namer The namer to save
+         * @param caller Caller to save a variable
+         */
+        static void Save(std::ostream& stream, Namer& namer, bool (Memory::*caller)(std::ostream&, unsigned int));
+
+        /**
+         * Load the content of the namer in a binary stream
+         *
+         * @param stream The stream
+         * @param memory The main memory
+         * @param caller Caller to load a variable
+         * @return The namer saved
+         */
+        static Namer Load(std::istream& stream, Memory& memory, unsigned int (Memory::*caller)(std::istream&));
+
+        /**
          * Refer all variables in the namer for the garbage collector
          *
          * @param caller The calling function for referring

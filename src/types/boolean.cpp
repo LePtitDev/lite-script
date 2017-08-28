@@ -12,6 +12,8 @@
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
+#include <cstdint>
+
 #include "../memory/object.hpp"
 #include "../memory/variable.hpp"
 #include "../memory/memory.hpp"
@@ -107,4 +109,13 @@ LiteScript::Variable LiteScript::_Type_BOOLEAN::OLogicalOr(const LiteScript::Var
     }
     res->GetData<bool>() = (obj1->GetData<bool>() || obj2->GetData<bool>());
     return res;
+}
+
+void LiteScript::_Type_BOOLEAN::Save(std::ostream &stream, Object &object, bool (Memory::*caller)(std::ostream&, unsigned int)) const {
+    stream << (uint8_t)object.GetData<bool>();
+}
+
+void LiteScript::_Type_BOOLEAN::Load(std::istream &stream, Object &object, unsigned int (Memory::*caller)(std::istream&)) const {
+    object.Reassign(Type::BOOLEAN, sizeof(bool));
+    object.GetData<bool>() = (bool)stream.get();
 }

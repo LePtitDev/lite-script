@@ -17,6 +17,7 @@
 #include "../memory/memory.hpp"
 #include "number.hpp"
 #include "internal.hpp"
+#include "../streamer.hpp"
 
 LiteScript::_Type_NUMBER LiteScript::_type_number;
 
@@ -341,4 +342,14 @@ LiteScript::Variable LiteScript::_Type_NUMBER::ODivideAndAssign(LiteScript::Vari
     }
     obj1->GetData<Number>() /= obj2->GetData<Number>();
     return obj1;
+}
+
+void LiteScript::_Type_NUMBER::Save(std::ostream &stream, Object &object, bool (Memory::*caller)(std::ostream&, unsigned int)) const {
+    OStreamer streamer(stream);
+    streamer << (float)object.GetData<Number>();
+}
+
+void LiteScript::_Type_NUMBER::Load(std::istream &stream, Object &object, unsigned int (Memory::*caller)(std::istream&)) const {
+    object.Reassign(Type::NUMBER, sizeof(Number));
+    object.GetData<Number>() = Number(IStreamer::Read<float>(stream));
 }

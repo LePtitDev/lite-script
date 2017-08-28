@@ -400,7 +400,7 @@ LiteScript::Variable LiteScript::String::GetMember(LiteScript::Memory& memory, c
 /****** CLASS CHARACTER ******/
 /*****************************/
 
-LiteScript::Character::Character(String& str, unsigned int i) : str(str), i(i) {}
+LiteScript::Character::Character(String& str, unsigned int index) : str(str), i(index), Index(i) {}
 
 LiteScript::Character::operator char32_t() const {
     return this->str[i];
@@ -458,24 +458,40 @@ LiteScript::String& LiteScript::Character::operator*=(unsigned int nb) {
 /****** CLASS CALLBACK ******/
 /****************************/
 
-LiteScript::Callback::Callback(Memory& mem) : memory(mem), I(intrl_idx), L(line_num) {}
+std::vector<LiteScript::Variable (*)(LiteScript::State&, std::vector<LiteScript::Variable>&)> LiteScript::Callback::List;
+
+LiteScript::Callback::Callback(Memory& mem) : memory(mem), I(intrl_idx), L(line_num), CallbackIndex(callIndex) {}
 
 LiteScript::Callback::Callback(const Callback &c) :
     memory(c.memory), intrl_idx(c.intrl_idx), line_num(c.line_num), call_ptr(c.call_ptr),
-    nsp(Nullable<Namer>(c.nsp)), I(intrl_idx), L(line_num)
+    nsp(Nullable<Namer>(c.nsp)), I(intrl_idx), L(line_num), CallbackIndex(callIndex)
 {
 
 }
 
 LiteScript::Callback::Callback(LiteScript::State &s, unsigned int i, unsigned int l) :
     call_ptr(nullptr), memory(s.memory), intrl_idx(i), line_num(l),
-    nsp(Nullable<Namer>(s.GetNamer())), I(intrl_idx), L(line_num)
+    nsp(Nullable<Namer>(s.GetNamer())), I(intrl_idx), L(line_num), CallbackIndex(callIndex)
+{
+
+}
+
+LiteScript::Callback::Callback(LiteScript::Memory &mem, unsigned int i, unsigned int l) :
+        call_ptr(nullptr), memory(mem), intrl_idx(i), line_num(l),
+        I(intrl_idx), L(line_num), CallbackIndex(callIndex)
 {
 
 }
 
 LiteScript::Callback::Callback(Memory& mem, Variable (* cptr)(State &, std::vector<Variable>&)) :
-    memory(mem), call_ptr(cptr), I(intrl_idx), L(line_num)
+    memory(mem), call_ptr(cptr), I(intrl_idx), L(line_num), CallbackIndex(callIndex)
+{
+    this->callIndex = Callback::List.size();
+    Callback::List.push_back(this->call_ptr);
+}
+
+LiteScript::Callback::Callback(Memory &mem, unsigned int idx) :
+    memory(mem), call_ptr(Callback::List[idx]), I(intrl_idx), L(line_num), callIndex(idx), CallbackIndex(callIndex)
 {
 
 }
@@ -488,6 +504,7 @@ LiteScript::Callback & LiteScript::Callback::operator=(const Callback &c) {
     this->intrl_idx = c.intrl_idx;
     this->line_num = c.line_num;
     this->call_ptr = c.call_ptr;
+    this->callIndex = c.callIndex;
     this->nsp = c.nsp;
     return *this;
 }
@@ -504,10 +521,6 @@ bool LiteScript::Callback::operator!=(const Callback &c) const {
 }
 
 LiteScript::Variable LiteScript::Callback::operator()(State& state, std::vector<Variable> &args) {
-    ClassObject * co = nullptr;
-    if (!this->This.isNull && (*this->This)->GetType() == Type::CLASS_OBJECT) {
-        co = &(*this->This)->GetData<ClassObject>();
-    }
     state.ExecuteSingle(Instruction(InstrCode::INSTR_PUSH_NSP));
     if (!this->This.isNull)
         state.SetThis(*this->This);
@@ -537,6 +550,22 @@ LiteScript::Array::Array(const Array &o) :
     memory(o.memory), named(o.named), unamed(o.unamed)
 {
 
+}
+
+void LiteScript::Array::Add(unsigned int idx, const Variable &v) {
+    while (this->unamed.size() <= idx)
+        this->unamed.push_back(this->memory.Create(Type::UNDEFINED));
+    this->unamed.emplace(this->unamed.begin() + idx, v);
+}
+
+void LiteScript::Array::Add(const char *idx, const Variable &v) {
+    for (unsigned int i = 0, sz = this->named.size(); i < sz; i++) {
+        if (this->named[i].first == idx) {
+            this->named.emplace(this->named.begin() + i, std::pair<std::string, Variable>({std::string(idx), v}));
+            return;
+        }
+    }
+    this->named.push_back({ std::string(idx), v });
 }
 
 unsigned int LiteScript::Array::NamedCount() const {
@@ -723,6 +752,11 @@ LiteScript::Variable LiteScript::Class::GetOperator(unsigned int op) const {
         return this->memory.Create(Type::UNDEFINED);
     else
         return Variable(*this->op_members[op]);
+}
+
+const std::array<LiteScript::Nullable<LiteScript::Variable>, LiteScript::Class::OperatorType::OP_TYPE_NUMBER>&
+LiteScript::Class::GetOperators() const {
+    return this->op_members;
 }
 
 LiteScript::Variable LiteScript::Class::CreateElement(State& state, std::vector<Variable>& args, const Variable& self) {

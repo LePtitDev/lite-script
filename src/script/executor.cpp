@@ -17,6 +17,8 @@
 #include "../types/internal.hpp"
 
 void LiteScript::StateExecutor::Execute(State &state, Instruction &instr) {
+    if (state.op_lifo.size() > 0 && state.op_lifo.back()->GetType() == Type::CLASS_OBJECT)
+        state.op_lifo.back()->GetData<ClassObject>().ScriptState = &state;
     StateExecutor::ARRAY[instr.code](state, instr);
 }
 

@@ -17,6 +17,7 @@
 #include "memory.hpp"
 #include "basic_memory.hpp"
 #include "../script/state.hpp"
+#include "../streamer.hpp"
 
 LiteScript::Memory::Memory() :
     first_nfull(0), count(0), Count(count)
@@ -97,4 +98,48 @@ bool LiteScript::Memory::ProtectVariable(unsigned int i) {
     if (this->arr[block] != nullptr)
         return ((LiteScript::_BasicMemory_1 *)(this->arr[block]))->FlagsProtect(i & 0xffff);
     return false;
+}
+
+bool LiteScript::Memory::SaveVariable(std::ostream &stream, unsigned int i) {
+    OStreamer streamer(stream);
+    unsigned int block = i >> 16;
+    if (this->arr[block] != nullptr) {
+        if (((LiteScript::_BasicMemory_1 *) (this->arr[block]))->FlagsProtect(i & 0xffff)) {
+            streamer << (unsigned char)0 << i;
+            return true;
+        }
+        else {
+            Variable v = *this->GetVariable(i);
+            streamer << (unsigned char)1 << v->ID << v->GetType().GetID();
+            v->GetType().Save(stream, *v, Memory::SaveVariable);
+            return false;
+        }
+    }
+    return false;
+}
+
+unsigned int LiteScript::Memory::LoadVariable(std::istream &stream) {
+    if (stream.get() == 0)
+        return IStreamer::Read<unsigned int>(stream);
+    else {
+        unsigned int i = IStreamer::Read<unsigned int>(stream);
+        unsigned int block = i >> 16;
+        if (this->arr[block] != nullptr) {
+            this->arr[block] = (void *)(new LiteScript::_BasicMemory_1(*this));
+            this->nfull[block] = this->first_nfull;
+            this->first_nfull = (short)block;
+        }
+        Object& obj = ((LiteScript::_BasicMemory_1 *)(this->arr[block]))->CreateAt(i);
+        this->count++;
+        if (((LiteScript::_BasicMemory_1 *)(this->arr[block]))->isFull()) {
+            unsigned int j;
+            for (j = 0; j < LITESCRIPT_MEMORY_SIZE && this->nfull[j] != block; j++);
+            if (j == LITESCRIPT_MEMORY_SIZE)
+                this->first_nfull = this->nfull[block];
+            else
+                this->nfull[j] = this->nfull[block];
+        }
+        this->type_list[IStreamer::Read<unsigned int>(stream)].Load(stream, obj, Memory::LoadVariable);
+        return i;
+    }
 }

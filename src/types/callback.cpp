@@ -19,6 +19,7 @@
 #include "../memory/memory.hpp"
 #include "callback.hpp"
 #include "internal.hpp"
+#include "../streamer.hpp"
 
 LiteScript::_Type_CALLBACK LiteScript::_type_callback;
 
@@ -51,6 +52,12 @@ LiteScript::Object & LiteScript::_Type_CALLBACK::AssignObject(Object &object) {
     object.Reassign(*this, sizeof(Callback));
     std::allocator<Callback> allocator;
     allocator.construct(&object.GetData<Callback>(), object.memory);
+    return object;
+}
+
+void LiteScript::_Type_CALLBACK::ODestroy(Object &object) const {
+    std::allocator<Callback> allocator;
+    allocator.destroy(&object.GetData<Callback>());
 }
 
 LiteScript::Variable LiteScript::_Type_CALLBACK::OAssign(Variable &obj1, const Variable &obj2) const {
@@ -98,6 +105,42 @@ std::string LiteScript::_Type_CALLBACK::ToString(const Variable &object) const {
     else
         ss << "f(I=" << C.I << ",L=" << C.L << ")";
     return ss.str();
+}
+
+void LiteScript::_Type_CALLBACK::Save(std::ostream &stream, Object &object, bool (Memory::*caller)(std::ostream&, unsigned int)) const {
+    Callback& C = object.GetData<Callback>();
+    OStreamer streamer(stream);
+    if (C.isInternal())
+        streamer << (unsigned char)0 << C.CallbackIndex;
+    else
+        streamer << (unsigned char)1 << C.I << C.L;
+    if (C.This.isNull)
+        streamer << (unsigned char)0;
+    else {
+        streamer << (unsigned char) 1;
+        (object.memory.*caller)(stream, (*C.This)->ID);
+    }
+    if (C.nsp.isNull)
+        streamer << (unsigned char)0;
+    else {
+        streamer << (unsigned char) 1;
+        Namer::Save(stream, *C.nsp, caller);
+    }
+}
+
+void LiteScript::_Type_CALLBACK::Load(std::istream &stream, Object &object, unsigned int (Memory::*caller)(std::istream&)) const {
+    object.Reassign(Type::CALLBACK, sizeof(Callback));
+    std::allocator<Callback> allocator;
+    allocator.construct(&object.GetData<Callback>(), object.memory);
+    Callback& C = object.GetData<Callback>();
+    if (IStreamer::Read<unsigned char>(stream) == 0)
+        C = Callback(object.memory, IStreamer::Read<unsigned int>(stream));
+    else
+        C = Callback(object.memory, IStreamer::Read<unsigned int>(stream), IStreamer::Read<unsigned int>(stream));
+    if (IStreamer::Read<unsigned char>(stream) == 1)
+        C.This = *object.memory.GetVariable((object.memory.*caller)(stream));
+    if (IStreamer::Read<unsigned char>(stream) == 1)
+        C.nsp = Namer::Load(stream, object.memory, caller);
 }
 
 void LiteScript::_Type_CALLBACK::GarbageCollector(const Variable &object, bool (Memory::*caller)(unsigned int)) const {

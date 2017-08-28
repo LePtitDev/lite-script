@@ -100,6 +100,14 @@ namespace LiteScript {
         Variable Create(Type& type, unsigned int id);
 
         /**
+         * Create an object at a defined position
+         *
+         * @param id The object ID
+         * @return The referenced object
+         */
+        Object& CreateAt(unsigned int id);
+
+        /**
          * Remove an object
          *
          * @param id The ID of the object
@@ -207,6 +215,14 @@ namespace LiteScript {
          * @return The variable that refer to the object
          */
         Variable Create(Type& type, unsigned int id);
+
+        /**
+         * Create an object at a defined position
+         *
+         * @param id The object ID
+         * @return The referenced object
+         */
+        Object& CreateAt(unsigned int id);
 
         /**
          * Remove an object

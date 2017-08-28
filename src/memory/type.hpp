@@ -103,6 +103,11 @@ namespace LiteScript {
         const char * GetName() const;
 
         /**
+         * Return types list
+         */
+        static const std::vector<Type *>& GetTypesList();
+
+        /**
          * Determines whether the types are equal (compare the IDs)
          *
          * @return True if equal and false otherwise
@@ -525,6 +530,28 @@ namespace LiteScript {
          * @return A description string
          */
         virtual std::string ToString(const Variable& object) const;
+
+
+        ////// FILE SAVING //////
+
+
+        /**
+         * Save the content of the object in a binary stream
+         *
+         * @param stream The stream
+         * @param object The object to save
+         * @param caller Caller to save a variable
+         */
+        virtual void Save(std::ostream& stream, Object& object, bool (Memory::*caller)(std::ostream&, unsigned int)) const;
+
+        /**
+         * Load the content of the object in a binary stream
+         *
+         * @param stream The stream
+         * @param object The object to load
+         * @param caller Caller to load a variable
+         */
+        virtual void Load(std::istream& stream, Object& object, unsigned int (Memory::*caller)(std::istream&)) const;
 
 
         ////// GARBAGE COLLECTOR //////

@@ -19,6 +19,7 @@
 #include "../memory/memory.hpp"
 #include "namespace.hpp"
 #include "internal.hpp"
+#include "../streamer.hpp"
 
 LiteScript::_Type_NAMESPACE LiteScript::_type_namespace;
 
@@ -51,6 +52,29 @@ std::string LiteScript::_Type_NAMESPACE::ToString(const Variable &object) const 
     }
     ss << "}";
     return ss.str();
+}
+
+void LiteScript::_Type_NAMESPACE::Save(std::ostream &stream, Object &object, bool (Memory::*caller)(std::ostream&, unsigned int)) const {
+    Namespace& obj = object.GetData<Namespace>();
+    OStreamer::Write<unsigned int>(stream, obj.Count());
+    for (unsigned int i = 0, sz = obj.Count(); i < sz; i++) {
+        stream << obj.GetKey(i) << (uint8_t)0;
+        (object.memory.*caller)(stream, obj.GetVariable(i)->ID);
+    }
+}
+
+void LiteScript::_Type_NAMESPACE::Load(std::istream &stream, Object &object, unsigned int (Memory::*caller)(std::istream&)) const {
+    object.Reassign(Type::NAMESPACE, sizeof(Namespace));
+    Namespace& obj = object.GetData<Namespace>();
+    unsigned int sz = IStreamer::Read<unsigned int>(stream);
+    std::string key;
+    unsigned char c;
+    for (unsigned int i = 0; i < sz; i++) {
+        key.clear();
+        while (!stream.eof() && (c = (unsigned char)stream.get()) != 0)
+            key += c;
+        obj.DefineVariable(key.c_str(), *object.memory.GetVariable((object.memory.*caller)(stream)));
+    }
 }
 
 void LiteScript::_Type_NAMESPACE::GarbageCollector(const Variable &object, bool (Memory::*caller)(unsigned int)) const {

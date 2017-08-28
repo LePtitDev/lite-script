@@ -12,6 +12,7 @@
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
+#include <cstdint>
 #include <sstream>
 
 #include "../memory/object.hpp"
@@ -188,7 +189,10 @@ LiteScript::Variable LiteScript::_Type_STRING::OArray(LiteScript::Variable& obj1
         return obj1->memory.Create(_type_undefined);
     if ((unsigned int)(int)tmp->GetData<Number>() >= obj1->GetData<String>().GetLength())
         return obj1->memory.Create(_type_undefined);
-    return obj1->GetData<String>().GetChar(obj1->memory, (unsigned int)(int)tmp->GetData<Number>());
+    Variable res = obj1->GetData<String>().GetChar(obj1->memory, (unsigned int)(int)tmp->GetData<Number>());
+    if (res->GetType() == _type_character)
+        res->GetData<Character>().obj_string = obj1;
+    return res;
 }
 LiteScript::Variable LiteScript::_Type_STRING::OMember(LiteScript::Variable& obj, const char * name) const {
     Variable result = obj->GetData<String>().GetMember(obj->memory, name);
@@ -201,4 +205,20 @@ std::string LiteScript::_Type_STRING::ToString(const LiteScript::Variable& obj) 
     std::stringstream ss;
     ss << "\"" << ((std::string)(obj->GetData<String>())).c_str() << "\"";
     return ss.str();
+}
+
+void LiteScript::_Type_STRING::Save(std::ostream &stream, Object &object, bool (Memory::*caller)(std::ostream&, unsigned int)) const {
+    std::string str = String::ConvertToUTF8(object.GetData<String>().GetData());
+    stream << str << (uint8_t)0;
+}
+
+void LiteScript::_Type_STRING::Load(std::istream &stream, Object &object, unsigned int (Memory::*caller)(std::istream&)) const {
+    object.Reassign(Type::STRING, sizeof(String));
+    std::allocator<String> allocator;
+    allocator.construct(&object.GetData<String>());
+    std::string str;
+    unsigned char c;
+    while (!stream.eof() && (c = (unsigned char)stream.get()) != 0)
+        str += c;
+    object.GetData<String>() = String(str);
 }

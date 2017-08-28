@@ -49,6 +49,13 @@ namespace LiteScript {
         ////// OPERATIONS //////
 
         /**
+         * Frees allocated memory of an object (called when an object is destroyed)
+         *
+         * @param object The object which will be destroyed
+         */
+        void ODestroy(Object& object) const override;
+
+        /**
          * Assign an object type callback by an other object
          *
          * @param obj1 The callback object
@@ -109,6 +116,24 @@ namespace LiteScript {
          * @return The string
          */
         std::string ToString(const Variable& object) const override;
+
+        /**
+         * Save the content of the object in a binary stream
+         *
+         * @param stream The stream
+         * @param object The object to save
+         * @param caller Caller to save a variable
+         */
+        void Save(std::ostream& stream, Object& object, bool (Memory::*caller)(std::ostream&, unsigned int)) const override;
+
+        /**
+         * Load the content of the object in a binary stream
+         *
+         * @param stream The stream
+         * @param object The object to load
+         * @param caller Caller to load a variable
+         */
+        void Load(std::istream& stream, Object& object, unsigned int (Memory::*caller)(std::istream&)) const override;
 
         /**
          * Refer itself and all variables in the referenced object for the garbage collector

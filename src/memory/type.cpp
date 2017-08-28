@@ -41,10 +41,13 @@ LiteScript::Type& LiteScript::Type::NAMESPACE(LiteScript::_type_namespace);
 
 unsigned int litescript_type_id_iterator = 0;
 
+std::vector<LiteScript::Type *> litescript_type_list;
+
 LiteScript::Type::Type(const char * name) :
     name(name), id(litescript_type_id_iterator++)
 {
     this->name.shrink_to_fit();
+    litescript_type_list.push_back(&(*this));
 }
 
 unsigned int LiteScript::Type::GetID() const {
@@ -53,6 +56,10 @@ unsigned int LiteScript::Type::GetID() const {
 
 const char * LiteScript::Type::GetName() const {
     return this->name.c_str();
+}
+
+const std::vector<LiteScript::Type *>& LiteScript::Type::GetTypesList() {
+    return litescript_type_list;
 }
 
 bool LiteScript::Type::operator==(const Type & t) const {
@@ -111,5 +118,8 @@ LiteScript::Variable LiteScript::Type::OMember(LiteScript::Variable& x, const ch
 LiteScript::Variable LiteScript::Type::OCall(LiteScript::Variable& obj, State& state, std::vector<LiteScript::Variable>&) const { return obj->memory.Create(_type_undefined); }
 
 std::string LiteScript::Type::ToString(const LiteScript::Variable&) const { return this->name; }
+
+void LiteScript::Type::Save(std::ostream &stream, Object &object, bool (Memory::*caller)(std::ostream&, unsigned int)) const {}
+void LiteScript::Type::Load(std::istream &stream, Object &object, unsigned int (Memory::*caller)(std::istream&)) const {}
 
 void LiteScript::Type::GarbageCollector(const Variable &object, bool (Memory::*caller)(unsigned int)) const { (object->memory.*caller)(object->ID); }

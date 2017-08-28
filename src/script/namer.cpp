@@ -16,6 +16,7 @@
 #include "../memory/type.hpp"
 #include "../memory/object.hpp"
 #include "../types/internal.hpp"
+#include "../streamer.hpp"
 
 LiteScript::Namer::Namer(const Variable &global) : global(global), current(Variable(global)) {}
 LiteScript::Namer::Namer(const Namer &n) :
@@ -59,6 +60,23 @@ void LiteScript::Namer::Declare(const char *name, const Variable &v) {
     if (tmp.isNull)
         tmp = this->current;
     (*tmp)->GetData<Namespace>().DefineVariable(name, v);
+}
+
+void LiteScript::Namer::Save(std::ostream &stream, Namer &namer, bool (Memory::*caller)(std::ostream&, unsigned int)) {
+    (namer.global->memory.*caller)(stream, namer.global->ID);
+    (namer.global->memory.*caller)(stream, (*namer.current)->ID);
+    OStreamer::Write<unsigned int>(stream, namer.heap.size());
+    for (unsigned int i = 0, sz = namer.heap.size(); i < sz; i++)
+        (namer.global->memory.*caller)(stream, namer.heap[i]->ID);
+}
+
+LiteScript::Namer LiteScript::Namer::Load(std::istream &stream, Memory& memory, unsigned int (Memory::*caller)(std::istream&)) {
+    Namer res(memory.GetVariable((memory.*caller)(stream)));
+    res.current = memory.GetVariable((memory.*caller)(stream));
+    unsigned int sz = IStreamer::Read<unsigned int>(stream);
+    for (unsigned int i = 0; i < sz; i++)
+        res.heap.push_back(memory.GetVariable((memory.*caller)(stream)));
+    return res;
 }
 
 void LiteScript::Namer::GarbageCollector(bool (Memory::*caller)(unsigned int)) const {

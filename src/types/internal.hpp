@@ -660,6 +660,12 @@ namespace LiteScript {
 
     public:
 
+        // The string variable
+        Nullable<Variable> obj_string;
+
+        // The index of the character in the string
+        const unsigned int& Index;
+
         /////////////////////////
         ////// CONSTRUCTOR //////
         /////////////////////////
@@ -780,6 +786,17 @@ namespace LiteScript {
     // Content of callback
     class Callback {
 
+    public:
+
+        /////////////////////////////
+        //////STATIC ATTRIBUTE //////
+        /////////////////////////////
+
+        // Internal callback list
+        static std::vector<Variable (*)(State&, std::vector<Variable>&)> List;
+
+    private:
+
         ////////////////////////
         ////// ATTRIBUTES //////
         ////////////////////////
@@ -792,6 +809,9 @@ namespace LiteScript {
 
         // The internal callback
         Variable (* call_ptr)(State&, std::vector<Variable>&);
+
+        // The index of the callback in the list
+        unsigned int callIndex;
 
     public:
 
@@ -814,6 +834,9 @@ namespace LiteScript {
         // Public getter on the instruction line number
         const unsigned int& L;
 
+        // The index of the callback in the list
+        const unsigned int& CallbackIndex;
+
         //////////////////////////
         ////// CONSTRUCTORS //////
         //////////////////////////
@@ -835,12 +858,29 @@ namespace LiteScript {
         Callback(State& s, unsigned int i, unsigned int l);
 
         /**
+         * Constructor for script callback
+         *
+         * @param mem The main memory
+         * @param i The instructions list index in the state
+         * @param l The line number of the callback beginning
+         */
+        Callback(Memory& mem, unsigned int i, unsigned int l);
+
+        /**
          * Constructor for internal callback
          *
          * @param mem The main memory
          * @param cptr The internal fonction pointer
          */
         Callback(Memory& mem, Variable (* cptr)(State&, std::vector<Variable>&));
+
+        /**
+         * Constructor for internal callback
+         *
+         * @param mem The main memory
+         * @param idx The index in the internal callback list
+         */
+        Callback(Memory& mem, unsigned int idx);
 
         /**
          * Copy constructor
@@ -907,6 +947,22 @@ namespace LiteScript {
         /////////////////////
         ////// METHODS //////
         /////////////////////
+
+        /**
+         * Add a variable to the indicated index
+         *
+         * @param idx Numeric index
+         * @param v Variable to assign
+         */
+        void Add(unsigned int idx, const Variable& v);
+
+        /**
+         * Add a variable to the indicated index
+         *
+         * @param idx Literal index
+         * @param v Variable to assign
+         */
+        void Add(const char * idx, const Variable& v);
 
         /**
          * Get the count of named members
@@ -1120,6 +1176,11 @@ namespace LiteScript {
          * @return true if success
          */
         void AddOperator(unsigned int op, const Variable& v);
+
+        /**
+         * Get the list of operators
+         */
+        const std::array<Nullable<Variable>, OperatorType::OP_TYPE_NUMBER>& GetOperators() const;
 
         /**
          * Get the static member

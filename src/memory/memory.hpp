@@ -47,6 +47,9 @@ namespace LiteScript {
         // Count of objects in the memory
         unsigned int count;
 
+        // Temporary list of types for loading
+        std::vector<Type> type_list;
+
     public:
 
         //////////////////////
@@ -128,6 +131,23 @@ namespace LiteScript {
          * @return true if already protected
          */
         bool ProtectVariable(unsigned int i);
+
+        /**
+         * Save a variable if not already did
+         *
+         * @param stream The stream to save
+         * @param i The id of the variable
+         * @return true if saved
+         */
+        bool SaveVariable(std::ostream& stream, unsigned int i);
+
+        /**
+         * Load a variable in the stream
+         *
+         * @param stream The stream
+         * @return The id of the object
+         */
+        unsigned int LoadVariable(std::istream& stream);
 
     };
 
