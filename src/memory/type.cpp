@@ -41,13 +41,11 @@ LiteScript::Type& LiteScript::Type::NAMESPACE(LiteScript::_type_namespace);
 
 unsigned int litescript_type_id_iterator = 0;
 
-std::vector<LiteScript::Type *> litescript_type_list;
-
 LiteScript::Type::Type(const char * name) :
     name(name), id(litescript_type_id_iterator++)
 {
     this->name.shrink_to_fit();
-    litescript_type_list.push_back(&(*this));
+    Type::_GetTypesList().push_back(&(*this));
 }
 
 unsigned int LiteScript::Type::GetID() const {
@@ -59,7 +57,12 @@ const char * LiteScript::Type::GetName() const {
 }
 
 const std::vector<LiteScript::Type *>& LiteScript::Type::GetTypesList() {
-    return litescript_type_list;
+    return Type::_GetTypesList();
+}
+
+std::vector<LiteScript::Type *>& LiteScript::Type::_GetTypesList() {
+    static std::vector<Type *> s_vector;
+    return s_vector;
 }
 
 bool LiteScript::Type::operator==(const Type & t) const {

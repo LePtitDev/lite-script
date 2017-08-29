@@ -14,6 +14,7 @@
 
 #include "basic_memory.hpp"
 #include "variable.hpp"
+#include "../streamer.hpp"
 
 ////// BASIC_MEMORY_0 //////
 
@@ -48,6 +49,8 @@ LiteScript::Object& LiteScript::_BasicMemory_0::CreateAt(unsigned int id) {
     this->allocator.construct(&((*this)[i]), this->memory, id);
     this->free[i] = this->first_free;
     this->first_free = (short)i;
+    this->ref_cpt[i] = 0;
+    this->free[i] = -1;
     this->count++;
     return (*this)[i];
 }
@@ -83,6 +86,16 @@ void LiteScript::_BasicMemory_0::FlagsErase() {
     for (unsigned int i = 0, sz = LITESCRIPT_MEMORY_0_SIZE; i < sz; i++) {
         if (this->free[i] == -1 && !this->flags[i])
             this->Remove(i);
+    }
+}
+
+void LiteScript::_BasicMemory_0::Save(std::ostream &stream, bool (Memory::*caller)(std::ostream&, unsigned int)) {
+    OStreamer streamer(stream);
+    for (unsigned int i = 0; i < LITESCRIPT_MEMORY_0_SIZE; i++) {
+        if (this->free[i] == -1 && this->flags[i] == false) {
+            streamer << (unsigned char)1 << i << (*this)[i].GetType().GetID();
+            (*this)[i].GetType().Save(stream, (*this)[i], caller);
+        }
     }
 }
 
@@ -192,5 +205,12 @@ void LiteScript::_BasicMemory_1::FlagsErase() {
             if (nb != this->arr[i]->Count)
                 this->count--;
         }
+    }
+}
+
+void LiteScript::_BasicMemory_1::Save(std::ostream &stream, bool (Memory::*caller)(std::ostream&, unsigned int)) const {
+    for (unsigned int i = 0; i < LITESCRIPT_MEMORY_1_SIZE; i++) {
+        if (this->arr[i] != nullptr)
+            this->arr[i]->Save(stream, caller);
     }
 }

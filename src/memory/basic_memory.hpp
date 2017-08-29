@@ -149,6 +149,14 @@ namespace LiteScript {
          */
         void FlagsErase();
 
+        /**
+         * Save the content of memory
+         *
+         * @param stream The ouput stream
+         * @param caller The caller to save variable
+         */
+        void Save(std::ostream& stream, bool (Memory::*caller)(std::ostream&, unsigned int));
+
     };
 
     // Internal element of memory level 1
@@ -256,6 +264,14 @@ namespace LiteScript {
          * Apply the garbage collector
          */
         void FlagsErase();
+
+        /**
+         * Save the content of memory
+         *
+         * @param stream The ouput stream
+         * @param caller The caller to save variable
+         */
+        void Save(std::ostream& stream, bool (Memory::*caller)(std::ostream&, unsigned int)) const;
 
     };
 

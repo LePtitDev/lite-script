@@ -21,7 +21,7 @@
 
 LiteScript::_Type_ARRAY LiteScript::_type_array;
 
-LiteScript::_Type_ARRAY::_Type_ARRAY() : Type("OBJECT") {}
+LiteScript::_Type_ARRAY::_Type_ARRAY() : Type("ARRAY") {}
 
 LiteScript::Variable LiteScript::_Type_ARRAY::Convert(const Variable &object, const Type &type) const {
     if (type == Type::STRING) {

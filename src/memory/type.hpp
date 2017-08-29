@@ -107,6 +107,15 @@ namespace LiteScript {
          */
         static const std::vector<Type *>& GetTypesList();
 
+    private:
+
+        /**
+         * Return types list
+         */
+        static std::vector<Type *>& _GetTypesList();
+
+    public:
+
         /**
          * Determines whether the types are equal (compare the IDs)
          *

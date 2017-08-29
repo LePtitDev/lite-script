@@ -48,7 +48,7 @@ namespace LiteScript {
         unsigned int count;
 
         // Temporary list of types for loading
-        std::vector<Type> type_list;
+        std::vector<Type *> type_list;
 
     public:
 
@@ -121,6 +121,22 @@ namespace LiteScript {
          * @param sarray The script states array
          */
         void GarbageCollector(int scount, const State ** sarray);
+
+        /**
+         * Save a memory in a binary stream
+         *
+         * @param stream The output stream
+         * @param memory The memory
+         */
+        static void Save(std::ostream& stream, const Memory& memory);
+
+        /**
+         * Load a memory in a binary stream
+         *
+         * @param stream The input stream
+         * @return The memory
+         */
+        static Memory Load(std::istream& stream);
 
     private:
 

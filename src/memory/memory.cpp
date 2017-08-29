@@ -93,6 +93,47 @@ void LiteScript::Memory::GarbageCollector(int scount, const State ** sarray) {
     }
 }
 
+void LiteScript::Memory::Save(std::ostream &stream, const Memory &memory) {
+    for (unsigned int i = 0; i < LITESCRIPT_MEMORY_SIZE; i++) {
+        if (memory.arr[i] != nullptr)
+            ((LiteScript::_BasicMemory_1 *)memory.arr[i])->FlagsInit();
+    }
+    const std::vector<Type *>& types = Type::GetTypesList();
+    OStreamer::Write<unsigned int>(stream, types.size());
+    for (unsigned int i = 0, sz = types.size(); i < sz; i++)
+        stream << types[i]->GetName() << (uint8_t)0;
+    OStreamer::Write<unsigned int>(stream, memory.count);
+    for (unsigned int i = 0; i < LITESCRIPT_MEMORY_SIZE; i++) {
+        if (memory.arr[i] != nullptr)
+            ((LiteScript::_BasicMemory_1 *)memory.arr[i])->Save(stream, memory.SaveVariable);
+    }
+}
+
+LiteScript::Memory LiteScript::Memory::Load(std::istream &stream) {
+    Memory memory;
+    const std::vector<Type *>& types = Type::GetTypesList();
+    unsigned int sz = IStreamer::Read<unsigned int>(stream);
+    std::string str;
+    unsigned char c;
+    for (unsigned int i = 0; i < sz; i++) {
+        str.clear();
+        while ((c = (unsigned char)stream.get()) != 0)
+            str += c;
+        for (unsigned int j = 0, sz_j = types.size(); j < sz_j; j++) {
+            if (str == types[j]->GetName()) {
+                memory.type_list.push_back(types[j]);
+                break;
+            }
+        }
+        if (i == memory.type_list.size())
+            return memory;
+    }
+    sz = IStreamer::Read<unsigned int>(stream);
+    for (; memory.count < sz; memory.count++)
+        memory.LoadVariable(stream);
+    return memory;
+}
+
 bool LiteScript::Memory::ProtectVariable(unsigned int i) {
     unsigned int block = i >> 16;
     if (this->arr[block] != nullptr)
@@ -124,7 +165,7 @@ unsigned int LiteScript::Memory::LoadVariable(std::istream &stream) {
     else {
         unsigned int i = IStreamer::Read<unsigned int>(stream);
         unsigned int block = i >> 16;
-        if (this->arr[block] != nullptr) {
+        if (this->arr[block] == nullptr) {
             this->arr[block] = (void *)(new LiteScript::_BasicMemory_1(*this));
             this->nfull[block] = this->first_nfull;
             this->first_nfull = (short)block;
@@ -139,7 +180,7 @@ unsigned int LiteScript::Memory::LoadVariable(std::istream &stream) {
             else
                 this->nfull[j] = this->nfull[block];
         }
-        this->type_list[IStreamer::Read<unsigned int>(stream)].Load(stream, obj, Memory::LoadVariable);
+        this->type_list[IStreamer::Read<unsigned int>(stream)]->Load(stream, obj, Memory::LoadVariable);
         return i;
     }
 }

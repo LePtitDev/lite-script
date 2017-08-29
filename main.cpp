@@ -93,6 +93,9 @@ int main(int argc, char * argv[]) {
                 std::cout << std::endl;
                 continue;
             }
+            else if (strncmp(cmd, "save", 4) == 0) {
+                break;
+            }
             else if (strcmp(cmd, "exit") == 0)
                 return 0;
             else if (cmd[0] == '\0')
@@ -100,6 +103,14 @@ int main(int argc, char * argv[]) {
             code += cmd;
             code += '\n';
             line_num++;
+        }
+        if (strncmp(cmd, "save", 4) == 0) {
+            std::ofstream file_o("memory.sv", std::ios::binary);
+            if (file_o.is_open()) {
+                Memory::Save(file_o, memory);
+                file_o.close();
+            }
+            continue;
         }
         code.pop_back();
 
