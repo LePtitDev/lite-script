@@ -23,6 +23,22 @@ namespace LiteScript {
     class State;
 
     /**
+     * Add a callback to the callback list
+     *
+     * @param value The callback to add
+     * @return The index of the callback in the list
+     */
+    unsigned int AddCallback(Variable (*value)(State& s, std::vector<Variable>& args));
+
+    /**
+     * Create a callback variable contained in the callback list
+     *
+     * @param memory The main memory
+     * @param id The index of the callback in the list
+     */
+    Variable CreateCallback(Memory& memory, unsigned int id);
+
+    /**
      * Declare a variable in the script state
      *
      * @param state The script state
