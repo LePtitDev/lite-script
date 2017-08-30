@@ -79,6 +79,21 @@ LiteScript::Namer LiteScript::Namer::Load(std::istream &stream, Memory& memory, 
     return res;
 }
 
+void LiteScript::Namer::SaveIDs(std::ostream &stream) const {
+    OStreamer streamer(stream);
+    streamer << (*this->current)->ID;
+    streamer << this->heap.size();
+    for (unsigned int i = 0, sz = this->heap.size(); i < sz; i++)
+        streamer << this->heap[i]->ID;
+}
+
+void LiteScript::Namer::LoadIDs(std::istream &stream) {
+    this->current = this->global->memory.GetVariable(IStreamer::Read<unsigned int>(stream));
+    unsigned int sz = IStreamer::Read<unsigned int>(stream);
+    for (unsigned int i = 0; i < sz; i++)
+        this->heap.push_back(this->global->memory.GetVariable(IStreamer::Read<unsigned int>(stream)));
+}
+
 void LiteScript::Namer::GarbageCollector(bool (Memory::*caller)(unsigned int)) const {
     for (unsigned int i = 0, sz = this->heap.size(); i < sz; i++)
         Variable(this->heap[i]).GarbageCollector(caller);

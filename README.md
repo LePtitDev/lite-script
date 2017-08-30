@@ -16,7 +16,7 @@ The objective is to create an alternative of current script engines and integrat
 * Assembler script language
 * Javascript like object-oriented language
 * Garbage collector *mark and sweep* (**Variable**s contain also a reference counter)
-* Instructions and memory save/load
+* Instructions, memory and state save/load
 
 *Types currently defined :*
 

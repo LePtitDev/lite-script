@@ -117,6 +117,20 @@ namespace LiteScript {
         static Namer Load(std::istream& stream, Memory& memory, unsigned int (Memory::*caller)(std::istream&));
 
         /**
+         * Save namespaces ID
+         *
+         * @param stream The output stream
+         */
+        void SaveIDs(std::ostream& stream) const;
+
+        /**
+         * Load namespaces by ID
+         *
+         * @param stream The input stream
+         */
+        void LoadIDs(std::istream& stream);
+
+        /**
          * Refer all variables in the namer for the garbage collector
          *
          * @param caller The calling function for referring

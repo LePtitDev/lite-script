@@ -247,6 +247,22 @@ namespace LiteScript {
          */
         void GarbageCollector(bool (Memory::*caller)(unsigned int)) const;
 
+        /**
+         * Save the content of a state in a binary stream
+         *
+         * @param stream Output stream
+         * @param state The state to save
+         */
+        static void Save(std::ostream& stream, const State& state);
+
+        /**
+         * Load the content of a state in a binary stream
+         *
+         * @param stream Input stream
+         * @return The state
+         */
+        static State Load(std::istream& stream, Memory& memory);
+
     };
 
 }

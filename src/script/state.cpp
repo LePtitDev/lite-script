@@ -16,6 +16,7 @@
 #include "state.hpp"
 #include "executor.hpp"
 #include "../types/internal.hpp"
+#include "../streamer.hpp"
 
 LiteScript::State::State(Memory &memory) :
     instr_index(0), line_num(0), memory(memory),
@@ -214,4 +215,92 @@ void LiteScript::State::GarbageCollector(bool (Memory::*caller)(unsigned int)) c
         Variable(this->op_lifo[i]).GarbageCollector(caller);
     for (unsigned int i = 0, sz = this->nsp_lifo.size(); i < sz; i++)
         this->nsp_lifo[i].GarbageCollector(caller);
+}
+
+void LiteScript::State::Save(std::ostream &stream, const State &state) {
+    OStreamer streamer(stream);
+    streamer << state.instr_index << state.line_num;
+    streamer << state.nsp_global->ID;
+    streamer << state.args_tmp.size();
+    for (unsigned int i = 0, sz_i = state.args_tmp.size(); i < sz_i; i++) {
+        streamer << state.args_tmp[i].size();
+        for (unsigned int j = 0, sz_j = state.args_tmp[i].size(); j < sz_j; j++)
+            streamer << state.args_tmp[i][j]->ID;
+    }
+    streamer << state.args_def.size();
+    for (unsigned int i = 0, sz_i = state.args_def.size(); i < sz_i; i++) {
+        streamer << state.args_def[i].size();
+        for (unsigned int j = 0, sz_j = state.args_def[i].size(); j < sz_j; j++)
+            streamer << state.args_def[i][j]->ID;
+    }
+    streamer << state.ths.size();
+    for (unsigned int i = 0, sz = state.ths.size(); i < sz; i++) {
+        if (state.ths[i].isNull)
+            streamer << (unsigned char)0;
+        else
+            streamer << (unsigned char)1 << (*state.ths[i])->ID;
+    }
+    streamer << state.rets.size();
+    for (unsigned int i = 0, sz = state.rets.size(); i < sz; i++) {
+        if (state.rets[i].isNull)
+            streamer << (unsigned char)0;
+        else
+            streamer << (unsigned char)1 << (*state.rets[i])->ID;
+    }
+    streamer << state.op_lifo.size();
+    for (unsigned int i = 0, sz = state.op_lifo.size(); i < sz; i++)
+        streamer << state.op_lifo[i]->ID;
+    streamer << state.call_lifo.size();
+    for (unsigned int i = 0, sz = state.call_lifo.size(); i < sz; i++)
+        streamer << state.call_lifo[i][0] << state.call_lifo[i][1];
+    streamer << state.nsp_lifo.size();
+    for (unsigned int i = 0, sz = state.nsp_lifo.size(); i < sz; i++)
+        state.nsp_lifo[i].SaveIDs(stream);
+ }
+
+LiteScript::State LiteScript::State::Load(std::istream &stream, Memory &memory) {
+    State state(memory);
+    state.instr_index = IStreamer::Read<unsigned int>(stream);
+    state.line_num = IStreamer::Read<unsigned int>(stream);
+    std::allocator<Variable> allocator;
+    allocator.destroy(&state.nsp_global);
+    allocator.construct(&state.nsp_global, memory.GetVariable(IStreamer::Read<unsigned int>(stream)));
+    state.args_tmp.clear();
+    for (unsigned int i = 0, sz_i = IStreamer::Read<unsigned int>(stream); i < sz_i; i++) {
+        state.args_tmp.push_back(std::vector<Variable>());
+        for (unsigned int j = 0, sz_j = IStreamer::Read<unsigned int>(stream); j < sz_j; j++)
+            state.args_tmp[i].push_back(memory.GetVariable(IStreamer::Read<unsigned int>(stream)));
+    }
+    state.args_tmp.clear();
+    for (unsigned int i = 0, sz_i = IStreamer::Read<unsigned int>(stream); i < sz_i; i++) {
+        state.args_def.push_back(std::vector<Variable>());
+        for (unsigned int j = 0, sz_j = IStreamer::Read<unsigned int>(stream); j < sz_j; j++)
+            state.args_def[i].push_back(memory.GetVariable(IStreamer::Read<unsigned int>(stream)));
+    }
+    state.ths.clear();
+    for (unsigned int i = 0, sz = IStreamer::Read<unsigned int>(stream); i < sz; i++) {
+        if (stream.get() == 0)
+            state.ths.push_back(Nullable<Variable>());
+        else
+            state.ths.push_back(Nullable<Variable>(memory.GetVariable(IStreamer::Read<unsigned int>(stream))));
+    }
+    state.rets.clear();
+    for (unsigned int i = 0, sz = IStreamer::Read<unsigned int>(stream); i < sz; i++) {
+        if (stream.get() == 0)
+            state.rets.push_back(Nullable<Variable>());
+        else
+            state.rets.push_back(Nullable<Variable>(memory.GetVariable(IStreamer::Read<unsigned int>(stream))));
+    }
+    state.op_lifo.clear();
+    for (unsigned int i = 0, sz = IStreamer::Read<unsigned int>(stream); i < sz; i++)
+        state.op_lifo.push_back(memory.GetVariable(IStreamer::Read<unsigned int>(stream)));
+    state.call_lifo.clear();
+    for (unsigned int i = 0, sz = IStreamer::Read<unsigned int>(stream); i < sz; i++)
+        state.call_lifo.push_back({ IStreamer::Read<unsigned int>(stream), IStreamer::Read<unsigned int>(stream) });
+    state.nsp_lifo.clear();
+    for (unsigned int i = 0, sz = IStreamer::Read<unsigned int>(stream); i < sz; i++) {
+        state.nsp_lifo.push_back(Namer(state.nsp_global));
+        state.nsp_lifo[i].LoadIDs(stream);
+    }
+    return state;
 }
