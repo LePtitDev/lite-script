@@ -408,6 +408,7 @@ int LiteScript::Syntax::ReadClassValue(const char *text, std::vector<Instruction
             }
         }
     }
+    instrl.push_back(Instruction(InstrCode::INSTR_CLASS_CONSTRUCTOR, "constructor"));
     return i + 1;
 }
 
@@ -564,7 +565,7 @@ int LiteScript::Syntax::ReadClassOperator(const char *text, std::vector<Instruct
         op = Class::OperatorType::OP_TYPE_MOD;
     else if (name == "equal")
         op = Class::OperatorType::OP_TYPE_EQU;
-    else if (name == "different")
+    else if (name == "not_equal")
         op = Class::OperatorType::OP_TYPE_ADD;
     else if (name == "greater")
         op = Class::OperatorType::OP_TYPE_GREAT;
