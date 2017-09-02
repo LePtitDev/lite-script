@@ -17,6 +17,8 @@ The objective is to create an alternative of current script engines and integrat
 * Javascript like object-oriented language
 * Garbage collector *mark and sweep* (**Variable**s contain also a reference counter)
 * Instructions, memory and state save/load
+* Simple interface API
+* French documentation
 
 *Types currently defined :*
 
@@ -33,8 +35,7 @@ The objective is to create an alternative of current script engines and integrat
 
 ## In future
 
-* Simple interface API
-* Documentation (coming soon)
+* Documentation in english (coming soon)
 
 ## Possible features
 
