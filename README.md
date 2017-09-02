@@ -37,18 +37,6 @@ The objective is to create an alternative of current script engines and integrat
 
 * Documentation in english (coming soon)
 
-## Possible features
-
-* The type **regex**
-* **State**, **Memory** and **Instruction** saves
-* Name changing
-  * Scrila (SCRIpting LAnguage)
-  * Liscla (LIttle SCript LAnguage)
-  * Devrila (DEVelopper scRIpting LAnguage)
-  * OAS Script/Assembly (Open-And-Shut)
-  * Little
-  * StartScript
-
 ## Example of Javascript like script
 
 This example is the objective for the javascript like object-oriented language.
