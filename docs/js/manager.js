@@ -1,4 +1,6 @@
 $(document).ready(function () {
+	$('.rst-content .document .section').html($(content[Request.version][Request.lang]['index']));
+	
     $('.rst-current-version').click(function () {
         $('.rst-versions').toggleClass('shift-up');
     });

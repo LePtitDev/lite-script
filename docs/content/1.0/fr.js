@@ -40,6 +40,93 @@ content["1.0"]["fr"]["ajouter-des-variables-au-script"] = "" +
 	"<p>Ainsi dans le script, l'appel à la fonction pourra se faire comme suit :</p>\n" +
 	"<pre><code class=\"litescript\">print(\"une-chaine\", 24, true);</code></pre>";
 
+content["1.0"]["fr"]["ajouter-lapi-dans-un-projet"] = "" + 
+	"<h1 id=\"ajouter-lapi-dans-un-projet\">Ajouter l'API dans un projet</h1>\n" +
+	"<p>Cette page détaille comment ajouter l'API dans un projet C++ pour l'utiliser.</p>\n" +
+	"<hr />\n" +
+	"<h2 id=\"télécharger-les-sources\">Télécharger les sources</h2>\n" +
+	"<p>Tout d'abord vous devez téléchargez les sources soit avec le <a href=\"https://github.com/LePtitDev/lite-script/archive/master.zip\">lien direct</a>, soit sur la <a href=\"https://github.com/LePtitDev/lite-script\">page Github</a> du projet.</p>\n" +
+	"<h2 id=\"compiler-les-sources-dans-le-projet\">Compiler les sources dans le projet</h2>\n" +
+	"<p>Ensuite, déplacez tous les fichiers se trouvant dans le dossier &quot;<strong>src</strong>&quot; de l'API téléchargée dans le répertoire de votre projet à l'emplacement souhaité.</p>\n" +
+	"<p>Exemple :</p>\n" +
+	"<pre><code>&lt;votre-projet&gt;/\n" +
+	"  main.cpp\n" +
+	"  include/\n" +
+	"    litescript/\n" +
+	"      &lt;fichiers-sources&gt;\n" +
+	"      ...</code></pre>\n" +
+	"<p>Enfin il vous suffit de compiler tous les fichiers &quot;<strong>.cpp</strong>&quot; de l'API en plus de vos fichiers sources à vous.</p>\n" +
+	"<p>Exemple commande UNIX :</p>\n" +
+	"<pre><code class=\"bash\">g++ main.cpp include/litescript/*/*.cpp -o main</code></pre>\n" +
+	"<h2 id=\"compiler-avec-cmake\">Compiler avec CMake</h2>\n" +
+	"<p>Un fichier CMakeLists.txt est déjà présent dans le dossier &quot;<strong>src</strong>&quot; permettant de faciliter la compilation avec CMake. On part du projet suivant :</p>\n" +
+	"<pre><code>main.cpp\n" +
+	"CMakeLists.txt\n" +
+	"litescript/\n" +
+	"  CMakeLists.txt\n" +
+	"  &lt;fichiers-sources&gt;\n" +
+	"  ...</code></pre>\n" +
+	"<p>Le fichier CMakeLists.txt dans le répertoire &quot;litescript&quot; est déjà présent et contient le code suivant :</p>\n" +
+	"<pre><code class=\"cmake\"># Define source files\n" +
+	"set(SOURCE_FILES\n" +
+	"        litescript.hpp\n" +
+	"        nullable.hpp\n" +
+	"        streamer.hpp\n" +
+	"\n" +
+	"        memory/type.hpp memory/type.cpp\n" +
+	"        memory/object.hpp memory/object.cpp\n" +
+	"\n" +
+	"        types/internal.hpp types/internal.cpp\n" +
+	"        types/undefined.hpp types/undefined.cpp\n" +
+	"        types/null.hpp types/null.cpp\n" +
+	"        types/boolean.hpp types/boolean.cpp\n" +
+	"        types/number.hpp types/number.cpp\n" +
+	"        types/string.hpp types/string.cpp\n" +
+	"        types/character.hpp types/character.cpp\n" +
+	"        types/callback.hpp types/callback.cpp\n" +
+	"        types/array.hpp types/array.cpp\n" +
+	"        types/class.hpp types/class.cpp\n" +
+	"        types/class_object.hpp types/class_object.cpp\n" +
+	"        types/namespace.hpp types/namespace.cpp\n" +
+	"\n" +
+	"        memory/memory.hpp memory/memory.cpp\n" +
+	"        memory/variable.hpp memory/variable.cpp\n" +
+	"        memory/basic_memory.hpp memory/basic_memory.cpp\n" +
+	"\n" +
+	"        script/instruction.hpp script/instruction.cpp\n" +
+	"        script/namer.hpp script/namer.cpp\n" +
+	"        script/state.hpp script/state.cpp\n" +
+	"        script/executor.hpp script/executor.cpp\n" +
+	"        script/assembly.hpp script/assembly.cpp\n" +
+	"        script/syntax.hpp script/syntax.cpp\n" +
+	"        script/script.hpp script/script.cpp\n" +
+	"\n" +
+	"        api/types.hpp api/types.cpp\n" +
+	"        api/script.hpp api/script.cpp)\n" +
+	"\n" +
+	"# Add the library\n" +
+	"add_library(LiteScript ${SOURCE_FILES})\n" +
+	"\n" +
+	"# Define target\n" +
+	"target_include_directories (LiteScript PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})</code></pre>\n" +
+	"<p>Vous devrez créer un autre fichier CMakeLists.txt mais cette fois-ci à la racine du projet comme montré précédemment et y écrire le code suivant :</p>\n" +
+	"<pre><code class=\"cmake\"># Indiquez la version de votre projet\n" +
+	"cmake_minimum_required(VERSION 2.8.4)\n" +
+	"# Indiquez le nom de votre projet\n" +
+	"project(MonProjet)\n" +
+	"\n" +
+	"# Initialisez les flags du compilateur\n" +
+	"set(CMAKE_CXX_FLAGS \"${CMAKE_CXX_FLAGS} -std=c++11\")\n" +
+	"\n" +
+	"# Ajoutez le répertoire contenant les fichiers sources de l'API\n" +
+	"add_subdirectory (litescript)\n" +
+	"\n" +
+	"# Créez l'exécutable\n" +
+	"add_executable (executable main.cpp)\n" +
+	"\n" +
+	"# Ajoutez l'API à l'exécutable\n" +
+	"target_link_libraries (executable LINK_PUBLIC LiteScript)</code></pre>";
+
 content["1.0"]["fr"]["créer-un-type-de-variable"] = "" + 
 	"<h1 id=\"créer-un-type-de-variable\">Créer un type de variable</h1>\n" +
 	"<p>A l'aide des fichiers d'en-têtes inclus par le fichier <code>litescript.hpp</code> il est possible de créer des types supplémentaires de variables au même titre que les types <em>UNDEFINED</em>, <em>NIL</em>, <em>BOOLEAN</em>, etc... Vous pouvez voir la liste des types dans la catégorie <a href=\"#litescript__type\">LiteScript::Type</a>.</p>\n" +
@@ -451,6 +538,7 @@ content["1.0"]["fr"]["index"] = "" +
 	"</ul>\n" +
 	"<h2 id=\"integration-de-lapi\">INTEGRATION DE L'API</h2>\n" +
 	"<ul>\n" +
+	"<li><a href=\"#ajouter-lapi-dans-un-projet\">Ajouter l'API dans un projet</a></li>\n" +
 	"<li><a href=\"#exécuter-un-script\">Exécuter un script</a>\n" +
 	"<ul>\n" +
 	"<li><a href=\"#un-script-simple\">Un script simple</a></li>\n" +
