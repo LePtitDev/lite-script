@@ -496,6 +496,11 @@ content["1.0"]["fr"]["index"] = "" +
 	"langage de script dans leur application. Le langage de script est similaire à Javascript\n" +
 	"avec de l'orienté objet. L'objectif est de créer une alternative aux moteurs de script\n" +
 	"actuels et d'intégrer des fonctionnalités qui n'y sont pas présentes.</p>\n" +
+	"<p><strong>Téléchargements</strong></p>\n" +
+	"<ul>\n" +
+	"<li><a href=\"https://github.com/LePtitDev/lite-script/archive/master.zip\">lien direct</a></li>\n" +
+	"<li><a href=\"https://github.com/LePtitDev/lite-script\">projet Github</a></li>\n" +
+	"</ul>\n" +
 	"<p><strong>Fonctionnalités de l'API</strong></p>\n" +
 	"<ul>\n" +
 	"<li>Lecture de script textuel semblable au Javascript au format UTF-8 (décrit dans cette documentation)</li>\n" +
