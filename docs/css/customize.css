@@ -12,6 +12,10 @@
 	height: 100%;
 }
 
+.wy-nav-content {
+	max-width: none;
+}
+
 .rst-content .document .section td {
 	padding: 0 6px 0 6px;
 }

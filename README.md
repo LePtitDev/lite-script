@@ -73,8 +73,8 @@ class Person : Alive, Human {
     function Say(args...) {
     	Console.WriteLine(this.name + "say : ");
         Console.Write("> ");
-    	foreach (var e in args) {
-        	Console.Write(e + " ");
+    	for (var i = 0; i < args.length; i++) {
+        	Console.Write(args[i] + " ");
         }
         Console.WriteLine();
     }
