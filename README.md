@@ -98,7 +98,3 @@ var Henri = new Game.Person("Henri", 22, Gender.MALE);
 
 print(Anne + Henri);
 ```
-
-## Website
-
-My personnal website : [leptitdev.com](http://leptitdev.com) (french website).
