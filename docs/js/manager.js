@@ -223,6 +223,14 @@ $(document).ready(function () {
             });
             if (e['tfounded'] || e['pfounded'])
                 corresp.push(e);
+			else {
+				node.filter('*').each(function (key, item) {
+					if (item.innerText.search(regex) !== -1) {
+						corresp.push(e);
+						return false;
+					}
+				});
+			}
         });
         corresp.sort(function(a, b) {
             if (a['tfounded']) {
