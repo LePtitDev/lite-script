@@ -33,8 +33,10 @@ content["1.0"]["fr"]["ajouter-des-variables-au-script"] = "" +
 	"    State state(memory);\n" +
 	"    // Création et déclaration de la variable\n" +
 	"    DeclareVariable(state, \"print\", CreateVariable(memory, CallPrint));\n" +
+	"    // Facilite l'interprétation du langage\n" +
+	"    Script script(state);\n" +
 	"    // Exécution du script\n" +
-	"    state.Execute(code);\n" +
+	"    script.Execute(code);\n" +
 	"    return 0;\n" +
 	"}</code></pre>\n" +
 	"<p>Ainsi dans le script, l'appel à la fonction pourra se faire comme suit :</p>\n" +
