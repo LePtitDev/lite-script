@@ -105,7 +105,7 @@ void LiteScript::Memory::Save(std::ostream &stream, const Memory &memory) {
     OStreamer::Write<unsigned int>(stream, memory.count);
     for (unsigned int i = 0; i < LITESCRIPT_MEMORY_SIZE; i++) {
         if (memory.arr[i] != nullptr)
-            ((LiteScript::_BasicMemory_1 *)memory.arr[i])->Save(stream, memory.SaveVariable);
+            ((LiteScript::_BasicMemory_1 *)memory.arr[i])->Save(stream, &Memory::SaveVariable);
     }
 }
 
@@ -152,7 +152,7 @@ bool LiteScript::Memory::SaveVariable(std::ostream &stream, unsigned int i) {
         else {
             Variable v = *this->GetVariable(i);
             streamer << (unsigned char)1 << v->ID << v->GetType().GetID();
-            v->GetType().Save(stream, *v, Memory::SaveVariable);
+            v->GetType().Save(stream, *v, &Memory::SaveVariable);
             return false;
         }
     }
@@ -180,7 +180,7 @@ unsigned int LiteScript::Memory::LoadVariable(std::istream &stream) {
             else
                 this->nfull[j] = this->nfull[block];
         }
-        this->type_list[IStreamer::Read<unsigned int>(stream)]->Load(stream, obj, Memory::LoadVariable);
+        this->type_list[IStreamer::Read<unsigned int>(stream)]->Load(stream, obj, &Memory::LoadVariable);
         return i;
     }
 }
