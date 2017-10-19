@@ -5,6 +5,8 @@ LiteScript is a little script engine designed for developpers who want to includ
 
 The objective is to create an alternative of current script engines and integrating features that aren't present (like a state saving to stop execution and store it in a file, or an execution function instruction by instruction, etc...).
 
+The documentation is available [here](http://www.leptitdev.com/docs/litescript).
+
 ## Currently finished
 
 * class **Object** (contain the variable block memory)
@@ -62,8 +64,6 @@ class Person : Alive, Human {
         this.age = age;
         this.gender = gender;
     }
-    
-    // Destructor ?
     
     // Methods
     function Birthday() {
