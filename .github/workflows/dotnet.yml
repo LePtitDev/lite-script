@@ -138,7 +138,11 @@ jobs:
 
       - name: Test
         if: matrix.test
-        run: dotnet test dotnet/LiteScript.Net.slnx -c Release -p:LiteScriptTestRid=${{ matrix.rid }} --logger "console;verbosity=normal"
+        shell: bash
+        # The environment of MSVC defines "Platform" (x64, arm64), MSBuild would use it as the platform of the solution
+        run: |
+          unset Platform
+          dotnet test dotnet/LiteScript.Net.slnx -c Release -p:LiteScriptTestRid=${{ matrix.rid }} --logger "console;verbosity=normal"
 
       - uses: actions/upload-artifact@v4
         with:
