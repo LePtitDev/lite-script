@@ -1,5 +1,5 @@
 // Read the standard input: a little calculator
-// litescript-pg playground/examples/input.ls
+// litescript-pg playground/examples/input.lsc
 
 print("Enter numbers (an empty line ends):");
 var numbers = [];

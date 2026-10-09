@@ -1,5 +1,5 @@
 // Count the lines of the files of a directory and save the result in JSON
-// litescript-pg playground/examples/files.ls -- docs
+// litescript-pg playground/examples/files.lsc -- docs
 
 var root = Process.args.length > 0 ? Process.args[0] : Path.directory(Process.script);
 var report = { directory: Path.absolute(root), files: [], total: 0 };

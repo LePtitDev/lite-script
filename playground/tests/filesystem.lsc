@@ -45,10 +45,10 @@ assert(!Path.exists(root));
 
 // Paths
 assert(Path.filename("a/b/c.tar.gz") == "c.tar.gz");
-assert(Path.stem("a/b/c.ls") == "c");
-assert(Path.extension("a/b/c.ls") == ".ls");
-assert(Path.directory("a/b/c.ls") == "a/b");
+assert(Path.stem("a/b/c.lsc") == "c");
+assert(Path.extension("a/b/c.lsc") == ".lsc");
+assert(Path.directory("a/b/c.lsc") == "a/b");
 assert(Path.normalize("a/./b/../c") == "a/c");
 assert(Path.absolute("x").endsWith("/x"));
 assert(Path.absolute(Process.script) == Process.script);
-assert(Path.filename(Process.script) == "filesystem.ls");
+assert(Path.filename(Process.script) == "filesystem.lsc");

@@ -5,6 +5,11 @@ playground_sources = files(
   'src/json.cpp',
   'src/main.cpp',
   'src/system.cpp',
+  'src/tools/api.cpp',
+  'src/tools/dap.cpp',
+  'src/tools/jsonvalue.cpp',
+  'src/tools/lsp.cpp',
+  'src/tools/transport.cpp',
 )
 
 playground_args = ['-DPLAYGROUND_VERSION="' + meson.project_version() + '"']
@@ -49,7 +54,7 @@ if get_option('tests')
   # Each script of the tests directory is a test (in an empty temporary directory)
   foreach name : ['console', 'filesystem', 'json', 'system', 'http']
     test('playground-' + name, playground_exe,
-      args: [meson.current_source_dir() / 'tests' / name + '.ls', '--', 'first', 'second'],
+      args: [meson.current_source_dir() / 'tests' / name + '.lsc', '--', 'first', 'second'],
       suite: 'playground',
       timeout: 60,
     )

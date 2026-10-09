@@ -1,5 +1,6 @@
 #include "helpers.hpp"
 #include "modules.hpp"
+#include "tools/tools.hpp"
 
 #include <algorithm>
 #include <cctype>
@@ -35,8 +36,8 @@ namespace {
 Execute LiteScript files with the standard library and the libraries of the
 playground (Console, File, Directory, Path, JSON, Http, Process, Time).
 
-The files can be patterns ("scripts/*.ls", "tests/**/*.ls") or directories
-(every ".ls" file of the directory). Without file, an interactive session starts.
+The files can be patterns ("scripts/*.lsc", "tests/**/*.lsc") or directories
+(every ".lsc" file of the directory). Without file, an interactive session starts.
 
 Options:
   -e, --eval <code>    Execute a code (can be repeated, executed before the files)
@@ -46,6 +47,11 @@ Options:
   -i, --interactive    Start an interactive session after the files
   -h, --help           Display this help
   -v, --version        Display the version
+  --lsp                Run the language server (Language Server Protocol on the
+                       standard input and output, for the editors)
+  --dap                Run the debug adapter (Debug Adapter Protocol on the
+                       standard input and output, for the editors)
+  --disassemble <file> Display the assembly code of a script
 
 The arguments after "--" are given to the scripts in Process.args.
 The exit code is 0 if every file has been executed without error.
@@ -149,7 +155,7 @@ The exit code is 0 if every file has been executed without error.
         if (!HasWildcard(pattern)) {
             if (fs::is_directory(path, ec)) {
                 for (const auto& entry : fs::directory_iterator(path, ec)) {
-                    if (entry.is_regular_file(ec) && entry.path().extension() == ".ls")
+                    if (entry.is_regular_file(ec) && entry.path().extension() == ".lsc")
                         found.push_back(entry.path());
                 }
             }
@@ -350,7 +356,28 @@ int main(int argc, char * argv[]) {
     std::ios::sync_with_stdio(false);
 
     int exit_code = 0;
-    auto options = ParseArguments(GetArguments(argc, argv), exit_code);
+    std::vector<std::string> arguments = GetArguments(argc, argv);
+    // The tools of the editors
+    if (arguments.size() == 2 && arguments[1] == "--lsp")
+        return Tools::RunLanguageServer();
+    if (arguments.size() == 2 && arguments[1] == "--dap")
+        return Tools::RunDebugAdapter();
+    if (arguments.size() == 3 && arguments[1] == "--disassemble") {
+        auto code = ReadFile(ToPath(arguments[2]));
+        if (!code) {
+            std::cerr << "litescript-pg: can't open the file \"" << arguments[2] << "\"" << std::endl;
+            return 2;
+        }
+        Script::Result result = Script::Compile(*code);
+        if (!result) {
+            std::cerr << arguments[2] << ":" << result.line + 1 << ":" << result.column + 1 << ": syntax error: " << result.GetMessage() << std::endl;
+            return 1;
+        }
+        std::cout << Assembly::Disassemble(result.instructions);
+        return 0;
+    }
+
+    auto options = ParseArguments(arguments, exit_code);
     if (!options)
         return exit_code;
 

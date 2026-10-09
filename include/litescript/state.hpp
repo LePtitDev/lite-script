@@ -2,6 +2,7 @@
 #define LITESCRIPT_STATE_HPP
 
 #include <cstddef>
+#include <functional>
 #include <iosfwd>
 #include <string_view>
 #include <vector>
@@ -109,7 +110,30 @@ namespace LiteScript {
         // The maximum number of frames
         std::size_t max_depth = 100000;
 
+        // Called before each instruction of the lists (debuggers)
+        std::function<void(State&)> debug_hook;
+
+        // Called when an error isn't caught, before the stacks are cleared (debuggers)
+        std::function<void(State&, const ScriptError&)> error_hook;
+
+        // The number of evaluations in progress (the hooks aren't called during an evaluation)
+        std::size_t evaluating = 0;
+
     public:
+
+        // A function call seen by a debugger
+        struct FrameInfo {
+            // The position: the next instruction for the innermost frame, the instruction of the
+            // call in progress for the others
+            std::size_t list = 0;
+            std::size_t line = 0;
+            // The variables visible in the frame (the last scope that is a namespace contains the local variables)
+            Namer namer;
+            // The value of "this"
+            Variable self;
+            // The arguments
+            std::vector<Variable> args;
+        };
 
         /**
          * Constructor of an empty state
@@ -251,6 +275,40 @@ namespace LiteScript {
          * Return the number of nested frames (calls and scopes)
          */
         std::size_t GetDepth() const noexcept { return this->frames.size(); }
+
+        ////// DEBUGGING //////
+
+        /**
+         * Return the calls in progress, from the global scope to the current function
+         * (the scopes of "push.nsp" are merged in their function, the native functions are omitted)
+         */
+        std::vector<FrameInfo> GetFrames() const;
+
+        /**
+         * Define a function called before each instruction of the lists (empty to remove it)
+         * The function can read the state and call Evaluate, it's not called during an evaluation.
+         */
+        void SetDebugHook(std::function<void(State&)> hook) { this->debug_hook = std::move(hook); }
+
+        /**
+         * Define a function called when an error isn't caught by the script, before the stacks are
+         * cleared (empty to remove it). The function can read the state and call Evaluate.
+         */
+        void SetErrorHook(std::function<void(State&, const ScriptError&)> hook) { this->error_hook = std::move(hook); }
+
+        /**
+         * Execute instructions in the context of the current position (the variables of the current
+         * function are visible) and restore the position and the stacks. The "try" blocks of the
+         * script don't catch the errors of the evaluation and the hooks aren't called.
+         *
+         * @param instructions The instructions, the jumps are relative to their list (for example
+         *        the instructions of a compiled expression without its final "value.pop")
+         * @param max_steps The maximum number of instructions to execute
+         * @return The value on the top of the stack at the end (undefined if there is none)
+         * @throw ScriptError if the evaluation raises an error
+         * @throw std::runtime_error if the evaluation needs more than max_steps instructions
+         */
+        Variable Evaluate(std::vector<Instruction> instructions, std::size_t max_steps = 1000000);
 
         ////// PERSISTENCE //////
 

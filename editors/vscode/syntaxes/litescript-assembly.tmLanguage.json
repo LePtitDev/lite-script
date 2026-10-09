@@ -1,0 +1,53 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "LiteScript Assembly",
+  "scopeName": "source.litescript-assembly",
+  "fileTypes": ["lsa"],
+  "patterns": [
+    {
+      "comment": "value.string: the argument is the rest of the line",
+      "match": "^\\s*(value\\.string)(?:([ \\t])(.*))?$",
+      "captures": {
+        "1": { "name": "support.function.value.litescript-assembly" },
+        "3": {
+          "name": "string.unquoted.litescript-assembly",
+          "patterns": [ { "match": "\\\\.", "name": "constant.character.escape.litescript-assembly" } ]
+        }
+      }
+    },
+    {
+      "match": "^\\s*(jump-to|jump-if|jump-else|return|throw|try\\.begin|try\\.end)\\b(?:[ \\t]+(\\d+))?\\s*$",
+      "captures": {
+        "1": { "name": "keyword.control.litescript-assembly" },
+        "2": { "name": "constant.numeric.line.litescript-assembly" }
+      }
+    },
+    {
+      "match": "^\\s*(define\\.[\\w-]+|namespace)\\b(?:[ \\t]+(.*?))?\\s*$",
+      "captures": {
+        "1": { "name": "storage.type.litescript-assembly" },
+        "2": { "name": "variable.other.litescript-assembly" }
+      }
+    },
+    {
+      "match": "^\\s*(operator\\.[\\w-]+)\\b(?:[ \\t]+(.*?))?\\s*$",
+      "captures": {
+        "1": { "name": "keyword.operator.litescript-assembly" },
+        "2": { "name": "variable.other.property.litescript-assembly" }
+      }
+    },
+    {
+      "match": "^\\s*((?:value|push|pop|array|class)\\.[\\w-]+)\\b(?:[ \\t]+(?:(true|false)|([+-]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:[eE][+-]?\\d+)?)|(.*?)))?\\s*$",
+      "captures": {
+        "1": { "name": "support.function.litescript-assembly" },
+        "2": { "name": "constant.language.boolean.litescript-assembly" },
+        "3": { "name": "constant.numeric.litescript-assembly" },
+        "4": { "name": "variable.other.litescript-assembly" }
+      }
+    },
+    {
+      "match": "^\\s*\\S.*$",
+      "name": "invalid.illegal.unknown-instruction.litescript-assembly"
+    }
+  ]
+}

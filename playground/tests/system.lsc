@@ -2,7 +2,7 @@
 
 assert(Process.args.length == 2, Process.args.length);
 assert(Process.args[0] == "first" && Process.args[1] == "second");
-assert(Path.filename(Process.script) == "system.ls");
+assert(Path.filename(Process.script) == "system.lsc");
 assert(["windows", "linux", "macos", "unknown"].contains(Process.platform));
 
 assert(Process.env("LITESCRIPT_PLAYGROUND_UNDEFINED_VARIABLE") == null);

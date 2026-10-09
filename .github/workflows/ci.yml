@@ -83,4 +83,4 @@ jobs:
         run: |
           ./build/examples/assembly examples/assembly/fibonacci.txt
           ./build/examples/script examples/script/fibonacci.txt
-          ./build/playground/litescript-pg playground/examples/hello.ls -- CI
+          ./build/playground/litescript-pg playground/examples/hello.lsc -- CI

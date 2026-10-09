@@ -73,8 +73,18 @@ TEST_SUITE("documentation") {
         for (const CodeBlock& block : blocks) {
             CAPTURE(block.file);
             CAPTURE(block.line);
+            // The cheatsheets annotate the lines with "; text" (except "value.string" whose
+            // argument is the rest of the line): the annotations are removed
+            std::istringstream lines(block.code);
+            std::string code, line;
+            while (std::getline(lines, line)) {
+                std::size_t note = line.find(" ;");
+                if (note != std::string::npos && !line.starts_with("value.string"))
+                    line.erase(line.find_last_not_of(' ', note) + 1);
+                code += line + '\n';
+            }
             Tests::Engine e;
-            auto result = Assembly::Execute(e.state, block.code);
+            auto result = Assembly::Execute(e.state, code);
             CHECK(result);
             // The Fibonacci example
             if (block.code.find("Fibonacci") != std::string::npos)

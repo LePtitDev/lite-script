@@ -1,0 +1,283 @@
+{
+  "name": "litescript",
+  "displayName": "LiteScript",
+  "description": "LiteScript language support: syntax highlighting, diagnostics, completion, navigation and debugging with litescript-pg",
+  "version": "0.1.0",
+  "publisher": "LePtitDev",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LePtitDev/lite-script"
+  },
+  "engines": {
+    "vscode": "^1.82.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Debuggers",
+    "Snippets"
+  ],
+  "keywords": [
+    "litescript",
+    "lsc",
+    "script"
+  ],
+  "main": "./extension.js",
+  "activationEvents": [
+    "onDebugResolve:litescript",
+    "onDebugDynamicConfigurations:litescript"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "litescript",
+        "aliases": [
+          "LiteScript",
+          "litescript"
+        ],
+        "extensions": [
+          ".lsc"
+        ],
+        "firstLine": "^#!.*\\blitescript-pg\\b",
+        "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "litescript-assembly",
+        "aliases": [
+          "LiteScript Assembly"
+        ],
+        "extensions": [
+          ".lsa"
+        ],
+        "configuration": "./assembly-language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "litescript",
+        "scopeName": "source.litescript",
+        "path": "./syntaxes/litescript.tmLanguage.json"
+      },
+      {
+        "language": "litescript-assembly",
+        "scopeName": "source.litescript-assembly",
+        "path": "./syntaxes/litescript-assembly.tmLanguage.json"
+      },
+      {
+        "scopeName": "markdown.litescript.codeblock",
+        "path": "./syntaxes/litescript-markdown.tmLanguage.json",
+        "injectTo": [
+          "text.html.markdown"
+        ],
+        "embeddedLanguages": {
+          "meta.embedded.block.litescript": "litescript"
+        }
+      }
+    ],
+    "configuration": {
+      "title": "LiteScript",
+      "properties": {
+        "litescript.playgroundPath": {
+          "type": "string",
+          "default": "",
+          "scope": "machine-overridable",
+          "markdownDescription": "Path of the `litescript-pg` executable (it gives the language server and the debugger). Empty: `litescript-pg` is searched in the `PATH`."
+        },
+        "litescript.diagnostics.unknownVariables": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Report the names that aren't declared in the file nor in the libraries of the playground (disable it for scripts that use functions of another application)."
+        },
+        "litescript.trace.server": {
+          "type": "string",
+          "enum": [
+            "off",
+            "messages",
+            "verbose"
+          ],
+          "default": "off",
+          "description": "Trace the messages between VS Code and the language server (in the output panel)."
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "litescript.run",
+        "title": "Run File",
+        "category": "LiteScript",
+        "icon": "$(play)"
+      },
+      {
+        "command": "litescript.debug",
+        "title": "Debug File",
+        "category": "LiteScript",
+        "icon": "$(debug-alt)"
+      },
+      {
+        "command": "litescript.disassemble",
+        "title": "Show Assembly Code",
+        "category": "LiteScript"
+      },
+      {
+        "command": "litescript.restartServer",
+        "title": "Restart Language Server",
+        "category": "LiteScript"
+      }
+    ],
+    "menus": {
+      "editor/title/run": [
+        {
+          "command": "litescript.run",
+          "when": "resourceLangId == litescript",
+          "group": "navigation@1"
+        },
+        {
+          "command": "litescript.debug",
+          "when": "resourceLangId == litescript",
+          "group": "navigation@2"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "litescript.run",
+          "when": "editorLangId == litescript"
+        },
+        {
+          "command": "litescript.debug",
+          "when": "editorLangId == litescript"
+        },
+        {
+          "command": "litescript.disassemble",
+          "when": "editorLangId == litescript"
+        }
+      ]
+    },
+    "breakpoints": [
+      {
+        "language": "litescript"
+      }
+    ],
+    "debuggers": [
+      {
+        "type": "litescript",
+        "label": "LiteScript",
+        "languages": [
+          "litescript"
+        ],
+        "configurationAttributes": {
+          "launch": {
+            "required": [
+              "program"
+            ],
+            "properties": {
+              "program": {
+                "type": "string",
+                "description": "The script to execute.",
+                "default": "${file}"
+              },
+              "args": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "The arguments of the script (Process.args).",
+                "default": []
+              },
+              "cwd": {
+                "type": "string",
+                "description": "The current directory of the script.",
+                "default": "${workspaceFolder}"
+              },
+              "stopOnEntry": {
+                "type": "boolean",
+                "description": "Stop at the first instruction.",
+                "default": false
+              }
+            }
+          }
+        },
+        "initialConfigurations": [
+          {
+            "type": "litescript",
+            "request": "launch",
+            "name": "Debug the current file",
+            "program": "${file}",
+            "cwd": "${workspaceFolder}"
+          }
+        ],
+        "configurationSnippets": [
+          {
+            "label": "LiteScript: Launch",
+            "description": "Debug a LiteScript file with litescript-pg",
+            "body": {
+              "type": "litescript",
+              "request": "launch",
+              "name": "${1:Debug the current file}",
+              "program": "^\"\\${file}\"",
+              "args": [],
+              "cwd": "^\"\\${workspaceFolder}\""
+            }
+          }
+        ]
+      }
+    ],
+    "problemMatchers": [
+      {
+        "name": "litescript",
+        "owner": "litescript",
+        "source": "litescript-pg",
+        "fileLocation": [
+          "autoDetect",
+          "${workspaceFolder}"
+        ],
+        "pattern": {
+          "regexp": "^(.+?):(\\d+):(\\d+): (syntax error|error): (.*)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "message": 5
+        }
+      }
+    ],
+    "taskDefinitions": [
+      {
+        "type": "litescript",
+        "required": [
+          "files"
+        ],
+        "properties": {
+          "files": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Files, patterns (\"tests/**/*.lsc\") or directories given to litescript-pg."
+          },
+          "args": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Arguments of the scripts (after \"--\")."
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Options of litescript-pg (\"--shared\", \"--bail\")."
+          }
+        }
+      }
+    ]
+  },
+  "dependencies": {
+    "vscode-languageclient": "^9.0.1"
+  },
+  "devDependencies": {
+    "@vscode/vsce": "^3.2.1"
+  },
+  "scripts": {
+    "package": "vsce package"
+  }
+}

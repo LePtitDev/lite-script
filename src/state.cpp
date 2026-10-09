@@ -150,6 +150,11 @@ bool LiteScript::State::Step() {
             this->list_index = this->lists.size() - 1;
         return false;
     }
+    if (this->debug_hook && this->evaluating == 0) {
+        this->debug_hook(*this);
+        if (this->list_index >= this->lists.size() || this->line >= this->lists[this->list_index].size())
+            return true;
+    }
     // The instruction stays valid even if the lists are modified during its execution (see AddInstruction)
     const Instruction& instr = this->lists[this->list_index][this->line++];
     this->Run(instr);
@@ -174,6 +179,8 @@ void LiteScript::State::Run(const Instruction& instr) {
         if (this->Catch(error))
             return;
         if (this->handler_floors.empty()) {
+            if (this->error_hook && this->evaluating == 0)
+                this->error_hook(*this, error);
             // The error isn't caught: the current list of the global scope is stopped
             std::size_t root_list = this->list_index;
             for (std::size_t i = 1; i < this->frames.size(); i++) {
@@ -256,6 +263,102 @@ LiteScript::Variable LiteScript::State::Call(const Variable& callee, std::vector
     Variable result = std::move(this->host_result);
     this->host_result.Reset();
     return result ? result : this->memory.CreateUndefined();
+}
+
+////// DEBUGGING //////
+
+std::vector<LiteScript::State::FrameInfo> LiteScript::State::GetFrames() const {
+    std::vector<FrameInfo> res;
+    for (std::size_t i = 0; i < this->frames.size(); i++) {
+        const Frame& frame = this->frames[i];
+        if (frame.kind == FrameKind::Native)
+            continue;
+        if (i > 0 && frame.kind == FrameKind::Scope && !res.empty()) {
+            // A scope belongs to its function: its namer contains the variables of the function
+            res.back().namer = frame.namer;
+            continue;
+        }
+        FrameInfo info;
+        info.namer = frame.namer;
+        info.self = frame.self ? frame.self : this->memory.CreateUndefined();
+        info.args = frame.args;
+        // The position is the return position of the next call, or the current position
+        info.list = this->list_index;
+        info.line = this->line;
+        for (std::size_t j = i + 1; j < this->frames.size(); j++) {
+            if (this->frames[j].kind != FrameKind::Scope) {
+                info.list = this->frames[j].return_list;
+                info.line = this->frames[j].return_line > 0 ? this->frames[j].return_line - 1 : 0;
+                break;
+            }
+        }
+        res.push_back(std::move(info));
+    }
+    return res;
+}
+
+LiteScript::Variable LiteScript::State::Evaluate(std::vector<Instruction> instructions, std::size_t max_steps) {
+    std::size_t depth = this->frames.size();
+    std::size_t saved_list = this->list_index, saved_line = this->line;
+    std::size_t saved_stack = this->stack.size(), saved_args = this->pending_args.size();
+    std::size_t saved_lists = this->lists.size();
+    SourcePosition saved_position = this->executing;
+    // The errors of the evaluation can't be caught by the "try" blocks of the script
+    std::size_t floor = this->handlers.size();
+    this->handler_floors.push_back(floor);
+    this->evaluating++;
+    auto restore = [&]() {
+        this->evaluating--;
+        this->handler_floors.pop_back();
+        if (this->handlers.size() > floor)
+            this->handlers.resize(floor);
+        this->executing = saved_position;
+        this->frames.resize(depth);
+        if (this->stack.size() > saved_stack)
+            this->stack.resize(saved_stack);
+        if (this->pending_args.size() > saved_args)
+            this->pending_args.resize(saved_args);
+        // The list of the evaluation is removed if it's still the last one (functions created
+        // by the evaluation can't be called after it)
+        if (this->lists.size() == saved_lists + 1)
+            this->lists.pop_back();
+        else if (this->lists.size() > saved_lists)
+            this->lists[saved_lists].clear();
+        this->list_index = saved_list;
+        this->line = saved_line;
+    };
+    std::size_t list = this->AddInstructions(std::move(instructions));
+    this->list_index = list;
+    this->line = 0;
+    Variable result;
+    try {
+        std::size_t steps = 0;
+        // The evaluation ends when its list is finished in the frame of the evaluation
+        while (!(this->frames.size() == depth && this->list_index == list && this->line >= this->lists[list].size())) {
+            if (++steps > max_steps)
+                throw std::runtime_error("the evaluation takes too many instructions");
+            if (this->list_index >= this->lists.size() || this->line >= this->lists[this->list_index].size()) {
+                // A function of the evaluation returns at the end of its list
+                if (this->frames.size() > depth) {
+                    this->Return();
+                    continue;
+                }
+                break;
+            }
+            const Instruction& instr = this->lists[this->list_index][this->line++];
+            // "return" would leave the function being debugged
+            if (instr.code == InstrCode::Return && this->frames.size() == depth)
+                throw std::runtime_error("\"return\" can't be evaluated");
+            this->Run(instr);
+        }
+        result =this->stack.size() > saved_stack ? this->stack.back() : this->memory.CreateUndefined();
+    }
+    catch (...) {
+        restore();
+        throw;
+    }
+    restore();
+    return result;
 }
 
 ////// VARIABLES //////

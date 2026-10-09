@@ -12,6 +12,7 @@ test_sources = files(
   'test_serialization.cpp',
   'test_standard.cpp',
   'test_state.cpp',
+  'test_tooling.cpp',
   'test_values.cpp',
 )
 
@@ -21,7 +22,7 @@ tests_exe = executable('litescript_tests',
 )
 
 # One test per suite to get a detailed report from "meson test"
-foreach suite : ['number', 'string', 'memory', 'operations', 'script', 'state', 'assembly', 'serialization', 'errors', 'standard', 'documentation', 'leaks']
+foreach suite : ['number', 'string', 'memory', 'operations', 'script', 'state', 'assembly', 'serialization', 'errors', 'standard', 'documentation', 'tooling', 'leaks']
   test(suite, tests_exe,
     args: ['--test-suite=' + suite],
     env: { 'LITESCRIPT_DOCS': meson.project_source_root() / 'docs' },

@@ -1,0 +1,219 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "LiteScript",
+  "scopeName": "source.litescript",
+  "fileTypes": ["lsc"],
+  "patterns": [
+    { "include": "#shebang" },
+    { "include": "#statements" }
+  ],
+  "repository": {
+    "shebang": {
+      "match": "\\A#!.*$",
+      "name": "comment.line.shebang.litescript"
+    },
+    "statements": {
+      "patterns": [
+        { "include": "#comments" },
+        { "include": "#strings" },
+        { "include": "#numbers" },
+        { "include": "#namespace-declaration" },
+        { "include": "#class-declaration" },
+        { "include": "#operator-declaration" },
+        { "include": "#function-declaration" },
+        { "include": "#variable-declaration" },
+        { "include": "#keywords" },
+        { "include": "#constants" },
+        { "include": "#libraries" },
+        { "include": "#function-call" },
+        { "include": "#member" },
+        { "include": "#operators" },
+        { "include": "#punctuation" },
+        { "include": "#identifier" }
+      ]
+    },
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.block.litescript",
+          "begin": "/\\*",
+          "end": "\\*/",
+          "captures": { "0": { "name": "punctuation.definition.comment.litescript" } }
+        },
+        {
+          "name": "comment.line.double-slash.litescript",
+          "begin": "//",
+          "end": "$",
+          "beginCaptures": { "0": { "name": "punctuation.definition.comment.litescript" } }
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.litescript",
+          "begin": "\"",
+          "end": "\"|$",
+          "beginCaptures": { "0": { "name": "punctuation.definition.string.begin.litescript" } },
+          "endCaptures": { "0": { "name": "punctuation.definition.string.end.litescript" } },
+          "patterns": [ { "include": "#escapes" } ]
+        },
+        {
+          "name": "string.quoted.single.litescript",
+          "begin": "'",
+          "end": "'|$",
+          "beginCaptures": { "0": { "name": "punctuation.definition.string.begin.litescript" } },
+          "endCaptures": { "0": { "name": "punctuation.definition.string.end.litescript" } },
+          "patterns": [ { "include": "#escapes" } ]
+        }
+      ]
+    },
+    "escapes": {
+      "patterns": [
+        { "name": "constant.character.escape.unicode.litescript", "match": "\\\\u(\\{[0-9A-Fa-f]+\\}|[0-9A-Fa-f]{4})" },
+        { "name": "constant.character.escape.litescript", "match": "\\\\." }
+      ]
+    },
+    "numbers": {
+      "name": "constant.numeric.decimal.litescript",
+      "match": "(?<![\\w$.])(?:\\d+(?:\\.\\d+)?|\\.\\d+)(?:[eE][+-]?\\d+)?(?![\\w$])"
+    },
+    "namespace-declaration": {
+      "match": "\\b(namespace)\\s+([A-Za-z_$][\\w$]*(?:\\s*\\.\\s*[A-Za-z_$][\\w$]*)*)",
+      "captures": {
+        "1": { "name": "storage.type.namespace.litescript" },
+        "2": { "name": "entity.name.namespace.litescript" }
+      }
+    },
+    "class-declaration": {
+      "patterns": [
+        {
+          "comment": "class Name : Base1, Base2",
+          "begin": "\\b(class)\\b(?:\\s+([A-Za-z_$][\\w$]*))?",
+          "beginCaptures": {
+            "1": { "name": "storage.type.class.litescript" },
+            "2": { "name": "entity.name.type.class.litescript" }
+          },
+          "end": "(?=\\{)|(?=;)",
+          "patterns": [
+            { "include": "#comments" },
+            { "match": ":", "name": "punctuation.separator.inheritance.litescript" },
+            { "match": ",", "name": "punctuation.separator.comma.litescript" },
+            { "match": "[A-Za-z_$][\\w$]*", "name": "entity.other.inherited-class.litescript" },
+            { "match": "\\.", "name": "punctuation.accessor.litescript" }
+          ]
+        }
+      ]
+    },
+    "operator-declaration": {
+      "match": "\\b(operator)\\s+([A-Za-z_]+)",
+      "captures": {
+        "1": { "name": "storage.type.operator.litescript" },
+        "2": { "name": "entity.name.function.operator.litescript" }
+      }
+    },
+    "function-declaration": {
+      "begin": "\\b(function)\\b(?:\\s+([A-Za-z_$][\\w$]*))?\\s*(\\()",
+      "beginCaptures": {
+        "1": { "name": "storage.type.function.litescript" },
+        "2": { "name": "entity.name.function.litescript" },
+        "3": { "name": "punctuation.definition.parameters.begin.litescript" }
+      },
+      "end": "\\)",
+      "endCaptures": { "0": { "name": "punctuation.definition.parameters.end.litescript" } },
+      "patterns": [
+        { "include": "#comments" },
+        { "match": "\\.\\.\\.", "name": "keyword.operator.rest.litescript" },
+        { "match": ",", "name": "punctuation.separator.parameter.litescript" },
+        { "match": "[A-Za-z_$][\\w$]*", "name": "variable.parameter.litescript" }
+      ]
+    },
+    "variable-declaration": {
+      "comment": "The names after var (the first one, the others are matched as identifiers)",
+      "match": "\\b(var)\\s+([A-Za-z_$][\\w$]*)",
+      "captures": {
+        "1": { "name": "storage.type.var.litescript" },
+        "2": { "name": "variable.other.declaration.litescript" }
+      }
+    },
+    "keywords": {
+      "patterns": [
+        { "name": "keyword.control.conditional.litescript", "match": "\\b(if|else|switch|case|default)\\b" },
+        { "name": "keyword.control.loop.litescript", "match": "\\b(for|while|do|break|continue)\\b" },
+        { "name": "keyword.control.flow.litescript", "match": "\\b(return)\\b" },
+        { "name": "keyword.control.trycatch.litescript", "match": "\\b(try|catch|throw)\\b" },
+        { "name": "keyword.operator.new.litescript", "match": "\\bnew\\b" },
+        { "name": "storage.modifier.litescript", "match": "\\bstatic\\b" },
+        { "name": "storage.type.litescript", "match": "\\b(var|function|class|operator|namespace)\\b" },
+        { "name": "variable.language.this.litescript", "match": "\\bthis\\b" }
+      ]
+    },
+    "constants": {
+      "patterns": [
+        { "name": "constant.language.boolean.litescript", "match": "\\b(true|false)\\b" },
+        { "name": "constant.language.null.litescript", "match": "\\bnull\\b" },
+        { "name": "constant.language.undefined.litescript", "match": "\\bundefined\\b" },
+        { "name": "variable.language.global.litescript", "match": "(?<=namespace\\s)global\\b" }
+      ]
+    },
+    "libraries": {
+      "patterns": [
+        {
+          "name": "support.class.litescript",
+          "match": "\\b(Math|Console|File|Directory|Path|JSON|Http|Process|Time)\\b(?=\\s*\\.)"
+        },
+        {
+          "name": "support.function.litescript",
+          "match": "\\b(print|assert|typeOf|toString|parseNumber|parseInt|isNaN|char)\\b(?=\\s*\\()"
+        }
+      ]
+    },
+    "function-call": {
+      "match": "([A-Za-z_$][\\w$]*)\\s*(?=\\()",
+      "captures": { "1": { "name": "entity.name.function.call.litescript" } }
+    },
+    "member": {
+      "patterns": [
+        {
+          "match": "(\\.)\\s*([A-Za-z_$][\\w$]*)\\s*(?=\\()",
+          "captures": {
+            "1": { "name": "punctuation.accessor.litescript" },
+            "2": { "name": "entity.name.function.member.litescript" }
+          }
+        },
+        {
+          "match": "(\\.)\\s*([A-Za-z_$][\\w$]*)",
+          "captures": {
+            "1": { "name": "punctuation.accessor.litescript" },
+            "2": { "name": "variable.other.property.litescript" }
+          }
+        }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        { "name": "keyword.operator.assignment.compound.litescript", "match": "\\+=|-=|\\*=|/=" },
+        { "name": "keyword.operator.comparison.litescript", "match": "==|!=" },
+        { "name": "keyword.operator.relational.litescript", "match": "<=|>=|<(?!<)|>(?!>)" },
+        { "name": "keyword.operator.logical.litescript", "match": "&&|\\|\\||!" },
+        { "name": "keyword.operator.bitwise.shift.litescript", "match": "<<|>>" },
+        { "name": "keyword.operator.bitwise.litescript", "match": "&|\\||\\^|~" },
+        { "name": "keyword.operator.increment.litescript", "match": "\\+\\+|--" },
+        { "name": "keyword.operator.assignment.litescript", "match": "=" },
+        { "name": "keyword.operator.arithmetic.litescript", "match": "\\+|-|\\*|/|%" },
+        { "name": "keyword.operator.ternary.litescript", "match": "\\?|:" }
+      ]
+    },
+    "punctuation": {
+      "patterns": [
+        { "name": "punctuation.terminator.statement.litescript", "match": ";" },
+        { "name": "punctuation.separator.comma.litescript", "match": "," },
+        { "name": "punctuation.accessor.litescript", "match": "\\." }
+      ]
+    },
+    "identifier": {
+      "name": "variable.other.readwrite.litescript",
+      "match": "[A-Za-z_$][\\w$]*"
+    }
+  }
+}

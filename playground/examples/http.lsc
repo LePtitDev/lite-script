@@ -1,5 +1,5 @@
 // HTTP requests and JSON: information about a GitHub repository
-// litescript-pg playground/examples/http.ls -- LePtitDev/lite-script
+// litescript-pg playground/examples/http.lsc -- LePtitDev/lite-script
 
 if (!Http.available) {
     Console.error("This playground has been built without HTTP client");

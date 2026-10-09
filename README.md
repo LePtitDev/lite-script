@@ -19,6 +19,7 @@ The documentation is in the [docs](docs/README.md) folder.
 * Automatic memory management: reference counting and a garbage collector for the cycles
 * Optional standard library (Math, conversions, methods of arrays and strings)
 * A playground program (`litescript-pg`) to execute script files with libraries for the console, files, JSON, HTTP(S) and processes
+* A Visual Studio Code extension (`editors/vscode`) with a language server (diagnostics, completion, navigation, rename) and a debugger (breakpoints, steps, variables, evaluation), given by `litescript-pg --lsp` and `--dap`
 * Unit tests run by the continuous integration on Windows (MSVC), Linux (GCC, Clang) and macOS, with AddressSanitizer and UndefinedBehaviorSanitizer
 
 *Types :*
@@ -123,8 +124,8 @@ See the [integration guide](docs/guide/integration.md) for the details.
 `litescript-pg` executes script files with the standard library and additional libraries (`Console`, `File`, `Directory`, `Path`, `JSON`, `Http`, `Process`, `Time`):
 
 ```bash
-litescript-pg "myfolder/*.ls"
-litescript-pg script.ls -- arguments
+litescript-pg "myfolder/*.lsc"
+litescript-pg script.lsc -- arguments
 ```
 
 ```javascript
@@ -134,7 +135,7 @@ File.write("repo.json", JSON.stringify({ name: repo.full_name, stars: repo.starg
 print(Directory.list(".").join(", "));
 ```
 
-See the [playground guide](docs/guide/playground.md).
+See the [playground guide](docs/guide/playground.md), and [Editors and debugging](docs/guide/editors.md) for the extension of Visual Studio Code.
 
 ## Changes from the version 1
 

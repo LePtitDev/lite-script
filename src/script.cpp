@@ -15,6 +15,7 @@ namespace {
     using LiteScript::InstrCode;
     using LiteScript::Instruction;
     using Error = LiteScript::Script::Error;
+    using Analysis = LiteScript::Script::Analysis;
 
     // Error raised during the compilation
     struct CompileError {
@@ -145,6 +146,25 @@ namespace {
         // The current nesting depth of instructions and expressions
         std::size_t depth = 0;
 
+        // The information collected for the development tools (nullptr if not requested),
+        // the positions are offsets converted at the end of the compilation
+        Analysis * analysis = nullptr;
+
+        // The scopes containing the current position (indexes in analysis->scopes)
+        std::vector<std::size_t> scopes;
+
+        // The namespace selected by the last "namespace" instruction (empty for the global namespace)
+        std::string nspace;
+
+        // The last function parsed, attached to its declaration
+        struct FunctionInfo {
+            std::size_t scope = Analysis::NONE;
+            std::size_t first = Analysis::NONE;
+            std::size_t end = Analysis::NONE;
+            std::size_t end_offset = 0;
+            std::vector<std::string> parameters;
+        } last_function;
+
         // Limit the recursion of the compiler
         class DepthGuard {
             Compiler& compiler;
@@ -160,18 +180,102 @@ namespace {
 
     public:
 
-        Compiler(std::string_view code, std::vector<Instruction>& instructions) : text(code), out(instructions) {}
+        Compiler(std::string_view code, std::vector<Instruction>& instructions, Analysis * info) :
+            text(code), out(instructions), analysis(info) {}
 
         void CompileScript() {
+            this->OpenScope(Analysis::Scope::Kind::Script, 0);
             while (true) {
                 this->SkipWhitespace();
                 if (this->AtEnd())
                     break;
                 this->ParseInstruction();
             }
+            this->CloseScope(this->text.size());
+        }
+
+        // Close the scopes left open by an error
+        void CloseScopes(std::size_t end) {
+            while (!this->scopes.empty())
+                this->CloseScope(end);
         }
 
     private:
+
+        ////// ANALYSIS //////
+
+        static Analysis::Range MakeRange(std::size_t start, std::size_t end) {
+            Analysis::Range range;
+            range.start.offset = start;
+            range.end.offset = end;
+            return range;
+        }
+
+        std::size_t CurrentScope() const {
+            return this->scopes.empty() ? Analysis::NONE : this->scopes.back();
+        }
+
+        std::size_t OpenScope(Analysis::Scope::Kind kind, std::size_t start) {
+            if (this->analysis == nullptr)
+                return Analysis::NONE;
+            Analysis::Scope scope;
+            scope.kind = kind;
+            scope.range = MakeRange(start, start);
+            scope.parent = this->CurrentScope();
+            this->analysis->scopes.push_back(scope);
+            this->scopes.push_back(this->analysis->scopes.size() - 1);
+            return this->scopes.back();
+        }
+
+        void CloseScope(std::size_t end) {
+            if (this->analysis == nullptr || this->scopes.empty())
+                return;
+            this->analysis->scopes[this->scopes.back()].range.end.offset = end;
+            this->scopes.pop_back();
+        }
+
+        // Record a declaration whose name ends at the current position
+        // @return The index of the symbol (NONE if there is no analysis)
+        std::size_t Declare(std::string_view name, Analysis::SymbolKind kind, bool is_static = false) {
+            if (this->analysis == nullptr)
+                return Analysis::NONE;
+            Analysis::Symbol symbol;
+            symbol.name = name;
+            symbol.kind = kind;
+            symbol.is_static = is_static;
+            symbol.range = MakeRange(this->pos - name.size(), this->pos);
+            symbol.full = symbol.range;
+            symbol.scope = this->CurrentScope();
+            if (symbol.scope != Analysis::NONE && this->analysis->scopes[symbol.scope].kind == Analysis::Scope::Kind::Script)
+                symbol.nspace = this->nspace;
+            this->analysis->symbols.push_back(std::move(symbol));
+            return this->analysis->symbols.size() - 1;
+        }
+
+        // Attach the last function parsed to a declaration that ends at the current position
+        void AttachFunction(std::size_t symbol, std::size_t start) {
+            if (this->analysis == nullptr || symbol == Analysis::NONE)
+                return;
+            Analysis::Symbol& s = this->analysis->symbols[symbol];
+            s.full = MakeRange(start, this->last_function.end_offset);
+            s.body = this->last_function.scope;
+            s.parameters = this->last_function.parameters;
+            s.first_instruction = this->last_function.first;
+            s.end_instruction = this->last_function.end;
+        }
+
+        // Record a use of a name that starts at an offset
+        void Refer(std::string_view name, std::size_t start, bool member) {
+            if (this->analysis == nullptr)
+                return;
+            Analysis::Reference reference;
+            reference.name = name;
+            reference.range = MakeRange(start, start + name.size());
+            reference.scope = this->CurrentScope();
+            reference.member = member;
+            reference.nspace = this->nspace;
+            this->analysis->references.push_back(std::move(reference));
+        }
 
         ////// LEXICAL ANALYSIS //////
 
@@ -456,7 +560,9 @@ namespace {
                 }
                 else if (c == '.') {
                     this->pos++;
-                    this->Emit(Instruction(InstrCode::OpMember, this->ReadName(Error::Name)), start);
+                    std::string name = this->ReadName(Error::Name);
+                    this->Refer(name, this->pos - name.size(), true);
+                    this->Emit(Instruction(InstrCode::OpMember, std::move(name)), start);
                 }
                 else if (c == '+' && this->Peek(1) == '+') {
                     this->pos += 2;
@@ -616,8 +722,10 @@ namespace {
             }
             else if (IsReserved(name))
                 return false;
-            else
+            else {
+                this->Refer(name, this->pos, false);
                 this->Emit(Instruction(InstrCode::ValueVariable, name));
+            }
             this->pos += name.size();
             return true;
         }
@@ -712,7 +820,10 @@ namespace {
         void ParseFunction() {
             std::size_t jump = this->Emit(InstrCode::JumpTo);
             std::size_t start = this->Here();
-            this->ParseArguments();
+            this->SkipWhitespace();
+            std::size_t scope = this->OpenScope(Analysis::Scope::Kind::Function, this->pos);
+            std::vector<std::string> parameters;
+            this->ParseArguments(parameters);
             // break and continue can't leave a function
             std::vector<Breakable> outer = std::move(this->breakables);
             this->breakables.clear();
@@ -722,19 +833,24 @@ namespace {
             this->ParseBlock();
             this->breakables = std::move(outer);
             this->Emit(InstrCode::Return);
+            this->CloseScope(this->pos);
+            this->last_function = FunctionInfo{ scope, start, this->Here(), this->pos, std::move(parameters) };
             this->Patch(jump, this->Here());
             this->Emit(Instruction(InstrCode::ValueCallback, start));
         }
 
         // Parse "(a, b, c...)", the arguments are copied in local variables by "value.arg"
-        void ParseArguments() {
+        void ParseArguments(std::vector<std::string>& parameters) {
             this->Expect('(', Error::CallbackArguments);
             if (this->Match(')'))
                 return;
             for (std::size_t index = 0; true; index++) {
                 std::string name = this->ReadVariableName(Error::CallbackArgumentName);
+                this->Declare(name, Analysis::SymbolKind::Parameter);
+                parameters.push_back(name);
                 this->SkipWhitespace();
                 if (this->text.substr(this->pos, 3) == "...") {
+                    parameters.back() += "...";
                     this->pos += 3;
                     this->Emit(Instruction(InstrCode::ValueArgs, index));
                     this->Emit(Instruction(InstrCode::DefineVariable, std::move(name)));
@@ -751,7 +867,8 @@ namespace {
         }
 
         // Parse the inherits and the members of a class, the class is pushed on the stack
-        void ParseClass(std::string_view constructor) {
+        // @param symbol The declaration of the class (NONE if anonymous)
+        void ParseClass(std::string_view constructor, std::size_t symbol = Analysis::NONE, std::size_t start = 0) {
             this->Emit(InstrCode::ValueClass);
             if (this->Match(':')) {
                 do {
@@ -760,17 +877,25 @@ namespace {
                 } while (this->Match(','));
             }
             this->Expect('{', Error::ClassBegin);
+            std::size_t scope = this->OpenScope(Analysis::Scope::Kind::Class, this->pos - 1);
+            if (this->analysis != nullptr && symbol != Analysis::NONE)
+                this->analysis->symbols[symbol].body = scope;
             while (!this->Match('}')) {
                 if (this->AtEnd())
                     this->Fail(Error::ClassEnd);
                 this->ParseClassMember();
             }
+            this->CloseScope(this->pos);
+            if (this->analysis != nullptr && symbol != Analysis::NONE)
+                this->analysis->symbols[symbol].full = MakeRange(start, this->pos);
             this->Emit(Instruction(InstrCode::ClassConstructor, constructor));
         }
 
         void ParseClassMember() {
             if (this->Match(';'))
                 return;
+            this->SkipWhitespace();
+            std::size_t start = this->pos;
             if (this->MatchKeyword("operator")) {
                 std::string name = this->ReadName(Error::ClassOperatorName);
                 std::size_t op = 0;
@@ -778,25 +903,30 @@ namespace {
                     op++;
                 if (op == OPERATOR_NAMES.size())
                     this->Fail(Error::ClassOperatorInvalid);
+                std::size_t symbol = this->Declare(name, Analysis::SymbolKind::Operator);
                 this->ParseFunction();
+                this->AttachFunction(symbol, start);
                 this->Emit(Instruction(InstrCode::ClassPushOperator, op));
                 return;
             }
             if (this->MatchKeyword("class")) {
                 std::string name = this->ReadVariableName(Error::Name);
-                this->ParseClass(name);
+                std::size_t symbol = this->Declare(name, Analysis::SymbolKind::Class, true);
+                this->ParseClass(name, symbol, start);
                 this->Emit(Instruction(InstrCode::ClassPushStatic, std::move(name)));
                 return;
             }
             bool is_static = this->MatchKeyword("static");
             InstrCode push = is_static ? InstrCode::ClassPushStatic : InstrCode::ClassPushUnstatic;
             if (this->MatchKeyword("var")) {
-                this->ParseVariables(push);
+                this->ParseVariables(push, is_static);
                 this->Expect(';', Error::Semicolon);
             }
             else if (this->MatchKeyword("function")) {
                 std::string name = this->ReadVariableName(Error::Name);
+                std::size_t symbol = this->Declare(name, Analysis::SymbolKind::Method, is_static);
                 this->ParseFunction();
+                this->AttachFunction(symbol, start);
                 this->Emit(Instruction(push, std::move(name)));
             }
             else {
@@ -811,6 +941,13 @@ namespace {
             this->SkipWhitespace();
             if (this->AtEnd())
                 this->Fail(Error::Instruction);
+            std::size_t start = this->pos;
+            if (this->analysis != nullptr) {
+                Analysis::Statement statement;
+                statement.position.offset = start;
+                statement.instruction = this->Here();
+                this->analysis->statements.push_back(statement);
+            }
             char c = this->Peek();
             if (c == ';') {
                 this->pos++;
@@ -829,13 +966,16 @@ namespace {
             else if (word == "function" && this->KeywordFollowedByName("function")) {
                 this->pos += word.size();
                 std::string name = this->ReadVariableName(Error::Name);
+                std::size_t symbol = this->Declare(name, Analysis::SymbolKind::Function);
                 this->ParseFunction();
+                this->AttachFunction(symbol, start);
                 this->Emit(Instruction(InstrCode::DefineVariable, std::move(name)));
             }
             else if (word == "class" && this->KeywordFollowedByName("class")) {
                 this->pos += word.size();
                 std::string name = this->ReadVariableName(Error::Name);
-                this->ParseClass(name);
+                std::size_t symbol = this->Declare(name, Analysis::SymbolKind::Class);
+                this->ParseClass(name, symbol, start);
                 this->Emit(Instruction(InstrCode::DefineVariable, std::move(name)));
             }
             else if (word == "if") {
@@ -886,11 +1026,26 @@ namespace {
         }
 
         // Parse "name [= value], ..." (after "var"), the values are defined by the instruction
-        void ParseVariables(InstrCode define) {
+        void ParseVariables(InstrCode define, bool is_static = false) {
             do {
                 std::string name = this->ReadVariableName(Error::Name);
-                if (this->Match('='))
+                std::size_t start = this->pos - name.size();
+                bool member = define != InstrCode::DefineVariable;
+                std::size_t symbol = this->Declare(name, member ? Analysis::SymbolKind::Attribute : Analysis::SymbolKind::Variable, is_static);
+                if (this->Match('=')) {
+                    // A variable initialized with a function is a function (or a method)
+                    this->SkipWhitespace();
+                    bool function = this->PeekName() == "function";
+                    std::size_t init = this->pos;
                     this->ParseExpression();
+                    // The expression is only the function (nothing after its body)
+                    function = function && this->last_function.end_offset > init && this->last_function.end_offset <= this->pos &&
+                        this->text.substr(this->last_function.end_offset, this->pos - this->last_function.end_offset).find_first_not_of(" \t\r\n") == std::string_view::npos;
+                    if (function && symbol != Analysis::NONE) {
+                        this->analysis->symbols[symbol].kind = member ? Analysis::SymbolKind::Method : Analysis::SymbolKind::Function;
+                        this->AttachFunction(symbol, start);
+                    }
+                }
                 else
                     this->Emit(InstrCode::ValueNull);
                 this->Emit(InstrCode::ValueAssign);
@@ -977,7 +1132,9 @@ namespace {
             if (!this->MatchKeyword("catch"))
                 this->Fail(Error::Catch);
             if (this->Match('(')) {
-                this->Emit(Instruction(InstrCode::DefineVariable, this->ReadVariableName(Error::Name)));
+                std::string name = this->ReadVariableName(Error::Name);
+                this->Declare(name, Analysis::SymbolKind::CatchVariable);
+                this->Emit(Instruction(InstrCode::DefineVariable, std::move(name)));
                 this->Expect(')', Error::ParenthesisClose);
             }
             else {
@@ -1129,8 +1286,17 @@ namespace {
         void ParseNamespace() {
             this->MatchKeyword("namespace");
             std::string path = this->ReadName(Error::Namespace);
+            std::size_t start = this->pos - path.size();
             while (this->Match('.'))
                 path += '.' + this->ReadName(Error::Namespace);
+            if (this->analysis != nullptr && path != "global") {
+                // The symbol covers the whole path ("A.B")
+                std::size_t symbol = this->Declare(path, Analysis::SymbolKind::Namespace);
+                this->analysis->symbols[symbol].range = MakeRange(start, this->pos);
+                this->analysis->symbols[symbol].full = this->analysis->symbols[symbol].range;
+                this->analysis->symbols[symbol].nspace.clear();
+            }
+            this->nspace = path == "global" ? std::string() : path;
             this->Expect(';', Error::Semicolon);
             this->Emit(Instruction(InstrCode::NamespaceUse, std::move(path)));
         }
@@ -1139,44 +1305,63 @@ namespace {
 
 }
 
-LiteScript::Script::Result LiteScript::Script::Compile(std::string_view code) {
+LiteScript::Script::Result LiteScript::Script::Compile(std::string_view code, Analysis * analysis) {
     Result result;
-    Compiler compiler(code, result.instructions);
+    if (analysis != nullptr)
+        *analysis = Analysis();
+    Compiler compiler(code, result.instructions, analysis);
+
+    // Convert an offset into a line and a column (counted in characters: the continuation bytes of UTF-8 are ignored)
+    std::vector<std::size_t> line_starts{ 0 };
+    for (std::size_t i = 0; i < code.size(); i++) {
+        if (code[i] == '\n')
+            line_starts.push_back(i + 1);
+    }
+    auto locate = [&](std::size_t offset, std::size_t& line, std::size_t& column) {
+        offset = std::min(offset, code.size());
+        auto it = std::upper_bound(line_starts.begin(), line_starts.end(), offset) - 1;
+        line = static_cast<std::size_t>(it - line_starts.begin());
+        column = 0;
+        for (std::size_t i = *it; i < offset; i++) {
+            if ((static_cast<unsigned char>(code[i]) & 0xC0) != 0x80)
+                column++;
+        }
+    };
+
     try {
         compiler.CompileScript();
-        // Convert the offsets of the instructions into lines and columns
-        std::vector<std::size_t> line_starts{ 0 };
-        for (std::size_t i = 0; i < code.size(); i++) {
-            if (code[i] == '\n')
-                line_starts.push_back(i + 1);
-        }
         for (Instruction& instr : result.instructions) {
-            std::size_t offset = std::min<std::size_t>(instr.position.line, code.size());
-            auto it = std::upper_bound(line_starts.begin(), line_starts.end(), offset) - 1;
-            std::size_t column = 0;
-            for (std::size_t i = *it; i < offset; i++) {
-                if ((static_cast<unsigned char>(code[i]) & 0xC0) != 0x80)
-                    column++;
-            }
-            instr.position.line = static_cast<std::uint32_t>(it - line_starts.begin());
+            std::size_t line, column;
+            locate(instr.position.line, line, column);
+            instr.position.line = static_cast<std::uint32_t>(line);
             instr.position.column = static_cast<std::uint32_t>(column);
         }
     }
     catch (const CompileError& e) {
         result.instructions.clear();
         result.error = e.error;
-        std::size_t line_start = 0;
-        for (std::size_t i = 0; i < e.position && i < code.size(); i++) {
-            if (code[i] == '\n') {
-                result.line++;
-                line_start = i + 1;
-            }
+        locate(e.position, result.line, result.column);
+        compiler.CloseScopes(std::min(e.position, code.size()));
+    }
+
+    if (analysis != nullptr) {
+        auto convert = [&](Analysis::Position& position) {
+            locate(position.offset, position.line, position.column);
+        };
+        auto convert_range = [&](Analysis::Range& range) {
+            convert(range.start);
+            convert(range.end);
+        };
+        for (auto& scope : analysis->scopes)
+            convert_range(scope.range);
+        for (auto& symbol : analysis->symbols) {
+            convert_range(symbol.range);
+            convert_range(symbol.full);
         }
-        // The column is counted in characters (the continuation bytes of UTF-8 are ignored)
-        for (std::size_t i = line_start; i < e.position && i < code.size(); i++) {
-            if ((static_cast<unsigned char>(code[i]) & 0xC0) != 0x80)
-                result.column++;
-        }
+        for (auto& reference : analysis->references)
+            convert_range(reference.range);
+        for (auto& statement : analysis->statements)
+            convert(statement.position);
     }
     return result;
 }

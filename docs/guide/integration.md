@@ -204,3 +204,59 @@ std::size_t destroyed = memory.CollectGarbage();
 std::size_t objects = memory.Count();
 memory.SetGarbageCollectorThreshold(10000);     // 0 disables automatic execution
 ```
+
+## Development tools
+
+The engine gives the information needed by editors and debuggers. The playground uses it for its language server and its debug adapter (see [Editors and debugging](editors.md)).
+
+### Analysis of a script
+
+`Script::Compile` fills a `Script::Analysis` when it's given (partially if the code has an error):
+
+```cpp
+Script::Analysis analysis;
+Script::Result result = Script::Compile(code, &analysis);
+
+for (const auto& symbol : analysis.symbols) {
+    // name, kind (Variable, Function, Class, Parameter, Attribute, Method, Operator, CatchVariable, Namespace),
+    // range of the name, full range, scope that contains it, parameters of a function...
+}
+```
+
+| Member | Content |
+|--------|---------|
+| `scopes` | The script, the functions (arguments and body) and the classes (between the braces), with their range and their parent |
+| `symbols` | The declarations: the range of the name, the range of the whole declaration, the scope that contains it, the scope it creates (`body`), the selected namespace (`nspace`), the parameters and the instructions of a function (`first_instruction`, `end_instruction`) |
+| `references` | The uses of names: variables (`print`) and members (`object.name`, `member` is true), with their scope and namespace |
+| `statements` | The beginning of each instruction of the language and the index of its first generated instruction (for the breakpoints and the steps) |
+
+The positions have a line and a column (from 0, the column is counted in characters) and an offset in bytes. The analysis doesn't change the generated instructions.
+
+### Debugging a state
+
+```cpp
+// Called before each instruction of the lists
+state.SetDebugHook([&](State& s) {
+    if (s.GetListIndex() == list && breakpoints.contains(s.GetLine()))
+        Pause(s);           // read the frames, evaluate expressions...
+});
+
+// Called when an error isn't caught by the script, before the stacks are cleared
+state.SetErrorHook([&](State& s, const ScriptError& error) {
+    auto frames = s.GetFrames();
+});
+```
+
+| Method | Description |
+|--------|-------------|
+| `GetFrames()` | The calls in progress, from the global scope to the current function: position (list and index of the instruction), visible variables (`namer`: the last namespace of `namer.scopes` contains the local variables), `this` and arguments |
+| `GetDepth()` | The number of nested frames (to implement "step over" and "step out") |
+| `Evaluate(instructions)` | Executes instructions in the context of the current position (the local variables are visible), then restores the position and the stacks. The errors aren't caught by the `try` blocks of the script and the hooks aren't called |
+
+To evaluate an expression, compile it between parentheses and remove the final `value.pop`:
+
+```cpp
+Script::Result compiled = Script::Compile("(" + expression + ");");
+compiled.instructions.pop_back();
+Variable value = state.Evaluate(std::move(compiled.instructions));
+```

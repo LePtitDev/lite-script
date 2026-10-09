@@ -90,7 +90,7 @@ Lower precedence first. Same level: left → right, except `?:` and assignments 
 
 ## Control structures
 
-```javascript
+```js
 if (c) { ... } else if (d) { ... } else { ... }
 while (c) { ... }
 do { ... } while (c);
@@ -255,17 +255,17 @@ A named element hides a method with the same name.
 
 # Playground (`litescript-pg`)
 
-Runs `.ls` files with the standard library **plus** `print`, `assert`, `Console`, `File`, `Directory`, `Path`, `JSON`, `Http`, `Process`, `Time`.
+Runs `.lsc` files with the standard library **plus** `print`, `assert`, `Console`, `File`, `Directory`, `Path`, `JSON`, `Http`, `Process`, `Time`.
 
 ## Command line
 
 ```bash
-litescript-pg script.ls             # run a file
-litescript-pg "dir/*.ls" "t/**/*.ls" # patterns
-litescript-pg dir                   # every .ls of dir
-litescript-pg -e "print(1 + 2);"    # run code
-litescript-pg a.ls -- one two       # Process.args
-litescript-pg                       # interactive
+litescript-pg script.lsc              # run a file
+litescript-pg "dir/*.lsc" "t/**/*.lsc" # patterns
+litescript-pg dir                     # every .lsc of dir
+litescript-pg -e "print(1 + 2);"      # run code
+litescript-pg a.lsc -- one two        # Process.args
+litescript-pg                         # interactive
 ```
 
 | Option | |
@@ -275,6 +275,8 @@ litescript-pg                       # interactive
 | `-b`, `--bail` | stop at the first failing file |
 | `-i`, `--interactive` | interactive session after the files |
 | `-h` / `-v` | help / version |
+| `--lsp` / `--dap` | language server / debugger (editors) |
+| `--disassemble f` | instructions of a script |
 
 - Files run in alphabetical order. A first `#!` line is ignored.
 - Errors: `file:line:column: error: message`. Exit code 1 if a file failed, 2 for a bad command line.
@@ -311,10 +313,10 @@ Paths relative to the current directory, `/` as separator.
 | `remove(p, recursive)` | `false` if missing |
 | `exists(p)`, `current()`, `setCurrent(p)` | |
 
-| Path (`"a/b/c.ls"`) | |
+| Path (`"a/b/c.lsc"`) | |
 |---|---|
 | `join(a, b, ...)` | |
-| `directory` / `filename` / `stem` / `extension` | `"a/b"` / `"c.ls"` / `"c"` / `".ls"` |
+| `directory` / `filename` / `stem` / `extension` | `"a/b"` / `"c.lsc"` / `"c"` / `".lsc"` |
 | `absolute(p)`, `normalize(p)`, `exists(p)` | `normalize` removes `.` / `..` |
 
 ## JSON

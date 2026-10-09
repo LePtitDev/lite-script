@@ -1,5 +1,5 @@
 // The basics: print, the arguments and the console
-// litescript-pg playground/examples/hello.ls -- World
+// litescript-pg playground/examples/hello.lsc -- World
 
 var name = Process.args.length > 0 ? Process.args[0] : "LiteScript";
 print("Hello " + name + "!");
