@@ -1,0 +1,247 @@
+name: .NET
+
+# Build the native library of LiteScript.Net on every platform, test the .NET wrapper and create
+# the NuGet package. The package is published on NuGet when a release is published (tag "v2.1.0"
+# gives the version 2.1.0) or when the workflow is started manually with "publish".
+# The publication needs the secret NUGET_API_KEY.
+
+on:
+  push:
+    paths:
+      - 'include/**'
+      - 'src/**'
+      - 'dotnet/**'
+      - 'meson.build'
+      - 'meson_options.txt'
+      - '.github/workflows/dotnet.yml'
+  pull_request:
+    paths:
+      - 'include/**'
+      - 'src/**'
+      - 'dotnet/**'
+      - 'meson.build'
+      - 'meson_options.txt'
+      - '.github/workflows/dotnet.yml'
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version of the package (the version of meson.build by default)'
+        required: false
+        default: ''
+      publish:
+        description: 'Publish the package on NuGet'
+        type: boolean
+        default: false
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  # std::to_chars for the floating numbers needs macOS 13.3
+  MACOSX_DEPLOYMENT_TARGET: '13.3'
+
+jobs:
+  native:
+    name: Native ${{ matrix.rid }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - rid: win-x64
+            os: windows-2022
+            msvc: x64
+            test: true
+          - rid: win-arm64
+            os: windows-11-arm
+            msvc: arm64
+            test: true
+          - rid: linux-x64
+            # The oldest supported runner: the library needs the GNU C library of the build system
+            os: ubuntu-22.04
+            cxx: g++-12
+            test: true
+          - rid: linux-arm64
+            os: ubuntu-22.04-arm
+            cxx: g++-12
+            test: true
+          - rid: osx-arm64
+            os: macos-14
+            test: true
+          - rid: osx-x64
+            # Cross-compiled on the ARM runner
+            os: macos-14
+            cross: x86_64
+            test: false
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Meson and Ninja
+        run: python -m pip install meson ninja
+
+      - name: Install the compiler
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y ${{ matrix.cxx }}
+
+      - name: Setup MSVC
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: ${{ matrix.msvc }}
+
+      - name: Build (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./dotnet/build-native.ps1 -Rid ${{ matrix.rid }} -MesonOptions "-Dwerror=true"
+
+      - name: Build (Linux)
+        if: runner.os == 'Linux'
+        env:
+          CXX: ${{ matrix.cxx }}
+        run: sh dotnet/build-native.sh ${{ matrix.rid }} -- -Dwerror=true
+
+      - name: Build (macOS)
+        if: runner.os == 'macOS' && !matrix.cross
+        run: sh dotnet/build-native.sh ${{ matrix.rid }} -- -Dwerror=true
+
+      - name: Build (macOS, cross-compilation)
+        if: runner.os == 'macOS' && matrix.cross
+        run: |
+          cat > cross.ini <<EOF
+          [binaries]
+          cpp = ['clang++', '-arch', '${{ matrix.cross }}']
+          ar = 'ar'
+          strip = 'strip'
+
+          [host_machine]
+          system = 'darwin'
+          cpu_family = '${{ matrix.cross }}'
+          cpu = '${{ matrix.cross }}'
+          endian = 'little'
+          EOF
+          sh dotnet/build-native.sh ${{ matrix.rid }} -- -Dwerror=true --cross-file "$PWD/cross.ini"
+          lipo -info dotnet/artifacts/runtimes/${{ matrix.rid }}/native/liblitescript_net.dylib
+
+      - uses: actions/setup-dotnet@v4
+        if: matrix.test
+        with:
+          # The SDK 10 builds the .slnx solution, the runtime 8 runs the tests (net8.0)
+          dotnet-version: |
+            8.0.x
+            10.0.x
+
+      - name: Test
+        if: matrix.test
+        run: dotnet test dotnet/LiteScript.Net.slnx -c Release -p:LiteScriptTestRid=${{ matrix.rid }} --logger "console;verbosity=normal"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: native-${{ matrix.rid }}
+          path: dotnet/artifacts/runtimes/
+          if-no-files-found: error
+
+  package:
+    name: Package
+    needs: native
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          # The SDK 10 creates the package, the runtime 8 runs the test application (net8.0)
+          dotnet-version: |
+            8.0.x
+            10.0.x
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: native-*
+          path: dotnet/artifacts/runtimes
+          merge-multiple: true
+
+      - name: Version
+        id: version
+        shell: bash
+        run: |
+          BASE=$(sed -n "s/^ *version: '\([^']*\)'.*/\1/p" meson.build | head -n 1)
+          if [ "${{ github.event_name }}" = "release" ]; then
+            VERSION="${{ github.event.release.tag_name }}"
+            VERSION="${VERSION#v}"
+          elif [ -n "${{ github.event.inputs.version }}" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          elif [ "${{ github.event.inputs.publish }}" = "true" ]; then
+            VERSION="$BASE"
+          else
+            VERSION="$BASE-ci.${{ github.run_number }}"
+          fi
+          echo "Version: $VERSION"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Pack
+        run: dotnet pack dotnet/src/LiteScript.Net -c Release -o dotnet/artifacts/packages -p:Version=${{ steps.version.outputs.version }}
+
+      - name: Check the native libraries of the package
+        shell: bash
+        run: |
+          PACKAGE=dotnet/artifacts/packages/LiteScript.Net.${{ steps.version.outputs.version }}.nupkg
+          unzip -l "$PACKAGE"
+          for FILE in runtimes/win-x64/native/litescript_net.dll runtimes/win-arm64/native/litescript_net.dll \
+                      runtimes/linux-x64/native/liblitescript_net.so runtimes/linux-arm64/native/liblitescript_net.so \
+                      runtimes/osx-x64/native/liblitescript_net.dylib runtimes/osx-arm64/native/liblitescript_net.dylib; do
+            unzip -l "$PACKAGE" | grep -q " $FILE\$" || { echo "Missing $FILE"; exit 1; }
+          done
+
+      - name: Test the package in an application
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/smoke" && cd "$RUNNER_TEMP/smoke"
+          dotnet new console --framework net8.0
+          dotnet add package LiteScript.Net --version ${{ steps.version.outputs.version }} --source "$GITHUB_WORKSPACE/dotnet/artifacts/packages"
+          cat > Program.cs <<'EOF'
+          using LiteScript;
+
+          using var memory = new Memory();
+          using var state = new State(memory);
+          Standard.Install(state);
+          var result = Script.Execute(state, "function f(x) { return x * 2; } return Math.sqrt(f(8));");
+          Console.WriteLine(result.Value);
+          return result.Value?.ToString() == "4" ? 0 : 1;
+          EOF
+          dotnet run
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: package
+          path: dotnet/artifacts/packages/
+          if-no-files-found: error
+
+  publish:
+    name: Publish
+    needs: package
+    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && github.event.inputs.publish == 'true')
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: package
+          path: packages
+
+      - name: Push to NuGet
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: dotnet nuget push "packages/*.nupkg" --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate

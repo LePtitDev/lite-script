@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
+    <RootNamespace>LiteScript</RootNamespace>
+    <AssemblyName>LiteScript.Net</AssemblyName>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- The members of the enumerations mirror the C++ API, they are not all documented -->
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+
+    <!-- Package -->
+    <PackageId>LiteScript.Net</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>LePtitDev</Authors>
+    <Description>.NET wrapper of LiteScript, a little script engine to embed in applications (object-oriented language similar to Javascript, assembly language, standard library, saving and loading of states).</Description>
+    <PackageTags>script;scripting;interpreter;language;embedded;litescript</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/LePtitDev/lite-script</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/LePtitDev/lite-script</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>logo.png</PackageIcon>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="/" />
+    <None Include="../../../docs/logo.png" Pack="true" PackagePath="/" />
+    <!-- The native libraries of every platform: runtimes/<rid>/native/... -->
+    <None Include="$(LiteScriptNativeDir)**/*" Pack="true" PackagePath="runtimes/" Visible="false" />
+  </ItemGroup>
+
+</Project>

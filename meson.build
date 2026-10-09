@@ -43,3 +43,7 @@ endif
 if get_option('tests') and not meson.is_subproject()
   subdir('tests')
 endif
+
+if get_option('dotnet') and not meson.is_subproject()
+  subdir('dotnet/native')
+endif

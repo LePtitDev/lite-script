@@ -20,6 +20,7 @@ LiteScript is a small scripting engine to embed in C++ applications. Its languag
 
 1. [Getting started](guide/getting-started.md): building the library and running a first script
 2. [Integration](guide/integration.md): application functions, values, errors, saving, memory
+3. [.NET](../dotnet/README.md): the package LiteScript.Net, wrapper of the engine for C# and the other .NET languages
 
 ## Running scripts
 

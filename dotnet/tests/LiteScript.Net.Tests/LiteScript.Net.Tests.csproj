@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <RootNamespace>LiteScript.Tests</RootNamespace>
+    <!-- The runtime identifier of the native library to test (the one of the SDK by default) -->
+    <LiteScriptTestRid Condition="'$(LiteScriptTestRid)' == ''">$(NETCoreSdkRuntimeIdentifier)</LiteScriptTestRid>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/LiteScript.Net/LiteScript.Net.csproj" />
+  </ItemGroup>
+
+  <!-- The native library built by build-native.ps1 / build-native.sh -->
+  <ItemGroup>
+    <None Include="$(LiteScriptNativeDir)$(LiteScriptTestRid)/native/*" CopyToOutputDirectory="PreserveNewest" Link="%(Filename)%(Extension)" Visible="false" />
+  </ItemGroup>
+
+  <Target Name="CheckLiteScriptNative" BeforeTargets="Build">
+    <Warning Condition="!Exists('$(LiteScriptNativeDir)$(LiteScriptTestRid)/native')" Text="The native library isn't built for $(LiteScriptTestRid), run dotnet/build-native.ps1 or dotnet/build-native.sh" />
+  </Target>
+
+</Project>

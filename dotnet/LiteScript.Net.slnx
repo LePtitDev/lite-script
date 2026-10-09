@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/LiteScript.Net/LiteScript.Net.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/LiteScript.Net.Tests/LiteScript.Net.Tests.csproj" />
+  </Folder>
+</Solution>

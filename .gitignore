@@ -5,3 +5,8 @@
 # Subprojects downloaded by Meson (the .wrap files are kept)
 /subprojects/*
 !/subprojects/*.wrap
+
+# Native libraries and packages of the .NET wrapper
+/dotnet/artifacts/
+/dotnet/**/bin/
+/dotnet/**/obj/

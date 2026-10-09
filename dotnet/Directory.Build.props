@@ -1,0 +1,11 @@
+<Project>
+
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <!-- The native libraries built by build-native.ps1 / build-native.sh (or by the CI) -->
+    <LiteScriptNativeDir>$(MSBuildThisFileDirectory)artifacts/runtimes/</LiteScriptNativeDir>
+  </PropertyGroup>
+
+</Project>

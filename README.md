@@ -22,6 +22,7 @@ The documentation is in the [docs](docs/README.md) folder.
 * Automatic memory management: reference counting and a garbage collector for the cycles
 * Optional standard library (Math, conversions, methods of arrays and strings)
 * A playground program (`litescript-pg`) to execute script files with libraries for the console, files, JSON, HTTP(S) and processes
+* A .NET wrapper published on NuGet: [LiteScript.Net](dotnet/README.md)
 * A Visual Studio Code extension (`editors/vscode`) with a language server (diagnostics, completion, navigation, rename) and a debugger (breakpoints, steps, variables, evaluation), given by `litescript-pg --lsp` and `--dap`
 * Unit tests run by the continuous integration on Windows (MSVC), Linux (GCC, Clang) and macOS, with AddressSanitizer and UndefinedBehaviorSanitizer
 
@@ -120,7 +121,7 @@ Other possibilities:
 * `Standard::Install(state)` gives the standard library to the scripts
 * the errors that the scripts don't catch are thrown as `LiteScript::ScriptError` by `Execute` and `Call`
 
-See the [integration guide](docs/guide/integration.md) for the details.
+See the [integration guide](docs/guide/integration.md) for the details. The engine is also available for .NET with the package [LiteScript.Net](dotnet/README.md).
 
 ## Playground
 

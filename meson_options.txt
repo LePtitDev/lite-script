@@ -3,3 +3,4 @@ option('examples', type: 'boolean', value: true, description: 'Build the example
 option('benchmarks', type: 'boolean', value: false, description: 'Build the benchmarks')
 option('playground', type: 'boolean', value: true, description: 'Build the playground (litescript-pg)')
 option('http', type: 'feature', value: 'auto', description: 'HTTP client of the playground (WinHTTP on Windows, libcurl elsewhere)')
+option('dotnet', type: 'boolean', value: false, description: 'Build the native library of the .NET wrapper (litescript_net)')
