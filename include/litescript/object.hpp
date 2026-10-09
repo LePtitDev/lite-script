@@ -189,24 +189,28 @@ namespace LiteScript {
 
     };
 
+    // A function of the script
+    // (declared outside of Callback: GCC can't default-construct a std::variant of a nested
+    // class that has default member initializers while the enclosing class is incomplete)
+    struct ScriptFunction {
+
+        // The index of the instructions list
+        std::size_t list = 0;
+
+        // The index of the first instruction
+        std::size_t line = 0;
+
+        // The namespaces visible by the function
+        Namer scope;
+
+    };
+
     // Content of a function
     class Callback {
 
     public:
 
-        // A function of the script
-        struct ScriptFunction {
-
-            // The index of the instructions list
-            std::size_t list = 0;
-
-            // The index of the first instruction
-            std::size_t line = 0;
-
-            // The namespaces visible by the function
-            Namer scope;
-
-        };
+        using ScriptFunction = LiteScript::ScriptFunction;
 
         // The function
         std::variant<ScriptFunction, std::shared_ptr<const NativeFunction>> target;
