@@ -8,6 +8,9 @@ The objective is to create an alternative of current script engines and integrat
 
 The documentation is in the [docs](docs/README.md) folder.
 
+> [!WARNING]
+> **Warning**: This project is an old personal project that has been updated and modernized with the help of Anthropic's Claude AI, and it is meant to remain experimental. My free time is limited, so I do not plan to actively maintain it. You are free to use it as you wish, knowing this.
+
 ## Features
 
 * Javascript like object-oriented language (classes, inheritance, operator overloading, namespaces, closures, try/catch)
