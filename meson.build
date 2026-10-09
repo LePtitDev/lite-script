@@ -32,6 +32,10 @@ if get_option('examples') and not meson.is_subproject()
   subdir('examples')
 endif
 
+if get_option('playground') and not meson.is_subproject()
+  subdir('playground')
+endif
+
 if get_option('benchmarks') and not meson.is_subproject()
   subdir('benchmarks')
 endif

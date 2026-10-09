@@ -1,0 +1,22 @@
+// The basics: print, the arguments and the console
+// litescript-pg playground/examples/hello.ls -- World
+
+var name = Process.args.length > 0 ? Process.args[0] : "LiteScript";
+print("Hello " + name + "!");
+print("Script:", Path.filename(Process.script), "- platform:", Process.platform);
+print("Date:", Time.iso());
+
+class Counter {
+    var count;
+    function Counter() {
+        this.count = 0;
+    }
+    function add(n) {
+        this.count += n;
+        return this;
+    }
+}
+
+var c = new Counter();
+[1, 2, 3, 4].forEach(function(n) { c.add(n); });
+print("1 + 2 + 3 + 4 =", c.count);

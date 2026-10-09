@@ -1,3 +1,5 @@
 option('tests', type: 'boolean', value: true, description: 'Build the unit tests')
 option('examples', type: 'boolean', value: true, description: 'Build the examples')
 option('benchmarks', type: 'boolean', value: false, description: 'Build the benchmarks')
+option('playground', type: 'boolean', value: true, description: 'Build the playground (litescript-pg)')
+option('http', type: 'feature', value: 'auto', description: 'HTTP client of the playground (WinHTTP on Windows, libcurl elsewhere)')

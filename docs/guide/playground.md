@@ -1,0 +1,156 @@
+# Playground
+
+The playground (`litescript-pg`) is a command-line program that executes LiteScript files with a ready-to-use environment: the [standard library](../language/standard-library.md) plus libraries to use the console, files, JSON, HTTP(S) requests, processes and time. It's a quick way to try the language or to write small tools.
+
+## Building
+
+The playground is built with the rest of the project (option `-Dplayground=false` to disable it). The scripts of the `scripts` directory configure and build everything in `builddir/<build type>`:
+
+```bash
+scripts/build.sh                 # release build
+scripts/build.sh debug clean     # clean debug build
+scripts/test.sh                  # build and run the unit tests
+scripts/build.sh -- -Dhttp=disabled
+```
+
+On Windows, use `scripts\build.bat` and `scripts\test.bat` with the same arguments (the Visual Studio environment is activated automatically). The executable is `builddir/release/playground/litescript-pg` (`.exe` on Windows).
+
+The HTTP client uses WinHTTP on Windows and libcurl on the other systems (package `libcurl4-openssl-dev` on Debian and Ubuntu). Without libcurl the playground is built without HTTP: `Http.available` is `false`. The option `-Dhttp=enabled` makes libcurl mandatory.
+
+## Command line
+
+```bash
+litescript-pg script.ls                     # execute a file
+litescript-pg "myfolder/*.ls"               # every file that matches a pattern
+litescript-pg "tests/**/*.ls"               # "**" matches any sub-directories
+litescript-pg myfolder                      # every ".ls" file of a directory
+litescript-pg -e "print(Math.sqrt(2));"     # execute a code
+litescript-pg script.ls -- one two          # arguments given to the script (Process.args)
+litescript-pg                               # interactive session
+```
+
+The patterns are expanded by the playground (the shell of Windows doesn't expand them), the files are executed in the alphabetical order.
+
+| Option | Description |
+|--------|-------------|
+| `-e`, `--eval <code>` | Executes a code before the files (can be repeated) |
+| `-s`, `--shared` | Executes the files in the same state: the variables declared by a file are visible by the next files. By default each file is isolated |
+| `-b`, `--bail` | Stops at the first file that fails |
+| `-i`, `--interactive` | Starts an interactive session after the files |
+| `-h`, `--help`, `-v`, `--version` | Help and version |
+
+The errors are displayed as `file:line:column: error: message` and the exit code is 1 if a file failed (2 for an invalid command line). A first line starting with `#!` is ignored, which allows to make executable scripts on Linux and macOS.
+
+In the interactive session, an empty line executes the lines entered before. The value of a single expression is displayed and stored in the variable `_`.
+
+## Console
+
+| Function | Description |
+|----------|-------------|
+| `print(a, b, ...)` | Writes the values separated by spaces and a new line |
+| `assert(condition, message)` | Throws the error `assertion failed: message` if the condition is false |
+| `Console.write(a, ...)`, `Console.writeLine(a, ...)` | Writes the values without or with a new line |
+| `Console.error(a, ...)` | Writes on the error output |
+| `Console.readLine(prompt)` | Reads a line of the standard input, `null` at the end of the input |
+| `Console.readAll()` | Reads the whole standard input |
+
+## Files
+
+The paths are relative to the current directory, they are given with `/` as separator.
+
+| Function | Description |
+|----------|-------------|
+| `File.read(path)`, `File.readLines(path)` | Content of a text file, array of its lines |
+| `File.write(path, text)`, `File.append(path, text)` | Replaces the content of a file, adds text at its end |
+| `File.exists(path)`, `File.size(path)` | Existence of a file, size in bytes |
+| `File.copy(source, destination, overwrite)`, `File.move(source, destination)` | Copies (replaces the destination by default), moves or renames |
+| `File.remove(path)` | Deletes a file, `false` if it doesn't exist |
+| `Directory.list(path, recursive)` | Sorted array of the paths of the entries (`"."` by default) |
+| `Directory.create(path)` | Creates a directory and its parents, `false` if it already exists |
+| `Directory.remove(path, recursive)` | Deletes a directory (with its content if `recursive` is true), `false` if it doesn't exist |
+| `Directory.exists(path)`, `Directory.current()`, `Directory.setCurrent(path)` | Existence, current directory |
+| `Path.join(a, b, ...)` | Joins parts of a path |
+| `Path.directory(p)`, `Path.filename(p)`, `Path.stem(p)`, `Path.extension(p)` | `"a/b"`, `"c.ls"`, `"c"` and `".ls"` for `"a/b/c.ls"` |
+| `Path.absolute(p)`, `Path.normalize(p)`, `Path.exists(p)` | Absolute path, path without `.` and `..`, existence of a file or a directory |
+
+```javascript
+var lines = File.readLines("data.csv");
+for (var i = 1; i < lines.length; i++) {
+    var columns = lines[i].split(";");
+    File.append("names.txt", columns[0] + "\n");
+}
+```
+
+## JSON
+
+`JSON.parse(text)` converts a JSON text into values: the objects become arrays with named elements and the arrays become arrays with indexed elements. An invalid text throws an error that indicates the position of the problem.
+
+`JSON.stringify(value, indent)` gives the JSON text of a value. `indent` is a number of spaces or a text (compact output by default). An array with named elements is written as an object (its indexed elements are written with their position as name), the instances and the namespaces are written as objects of their members. Functions, classes and `undefined` values are ignored, a value that contains itself throws an error.
+
+As an empty array and an empty object are the same value, `{}` is written `[]`.
+
+```javascript
+var config = JSON.parse(File.read("config.json"));
+config.version = config.version + 1;
+config.tags.push("new");
+File.write("config.json", JSON.stringify(config, 2));
+```
+
+## HTTP
+
+| Function | Description |
+|----------|-------------|
+| `Http.get(url, headers)`, `Http.delete(url, headers)` | Sends a request without body |
+| `Http.post(url, body, headers)`, `Http.put(...)`, `Http.patch(...)` | Sends a request with a body |
+| `Http.request(options)` | Sends a request described by `{ url, method, headers, body, timeout, followRedirects }` |
+| `Http.available` | `false` if the playground has been built without HTTP client |
+
+`http://` and `https://` URLs are supported. The headers are given as an array with named elements. A body that isn't a string is sent in JSON (with the header `Content-Type: application/json` if it isn't given). The timeout is in milliseconds (30 seconds by default) and the redirections are followed by default.
+
+The result is an array `{ status, ok, headers, body }`: `ok` is true for a status from 200 to 299, the names of the headers are in lower case. A network error (unknown server, timeout...) throws an error.
+
+```javascript
+var response = Http.get("https://api.github.com/repos/LePtitDev/lite-script", {
+    Accept: "application/vnd.github+json"
+});
+if (response.ok) {
+    var repo = JSON.parse(response.body);
+    print(repo.full_name, repo.stargazers_count);
+}
+
+var created = Http.request({
+    method: "POST",
+    url: "https://httpbin.org/post",
+    headers: { Authorization: "Bearer my-token" },
+    body: { name: "test" },
+    timeout: 5000
+});
+print(created.status, created.headers["content-type"]);
+```
+
+## Process and time
+
+| Function | Description |
+|----------|-------------|
+| `Process.args` | Array of the arguments given after `--` |
+| `Process.script` | Absolute path of the script being executed |
+| `Process.platform` | `"windows"`, `"linux"`, `"macos"` or `"unknown"` |
+| `Process.env(name)` | Value of an environment variable, `null` if it isn't defined |
+| `Process.run(command)` | Executes a command with the shell, gives `{ code, output }` (`output` is the standard output) |
+| `Process.exit(code)` | Stops the program |
+| `Time.now()` | Milliseconds since 1970-01-01 UTC |
+| `Time.clock()` | Milliseconds (with decimals) of a monotonic clock, to measure durations |
+| `Time.sleep(ms)` | Waits |
+| `Time.iso(ms)` | Date in the ISO 8601 format (`"2024-05-17T08:30:00.000Z"`), the current date by default |
+
+```javascript
+var start = Time.clock();
+var result = Process.run("git log --oneline -5");
+if (result.code == 0)
+    print(result.output);
+print("Done in", Math.round(Time.clock() - start), "ms");
+```
+
+## Examples and tests
+
+The directory `playground/examples` contains example scripts, and `playground/tests` the scripts executed by `meson test` (they use `assert`).

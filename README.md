@@ -18,6 +18,7 @@ The documentation is in the [docs](docs/README.md) folder.
 * Save and load of the complete state of a running script
 * Automatic memory management: reference counting and a garbage collector for the cycles
 * Optional standard library (Math, conversions, methods of arrays and strings)
+* A playground program (`litescript-pg`) to execute script files with libraries for the console, files, JSON, HTTP(S) and processes
 * Unit tests run by the continuous integration on Windows (MSVC), Linux (GCC, Clang) and macOS, with AddressSanitizer and UndefinedBehaviorSanitizer
 
 *Types :*
@@ -46,11 +47,22 @@ meson test -C build
 
 On Windows, run these commands in a "Developer Command Prompt for VS 2022" (or add `--vsenv` to `meson setup`).
 
+The scripts of the `scripts` directory do the same in `builddir/<build type>` (on Windows the Visual Studio environment is activated automatically):
+
+```bash
+scripts/build.sh [release|debug|debugoptimized] [clean] [-- meson options]
+scripts/test.sh
+```
+
+On Windows: `scripts\build.bat` and `scripts\test.bat`.
+
 Options:
 
 * `-Dtests=false` : don't build the unit tests ([doctest](https://github.com/doctest/doctest) is downloaded automatically)
 * `-Dexamples=false` : don't build the examples
 * `-Dbenchmarks=true` : build the benchmarks (`benchmarks/`)
+* `-Dplayground=false` : don't build the playground (`playground/`)
+* `-Dhttp=disabled` : build the playground without HTTP client (WinHTTP on Windows, libcurl on the other systems)
 * `-Db_sanitize=address` : build with AddressSanitizer
 * `-Db_lto=true` : link-time optimization (about 7% faster)
 
@@ -105,6 +117,24 @@ Other possibilities:
 * the errors that the scripts don't catch are thrown as `LiteScript::ScriptError` by `Execute` and `Call`
 
 See the [integration guide](docs/guide/integration.md) for the details.
+
+## Playground
+
+`litescript-pg` executes script files with the standard library and additional libraries (`Console`, `File`, `Directory`, `Path`, `JSON`, `Http`, `Process`, `Time`):
+
+```bash
+litescript-pg "myfolder/*.ls"
+litescript-pg script.ls -- arguments
+```
+
+```javascript
+var response = Http.get("https://api.github.com/repos/LePtitDev/lite-script");
+var repo = JSON.parse(response.body);
+File.write("repo.json", JSON.stringify({ name: repo.full_name, stars: repo.stargazers_count }, 2));
+print(Directory.list(".").join(", "));
+```
+
+See the [playground guide](docs/guide/playground.md).
 
 ## Changes from the version 1
 

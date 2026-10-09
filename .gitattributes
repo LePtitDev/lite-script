@@ -1,0 +1,3 @@
+# Line endings needed by the shells
+*.bat text eol=crlf
+*.sh text eol=lf

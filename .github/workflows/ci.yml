@@ -51,6 +51,10 @@ jobs:
       - name: Install Meson and Ninja
         run: python -m pip install meson ninja
 
+      - name: Install libcurl (HTTP client of the playground)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev
+
       - name: Cache the subprojects
         uses: actions/cache@v4
         with:
@@ -79,3 +83,4 @@ jobs:
         run: |
           ./build/examples/assembly examples/assembly/fibonacci.txt
           ./build/examples/script examples/script/fibonacci.txt
+          ./build/playground/litescript-pg playground/examples/hello.ls -- CI
