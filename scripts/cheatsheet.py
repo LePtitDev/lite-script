@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
-"""Generate docs/cheatsheet/cheatsheet.html and cheatsheet.pdf from cheatsheet.md.
+"""Generate the HTML and PDF versions of the cheatsheets of docs/cheatsheet.
 
-Usage: python scripts/cheatsheet.py [--no-pdf] [--browser PATH]
+Usage: python scripts/cheatsheet.py [names...] [--no-pdf] [--browser PATH]
+
+Each "<name>.md" gives "<name>.html" and "<name>.pdf" (every ".md" file of the
+folder by default, for example: python scripts/cheatsheet.py assembly-cheatsheet).
 
 Only the standard library is needed. The PDF is printed by a Chromium based
 browser in headless mode (Edge or Chrome, found automatically).
@@ -35,8 +38,36 @@ TOKEN = re.compile(r"""
 """, re.VERBOSE | re.DOTALL)
 
 
+ASM_ARGUMENT = re.compile(r"^[+-]?(\d+(\.\d*)?|\.\d+)(e[+-]?\d+)?$|^(true|false)$")
+
+
+def highlight_asm(code):
+    """Assembly: one line per instruction, numbered by CSS.
+
+    The annotations ("; text") aren't syntax: they can't be selected, so that
+    the copied code can be assembled. They aren't allowed after value.string.
+    """
+    lines = []
+    for line in code.split("\n"):
+        note = ""
+        if not line.lstrip().startswith("value.string"):
+            m = re.search(r"\s*;.*$", line)
+            if m:
+                note = f'<span class="c note">{html.escape(m.group())}</span>'
+                line = line[:m.start()]
+        name, _, argument = line.partition(" ")
+        text = f'<span class="k">{html.escape(name)}</span>' if name else ""
+        if argument:
+            cls = "n" if ASM_ARGUMENT.match(argument.strip()) else "s"
+            text += f' <span class="{cls}">{html.escape(argument)}</span>'
+        lines.append(f'<span class="ln">{text}{note}</span>')
+    return "\n".join(lines)
+
+
 def highlight(code, lang):
-    """Minimal syntax coloring for LiteScript and shell code."""
+    """Minimal syntax coloring for LiteScript, assembly and shell code."""
+    if lang == "asm":
+        return highlight_asm(code)
     out, last = [], 0
     for m in TOKEN.finditer(code):
         kind = m.lastgroup
@@ -62,17 +93,18 @@ def highlight(code, lang):
 
 def inline(text):
     """Inline Markdown: code spans, bold, links and escaped pipes."""
-    parts = re.split(r"(`[^`]*`)", text)
-    out = []
-    for part in parts:
-        if part.startswith("`") and part.endswith("`") and len(part) >= 2:
-            out.append("<code>" + html.escape(part[1:-1].replace("\\|", "|")) + "</code>")
-            continue
-        part = html.escape(part.replace("\\|", "|"), quote=False)
-        part = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", part)
-        part = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", r'<a href="\2">\1</a>', part)
-        out.append(part)
-    return "".join(out)
+    # The code spans are replaced by placeholders so that bold text can contain them
+    codes = []
+
+    def keep(m):
+        codes.append("<code>" + html.escape(m.group(1).replace("\\|", "|")) + "</code>")
+        return f"\0{len(codes) - 1}\0"
+
+    text = re.sub(r"`([^`]*)`", keep, text)
+    text = html.escape(text.replace("\\|", "|"), quote=False)
+    text = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", text)
+    text = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", r'<a href="\2">\1</a>', text)
+    return re.sub(r"\0(\d+)\0", lambda m: codes[int(m.group(1))], text)
 
 
 def split_row(line):
@@ -89,6 +121,7 @@ def convert(markdown):
     lines = markdown.splitlines()
     out = []
     title = "LiteScript cheatsheet"
+    lead_text = ""
     in_part = in_section = False
     i = 0
 
@@ -132,7 +165,8 @@ def convert(markdown):
                     if lines[i].strip():
                         lead.append(lines[i].strip())
                     i += 1
-                out.append(f'<p class="lead">{inline(" ".join(lead))}</p></header>')
+                lead_text = " ".join(lead)
+                out.append(f'<p class="lead">{inline(lead_text)}</p></header>')
                 out.append('<div class="part">')
                 in_part = True
                 continue
@@ -181,7 +215,7 @@ def convert(markdown):
                 i += 1
             out.append(f"<p>{inline(' '.join(para))}</p>")
     close_part()
-    return title, "\n".join(out)
+    return title, lead_text, "\n".join(out)
 
 
 CSS = """
@@ -222,13 +256,14 @@ nav a { text-decoration: none; margin-right: 10px; white-space: nowrap; }
   color: var(--pg); background: var(--pg-soft); border-left: 5px solid var(--pg); border-radius: 3px;
 }
 section { margin: 0; min-width: 0; }
-pre, table, ul, p, tr { break-inside: avoid; page-break-inside: avoid; }
+pre, ul, p, tr { break-inside: avoid; page-break-inside: avoid; }
+thead { break-after: avoid; }
 h2 {
   break-after: avoid; page-break-after: avoid;
   margin: 0 0 4px; padding: 2px 6px; font-size: 13.5px; color: var(--accent);
   background: var(--accent-soft); border-radius: 3px;
 }
-.part-playground h2 { color: var(--pg); background: var(--pg-soft); }
+.part ~ .part h2 { color: var(--pg); background: var(--pg-soft); }
 p { margin: 3px 0; }
 ul { margin: 3px 0; padding-left: 16px; }
 li { margin: 1px 0; }
@@ -239,6 +274,13 @@ pre {
   overflow-x: auto; white-space: pre; border-left: 3px solid var(--rule);
 }
 pre code { font-size: 11px; }
+pre.lang-asm code { counter-reset: line; }
+pre.lang-asm .ln { counter-increment: line; }
+pre.lang-asm .ln::before {
+  content: counter(line); display: inline-block; width: 2em; margin-right: 0.7em; padding-right: 0.4em;
+  text-align: right; color: var(--c); border-right: 1px solid var(--rule);
+}
+.note { user-select: none; -webkit-user-select: none; }
 .k { color: var(--k); font-weight: 600; } .s { color: var(--s); } .n { color: var(--n); } .c { color: var(--c); font-style: italic; }
 table { width: 100%; border-collapse: collapse; margin: 4px 0; font-size: 12px; }
 th, td { text-align: left; vertical-align: top; padding: 2px 5px; border-bottom: 1px solid var(--rule); }
@@ -275,8 +317,17 @@ table.center-first td:first-child { text-align: center; font-weight: 600; color:
 """
 
 
+def plain(text):
+    """Text of inline Markdown, for the metadata."""
+    text = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", text)
+    return html.escape(re.sub(r"[`*]", "", text))
+
+
 def build_html(markdown):
-    title, body = convert(markdown)
+    title, lead, body = convert(markdown)
+    page_title = " ".join(w[:1].upper() + w[1:] for w in title.split())
+    # The first sentence of the lead paragraph
+    description = plain(lead.split(". ")[0].rstrip(".") + ".")
     sections = re.findall(r'<(?:section|h1 class="part-title") id="([^"]+)">(?:<h2>)?(.*?)</(?:h2|h1)>', body)
     nav = " ".join(f'<a href="#{sid}">{re.sub("<[^>]+>", "", label)}</a>' for sid, label in sections)
     # The navigation goes after the header
@@ -286,8 +337,8 @@ def build_html(markdown):
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>LiteScript Cheatsheet</title>
-<meta name="description" content="Quick reference of the LiteScript language, its standard library and the litescript-pg playground.">
+<title>{page_title}</title>
+<meta name="description" content="{description}">
 <style>{CSS}</style>
 </head>
 <body>
@@ -340,28 +391,36 @@ def build_pdf(html_path, pdf_path, browser):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--no-pdf", action="store_true", help="only generate the HTML page")
+    parser.add_argument("names", nargs="*", help="cheatsheets to generate (all by default)")
+    parser.add_argument("--no-pdf", action="store_true", help="only generate the HTML pages")
     parser.add_argument("--browser", help="path of Chrome, Chromium or Edge")
     args = parser.parse_args()
 
-    md_path = FOLDER / "cheatsheet.md"
-    html_path = FOLDER / "cheatsheet.html"
-    pdf_path = FOLDER / "cheatsheet.pdf"
+    names = [Path(n).stem for n in args.names] or sorted(p.stem for p in FOLDER.glob("*.md"))
+    browser = None
+    if not args.no_pdf:
+        browser = args.browser or find_browser()
+        if not browser:
+            print("No Chromium based browser found, use --browser or --no-pdf", file=sys.stderr)
+            return 1
 
-    with open(html_path, "w", encoding="utf-8", newline="\n") as f:
-        f.write(build_html(md_path.read_text(encoding="utf-8")))
-    print(f"Written {html_path.relative_to(ROOT)}")
+    for name in names:
+        md_path = FOLDER / f"{name}.md"
+        html_path = FOLDER / f"{name}.html"
+        pdf_path = FOLDER / f"{name}.pdf"
+        if not md_path.is_file():
+            print(f"{md_path.relative_to(ROOT)} doesn't exist", file=sys.stderr)
+            return 1
 
-    if args.no_pdf:
-        return 0
-    browser = args.browser or find_browser()
-    if not browser:
-        print("No Chromium based browser found, use --browser or --no-pdf", file=sys.stderr)
-        return 1
-    if not build_pdf(html_path, pdf_path, browser):
-        print("The browser didn't produce the PDF", file=sys.stderr)
-        return 1
-    print(f"Written {pdf_path.relative_to(ROOT)}")
+        with open(html_path, "w", encoding="utf-8", newline="\n") as f:
+            f.write(build_html(md_path.read_text(encoding="utf-8")))
+        print(f"Written {html_path.relative_to(ROOT)}")
+
+        if browser:
+            if not build_pdf(html_path, pdf_path, browser):
+                print("The browser didn't produce the PDF", file=sys.stderr)
+                return 1
+            print(f"Written {pdf_path.relative_to(ROOT)}")
     return 0
 
 

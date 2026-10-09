@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LiteScript Assembly Cheatsheet</title>
+<meta name="description" content="The instructions of the LiteScript stack machine, written directly.">
+<style>
+:root {
+  --bg: #ffffff; --fg: #1d2330; --muted: #5d6677; --rule: #dde2ea;
+  --code-bg: #f3f5f9; --accent: #2457c5; --accent-soft: #e8eefb;
+  --pg: #b4570c; --pg-soft: #fbefe3;
+  --k: #8a2bb9; --s: #187a3c; --n: #b4570c; --c: #8a93a3;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #15181e; --fg: #dfe4ec; --muted: #9aa3b2; --rule: #2c323d;
+    --code-bg: #1d2129; --accent: #7aa2ff; --accent-soft: #1f2a44;
+    --pg: #f0a35e; --pg-soft: #3a2a1b;
+    --k: #d19af0; --s: #8fd19e; --n: #f0a35e; --c: #737c8c;
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; padding: 20px 16px 40px; background: var(--bg); color: var(--fg);
+  font: 13px/1.4 "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+main { max-width: 1500px; margin: 0 auto; }
+a { color: var(--accent); }
+header { margin-bottom: 10px; border-bottom: 3px solid var(--accent); padding-bottom: 6px; }
+header h1 { margin: 0; font-size: 22px; letter-spacing: -0.01em; }
+.lead { margin: 2px 0 0; color: var(--muted); }
+nav { margin: 6px 0 12px; font-size: 12px; }
+nav a { text-decoration: none; margin-right: 10px; white-space: nowrap; }
+.part {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(min(400px, 100%), 1fr));
+  gap: 14px 18px; align-items: start;
+}
+.part + .part { margin-top: 18px; }
+.part-title {
+  grid-column: 1 / -1; column-span: all; margin: 0 0 8px; padding: 4px 10px; font-size: 17px;
+  color: var(--pg); background: var(--pg-soft); border-left: 5px solid var(--pg); border-radius: 3px;
+}
+section { margin: 0; min-width: 0; }
+pre, ul, p, tr { break-inside: avoid; page-break-inside: avoid; }
+thead { break-after: avoid; }
+h2 {
+  break-after: avoid; page-break-after: avoid;
+  margin: 0 0 4px; padding: 2px 6px; font-size: 13.5px; color: var(--accent);
+  background: var(--accent-soft); border-radius: 3px;
+}
+.part ~ .part h2 { color: var(--pg); background: var(--pg-soft); }
+p { margin: 3px 0; }
+ul { margin: 3px 0; padding-left: 16px; }
+li { margin: 1px 0; }
+code { font: 11.5px/1.35 "Cascadia Mono", Consolas, "SFMono-Regular", Menlo, monospace; }
+:not(pre) > code { background: var(--code-bg); padding: 0 3px; border-radius: 3px; }
+pre {
+  margin: 4px 0; padding: 5px 7px; background: var(--code-bg); border-radius: 4px;
+  overflow-x: auto; white-space: pre; border-left: 3px solid var(--rule);
+}
+pre code { font-size: 11px; }
+pre.lang-asm code { counter-reset: line; }
+pre.lang-asm .ln { counter-increment: line; }
+pre.lang-asm .ln::before {
+  content: counter(line); display: inline-block; width: 2em; margin-right: 0.7em; padding-right: 0.4em;
+  text-align: right; color: var(--c); border-right: 1px solid var(--rule);
+}
+.note { user-select: none; -webkit-user-select: none; }
+.k { color: var(--k); font-weight: 600; } .s { color: var(--s); } .n { color: var(--n); } .c { color: var(--c); font-style: italic; }
+table { width: 100%; border-collapse: collapse; margin: 4px 0; font-size: 12px; }
+th, td { text-align: left; vertical-align: top; padding: 2px 5px; border-bottom: 1px solid var(--rule); }
+th { font-weight: 600; color: var(--muted); border-bottom: 1.5px solid var(--muted); }
+td:first-child { white-space: normal; }
+table.center-first td:first-child { text-align: center; font-weight: 600; color: var(--muted); width: 1%; white-space: nowrap; }
+
+@page { size: A4 landscape; margin: 8mm; }
+@media print {
+  :root, :root:not([data-theme="light"]) {
+    --bg: #fff; --fg: #111; --muted: #555; --rule: #d6d9df; --code-bg: #f2f4f7;
+    --accent: #1f4fb5; --accent-soft: #e6ecf9; --pg: #a24c08; --pg-soft: #fbeee1;
+    --k: #7a1fa8; --s: #146b33; --n: #a24c08; --c: #7d8594;
+  }
+  body { padding: 0; font-size: 7.6pt; line-height: 1.3; }
+  main { max-width: none; }
+  nav { display: none; }
+  header { margin-bottom: 5px; padding-bottom: 3px; border-bottom-width: 2px; }
+  header h1 { font-size: 13pt; }
+  .lead { font-size: 7.6pt; }
+  .part { display: block; column-count: 3; column-gap: 12px; column-rule: 1px solid var(--rule); }
+  .part + .part { margin-top: 0; break-before: page; page-break-before: always; }
+  .part-title { font-size: 11pt; padding: 2px 8px; margin-bottom: 5px; }
+  section { margin-bottom: 6px; }
+  h2 { font-size: 8.6pt; padding: 1px 5px; margin-bottom: 2px; }
+  code, pre code { font-size: 7pt; }
+  pre { padding: 3px 5px; margin: 2px 0; overflow: visible; white-space: pre-wrap; }
+  pre code { font-size: 6.9pt; line-height: 1.28; }
+  table { font-size: 7.3pt; margin: 2px 0; }
+  th, td { padding: 1px 3px; }
+  ul { padding-left: 12px; }
+  a { color: inherit; text-decoration: none; }
+}
+</style>
+</head>
+<body>
+<main>
+<header><h1>LiteScript assembly cheatsheet</h1>
+<p class="lead">The instructions of the LiteScript stack machine, written directly. Scripts are compiled into these instructions. <strong>In this sheet, <code>; text</code> is an annotation, not syntax: the assembler has no comments.</strong> Full reference: <a href="../reference/assembly.md">docs/reference/assembly.md</a>.</p></header>
+<nav><a href="#syntax">Syntax</a> <a href="#the-machine">The machine</a> <a href="#definitions-values">Definitions &amp; values</a> <a href="#stacks-jumps-errors">Stacks, jumps, errors</a> <a href="#operators">Operators</a> <a href="#arrays-classes">Arrays &amp; classes</a> <a href="#pitfalls">Pitfalls</a> <a href="#running-assembly">Running assembly</a> <a href="#script-assembly">Script → assembly</a> <a href="#variables-calls">Variables &amp; calls</a> <a href="#conditions-loops">Conditions &amp; loops</a> <a href="#functions">Functions</a> <a href="#classes">Classes</a> <a href="#errors-namespaces-scopes">Errors, namespaces, scopes</a></nav>
+<div class="part">
+<section id="syntax"><h2>Syntax</h2>
+<table class="noheader"><tbody><tr><td>Line</td><td><code>name argument</code> — one instruction per line, name and argument separated by the first space or tab</td></tr><tr><td>Blanks</td><td>leading spaces and <code>\r</code> ignored; an empty line does nothing but <strong>counts as a line</strong></td></tr><tr><td>Line numbers</td><td>start at <strong>1</strong>; <code>jump-*</code>, <code>value.callback</code>, <code>try.begin</code> target a line; a line after the end = stop</td></tr><tr><td>Comments</td><td><strong>none</strong>: any unknown text is an error</td></tr><tr><td>Case</td><td>instruction names are lower case, exact</td></tr></tbody></table>
+<table class=""><thead><tr><th>Argument</th><th>Format</th></tr></thead><tbody><tr><td><code>&lt;name&gt;</code></td><td>trimmed text, can't be empty (<code>a.b</code> allowed for <code>namespace</code>)</td></tr><tr><td><code>&lt;string&gt;</code></td><td><code>value.string</code>: <strong>rest of the line after the first space</strong>, spaces kept (<code>value.string </code> = <code>&quot;&quot;</code>)</td></tr><tr><td><code>&lt;index&gt;</code></td><td>unsigned integer: <code>0</code>, <code>12</code></td></tr><tr><td><code>&lt;line&gt;</code></td><td>unsigned integer ≥ 1</td></tr><tr><td><code>&lt;number&gt;</code></td><td><code>42</code>, <code>-6</code>, <code>+12</code> (int64) · <code>2.5</code>, <code>1e3</code>, <code>2.0</code> (float) · no <code>inf</code> / <code>nan</code></td></tr><tr><td><code>&lt;true|false&gt;</code></td><td><code>true</code> or <code>false</code> only</td></tr></tbody></table>
+<p><strong>String escapes</strong> (<code>&lt;name&gt;</code>, <code>&lt;string&gt;</code>): <code>\n \r \t \0 \\</code>, any other <code>\c</code> gives <code>c</code>.</p>
+<table class=""><thead><tr><th>Compile error</th><th>Cause</th></tr></thead><tbody><tr><td><code>Unknown assembly command</code></td><td>unknown name, comment, typo</td></tr><tr><td><code>Boolean argument expected</code></td><td><code>value.boolean yes</code></td></tr><tr><td><code>Unsigned integer argument expected</code></td><td><code>define.arg -1</code>, <code>jump-to 0</code>, missing line</td></tr><tr><td><code>Number argument expected</code></td><td><code>value.number abc</code>, <code>inf</code></td></tr><tr><td><code>String argument expected</code></td><td><code>value.variable</code> without name</td></tr></tbody></table>
+</section>
+<section id="the-machine"><h2>The machine</h2>
+<table class=""><thead><tr><th>Part</th><th>Role</th></tr></thead><tbody><tr><td><strong>Value stack</strong></td><td><code>value.*</code> push, operators pop operands and push the result</td></tr><tr><td><strong>Argument lists</strong></td><td><code>push.args</code> opens a list, <code>define.arg i</code> fills it, <code>operator.call</code> / <code>value.object</code> <strong>consume</strong> it</td></tr><tr><td><strong>Frames</strong></td><td>a call (or <code>push.nsp</code>) creates a local namespace; <code>return</code> / <code>pop.nsp</code> leave it</td></tr><tr><td><strong>Return value</strong></td><td><code>define.return</code> stores it (doesn't leave), <code>return</code> leaves and pushes it for the caller</td></tr><tr><td><strong>Try handlers</strong></td><td><code>try.begin</code> records the catch line; an error restores the stack and jumps there with the error value pushed</td></tr><tr><td><strong>Namespace</strong></td><td><code>namespace</code> sets where <code>define.variable</code> declares outside functions</td></tr><tr><td><strong>Program result</strong></td><td>the last value on the stack (or the value given to <code>define.return</code> + <code>return</code> at top level)</td></tr></tbody></table>
+</section>
+<section id="definitions-values"><h2>Definitions &amp; values</h2>
+<p>Stack effect: <code>−n</code> popped, <code>+n</code> pushed.</p>
+<table class=""><thead><tr><th>Instruction</th><th>Stack</th><th>Effect</th></tr></thead><tbody><tr><td><code>define.variable &lt;name&gt;</code></td><td>−1</td><td>declare in the current function / namespace</td></tr><tr><td><code>define.arg &lt;index&gt;</code></td><td>−1</td><td>set argument <code>index</code> of the open list (holes = undefined)</td></tr><tr><td><code>define.return</code></td><td>−1</td><td>set the return value</td></tr><tr><td><code>value.pop</code></td><td>−1</td><td>discard</td></tr><tr><td><code>value.copy</code></td><td>+1</td><td>duplicate the top (<strong>same</strong> object)</td></tr><tr><td><code>value.assign</code></td><td>−1 +1</td><td>replace the top by a copy (what <code>=</code> does)</td></tr><tr><td><code>value.undefined</code> / <code>value.null</code></td><td>+1</td><td></td></tr><tr><td><code>value.boolean &lt;true|false&gt;</code></td><td>+1</td><td></td></tr><tr><td><code>value.number &lt;number&gt;</code></td><td>+1</td><td></td></tr><tr><td><code>value.string &lt;string&gt;</code></td><td>+1</td><td></td></tr><tr><td><code>value.array</code></td><td>+1</td><td>empty array</td></tr><tr><td><code>value.class</code></td><td>+1</td><td>empty class</td></tr><tr><td><code>value.object</code></td><td>−1 +1</td><td><code>new</code> the popped class with the open list, calls the constructor</td></tr><tr><td><code>value.callback &lt;line&gt;</code></td><td>+1</td><td>function starting at <code>line</code>, captures the current scope (closure)</td></tr><tr><td><code>value.arg &lt;index&gt;</code></td><td>+1</td><td>copy of argument <code>index</code> (undefined if missing)</td></tr><tr><td><code>value.args &lt;index&gt;</code></td><td>+1</td><td>array of the arguments from <code>index</code> (rest <code>args...</code>)</td></tr><tr><td><code>value.this</code></td><td>+1</td><td><code>this</code> of the current function</td></tr><tr><td><code>value.variable &lt;name&gt;</code></td><td>+1</td><td>the variable itself (undefined if missing)</td></tr></tbody></table>
+</section>
+<section id="stacks-jumps-errors"><h2>Stacks, jumps, errors</h2>
+<table class=""><thead><tr><th>Instruction</th><th>Effect</th></tr></thead><tbody><tr><td><code>push.args</code></td><td>open an argument list</td></tr><tr><td><code>pop.args</code></td><td>discard the last open list (not the caller's ones)</td></tr><tr><td><code>push.nsp</code></td><td>open a local scope</td></tr><tr><td><code>pop.nsp</code></td><td>close it and push its <code>define.return</code> value</td></tr><tr><td><code>return</code></td><td>leave the function (closes its scopes); top level: stop the program</td></tr><tr><td><code>jump-to &lt;line&gt;</code></td><td>go to <code>line</code></td></tr><tr><td><code>jump-if &lt;line&gt;</code></td><td>pop, go to <code>line</code> if true</td></tr><tr><td><code>jump-else &lt;line&gt;</code></td><td>pop, go to <code>line</code> if false</td></tr><tr><td><code>namespace &lt;a.b&gt;</code></td><td>enter a namespace (created if needed), <code>namespace global</code> to go back</td></tr><tr><td><code>try.begin &lt;line&gt;</code></td><td>start a try block whose catch is at <code>line</code></td></tr><tr><td><code>try.end</code></td><td>end the try block (on the normal path)</td></tr><tr><td><code>throw</code></td><td>pop and throw the value</td></tr></tbody></table>
+<p>Falsy for <code>jump-*</code>: <code>undefined</code>, <code>null</code>, <code>false</code>, <code>0</code>, <code>NaN</code>, <code>&quot;&quot;</code>.</p>
+</section>
+<section id="operators"><h2>Operators</h2>
+<p>Binary: pop <code>b</code>, pop <code>a</code>, push <code>a op b</code>. Unary: pop <code>a</code>, push the result. Assignments modify <code>a</code> (a variable, member or element) and push it.</p>
+<table class=""><thead><tr><th>Instruction</th><th>Op</th><th>Instruction</th><th>Op</th></tr></thead><tbody><tr><td><code>operator.add</code></td><td><code>a + b</code></td><td><code>operator.assign</code></td><td><code>a = b</code></td></tr><tr><td><code>operator.sub</code></td><td><code>a - b</code></td><td><code>operator.add-assign</code></td><td><code>a += b</code></td></tr><tr><td><code>operator.mul</code></td><td><code>a * b</code></td><td><code>operator.sub-assign</code></td><td><code>a -= b</code></td></tr><tr><td><code>operator.div</code></td><td><code>a / b</code></td><td><code>operator.mul-assign</code></td><td><code>a *= b</code></td></tr><tr><td><code>operator.mod</code></td><td><code>a % b</code></td><td><code>operator.div-assign</code></td><td><code>a /= b</code></td></tr><tr><td><code>operator.equ</code></td><td><code>a == b</code></td><td><code>operator.unary-plus</code></td><td><code>+a</code></td></tr><tr><td><code>operator.dif</code></td><td><code>a != b</code></td><td><code>operator.unary-minus</code></td><td><code>-a</code></td></tr><tr><td><code>operator.great</code></td><td><code>a &gt; b</code></td><td><code>operator.pre-incr</code></td><td><code>++a</code></td></tr><tr><td><code>operator.less</code></td><td><code>a &lt; b</code></td><td><code>operator.post-incr</code></td><td><code>a++</code></td></tr><tr><td><code>operator.great-equ</code></td><td><code>a &gt;= b</code></td><td><code>operator.pre-decr</code></td><td><code>--a</code></td></tr><tr><td><code>operator.less-equ</code></td><td><code>a &lt;= b</code></td><td><code>operator.post-decr</code></td><td><code>a--</code></td></tr><tr><td><code>operator.log-and</code></td><td><code>a &amp;&amp; b</code></td><td><code>operator.log-not</code></td><td><code>!a</code></td></tr><tr><td><code>operator.log-or</code></td><td><code>a || b</code></td><td><code>operator.bit-not</code></td><td><code>~a</code></td></tr><tr><td><code>operator.bit-and</code></td><td><code>a &amp; b</code></td><td><code>operator.lshift</code></td><td><code>a &lt;&lt; b</code></td></tr><tr><td><code>operator.bit-or</code></td><td><code>a | b</code></td><td><code>operator.rshift</code></td><td><code>a &gt;&gt; b</code></td></tr><tr><td><code>operator.bit-xor</code></td><td><code>a ^ b</code></td><td><code>operator.array</code></td><td><code>a[b]</code></td></tr><tr><td><code>operator.member &lt;name&gt;</code></td><td><code>a.name</code> (−1 +1)</td><td><code>operator.call</code></td><td><code>a(list)</code> (−1 +1)</td></tr></tbody></table>
+</section>
+<section id="arrays-classes"><h2>Arrays &amp; classes</h2>
+<p>The value is popped and added to the array / class left on the top of the stack.</p>
+<table class=""><thead><tr><th>Instruction</th><th>Effect</th></tr></thead><tbody><tr><td><code>array.push-numeric &lt;index&gt;</code></td><td><code>array[index] = value</code> (copied)</td></tr><tr><td><code>array.push-literal &lt;name&gt;</code></td><td><code>array.name = value</code> (copied)</td></tr><tr><td><code>class.push-unstatic &lt;name&gt;</code></td><td>instance attribute, or method if a function</td></tr><tr><td><code>class.push-static &lt;name&gt;</code></td><td>static member</td></tr><tr><td><code>class.push-operator &lt;index&gt;</code></td><td>operator overload (index below)</td></tr><tr><td><code>class.inherit</code></td><td>inherit from the popped class</td></tr><tr><td><code>class.constructor &lt;name&gt;</code></td><td>set the constructor (pops nothing)</td></tr></tbody></table>
+<table class=""><thead><tr><th>Operator index (<code>class.push-operator</code>)</th></tr></thead><tbody><tr><td>0 <code>assign</code> · 1 <code>unary_plus</code> · 2 <code>unary_minus</code> · 3 <code>pre_increment</code> · 4 <code>post_increment</code> · 5 <code>pre_decrement</code> · 6 <code>post_decrement</code> · <strong>7 <code>add</code></strong> · 8 <code>subtract</code> · 9 <code>multiply</code> · 10 <code>divide</code> · 11 <code>modulo</code> · <strong>12 <code>equal</code></strong> · 13 <code>not_equal</code> · 14 <code>greater</code> · 15 <code>lesser</code> · 16 <code>greater_equal</code> · 17 <code>lesser_equal</code> · 18 <code>not</code> · 19 <code>and</code> · 20 <code>or</code> · 21 <code>bitwise_not</code> · 22 <code>bitwise_and</code> · 23 <code>bitwise_or</code> · 24 <code>bitwise_xor</code> · 25 <code>left_shift</code> · 26 <code>right_shift</code> · 27 <code>add_assign</code> · 28 <code>subtract_assign</code> · 29 <code>multiply_assign</code> · 30 <code>divide_assign</code> · <strong>31 <code>get</code></strong> · <strong>32 <code>call</code></strong></td></tr></tbody></table>
+</section>
+<section id="pitfalls"><h2>Pitfalls</h2>
+<ul><li><strong><code>value.assign</code> before <code>define.variable</code></strong> when the value comes from a variable: without it, both names share the number/string (<code>b++</code> changes <code>a</code>).</li><li><code>operator.call</code> and <code>value.object</code> consume the argument list: no <code>pop.args</code> after them. Even with no arguments, <code>push.args</code> is needed.</li><li>A function body must end with <code>return</code>, otherwise execution continues into the next lines. Jump over the body when declaring it.</li><li>After <code>try.begin</code>, the catch line receives the error value on the stack: <code>define.variable e</code> or <code>value.pop</code>.</li><li>An expression statement leaves its result on the stack: end it with <code>value.pop</code>.</li><li><code>&amp;&amp;</code> / <code>||</code> are plain operators: both operands are evaluated (use <code>jump-else</code> for a short-circuit).</li><li>No annotation after <code>value.string</code>: it would be part of the string.</li><li>Line numbers shift when lines are inserted: update every jump target.</li></ul>
+</section>
+<section id="running-assembly"><h2>Running assembly</h2>
+<pre class="lang-bash"><code>assembly fibonacci.txt  <span class="c"># run, print the result</span>
+assembly                <span class="c"># interactive</span></code></pre>
+<table class=""><thead><tr><th>Interactive command</th><th></th></tr></thead><tbody><tr><td><code>file &lt;path&gt;</code></td><td>run a file</td></tr><tr><td><code>instructions</code> / <code>help</code></td><td>list the instructions / commands</td></tr><tr><td><code>exit</code></td><td>quit</td></tr></tbody></table>
+<p>Program <code>examples/assembly</code> (built with the examples). <code>print(...)</code> is available, an empty line runs the input, line numbers continue between inputs. Full program: <code>examples/assembly/fibonacci.txt</code>.</p>
+<table class=""><thead><tr><th>C++ (<code>LiteScript::Assembly</code>)</th><th></th></tr></thead><tbody><tr><td><code>Compile(code)</code></td><td>→ <code>Result { instructions, error, line }</code> (<code>line</code> 0-based)</td></tr><tr><td><code>Execute(state, code)</code></td><td>compile + run, <code>result.value</code> = result</td></tr><tr><td><code>ExecuteAfter(state, code)</code></td><td>append to the last list: line numbers continue</td></tr><tr><td><code>Disassemble(instructions)</code></td><td>instructions → text (e.g. of <code>Script::Compile</code>)</td></tr><tr><td><code>GetErrorMessage(error)</code></td><td>message of a compile error</td></tr></tbody></table>
+</section>
+</div>
+<div class="part part-script"><h1 class="part-title" id="script-assembly">Script → assembly</h1>
+<p>What the compiler generates (<code>Script::Compile</code> + <code>Assembly::Disassemble</code>).</p>
+<section id="variables-calls"><h2>Variables &amp; calls</h2>
+<pre class="lang-asm"><code><span class="ln"><span class="k">value.number</span> <span class="n">1</span><span class="c note">          ; var a = 1 + 2 * 3;</span></span>
+<span class="ln"><span class="k">value.number</span> <span class="n">2</span></span>
+<span class="ln"><span class="k">value.number</span> <span class="n">3</span></span>
+<span class="ln"><span class="k">operator.mul</span></span>
+<span class="ln"><span class="k">operator.add</span></span>
+<span class="ln"><span class="k">value.assign</span></span>
+<span class="ln"><span class="k">define.variable</span> <span class="s">a</span></span>
+<span class="ln"><span class="k">value.variable</span> <span class="s">a</span><span class="c note">        ; a += 1;</span></span>
+<span class="ln"><span class="k">value.number</span> <span class="n">1</span></span>
+<span class="ln"><span class="k">operator.add-assign</span></span>
+<span class="ln"><span class="k">value.pop</span></span>
+<span class="ln"><span class="k">value.variable</span> <span class="s">print</span><span class="c note">    ; print(a, &quot;!&quot;);</span></span>
+<span class="ln"><span class="k">push.args</span></span>
+<span class="ln"><span class="k">value.variable</span> <span class="s">a</span></span>
+<span class="ln"><span class="k">define.arg</span> <span class="n">0</span></span>
+<span class="ln"><span class="k">value.string</span> <span class="s">!</span></span>
+<span class="ln"><span class="k">define.arg</span> <span class="n">1</span></span>
+<span class="ln"><span class="k">operator.call</span></span>
+<span class="ln"><span class="k">value.pop</span></span></code></pre>
+<table class=""><thead><tr><th>Script</th><th>Assembly</th></tr></thead><tbody><tr><td><code>x = 4;</code></td><td><code>value.variable x</code> · <code>value.number 4</code> · <code>operator.assign</code> · <code>value.pop</code></td></tr><tr><td><code>o.k</code> / <code>a[0]</code></td><td><code>value.variable o</code> · <code>operator.member k</code> / <code>value.variable a</code> · <code>value.number 0</code> · <code>operator.array</code></td></tr><tr><td><code>o.m()</code></td><td><code>value.variable o</code> · <code>operator.member m</code> · <code>push.args</code> · <code>operator.call</code> (<code>this</code> = <code>o</code>)</td></tr><tr><td><code>[1, { k: 2 }]</code></td><td><code>value.array</code> · <code>value.number 1</code> · <code>array.push-numeric 0</code> · <code>value.array</code> · <code>value.number 2</code> · <code>array.push-literal k</code> · <code>array.push-numeric 1</code></td></tr><tr><td><code>f(g(1))</code></td><td><code>value.variable f</code> · <code>push.args</code> · <code>value.variable g</code> · <code>push.args</code> · <code>value.number 1</code> · <code>define.arg 0</code> · <code>operator.call</code> · <code>define.arg 0</code> · <code>operator.call</code> (nested lists)</td></tr><tr><td><code>return 5;</code> (top level)</td><td><code>value.number 5</code> · <code>define.return</code> · <code>return</code></td></tr></tbody></table>
+</section>
+<section id="conditions-loops"><h2>Conditions &amp; loops</h2>
+<pre class="lang-asm"><code><span class="ln"><span class="k">value.variable</span> <span class="s">a</span><span class="c note">        ; var s = a &gt; 0 ? &quot;+&quot; : &quot;-&quot;;</span></span>
+<span class="ln"><span class="k">value.number</span> <span class="n">0</span></span>
+<span class="ln"><span class="k">operator.great</span></span>
+<span class="ln"><span class="k">jump-else</span> <span class="n">7</span></span>
+<span class="ln"><span class="k">value.string</span> <span class="s">+</span></span>
+<span class="ln"><span class="k">jump-to</span> <span class="n">8</span></span>
+<span class="ln"><span class="k">value.string</span> <span class="s">-</span></span>
+<span class="ln"><span class="k">value.assign</span></span>
+<span class="ln"><span class="k">define.variable</span> <span class="s">s</span></span></code></pre>
+<pre class="lang-asm"><code><span class="ln"><span class="k">value.number</span> <span class="n">0</span><span class="c note">          ; var i = 0;</span></span>
+<span class="ln"><span class="k">define.variable</span> <span class="s">i</span></span>
+<span class="ln"><span class="k">value.variable</span> <span class="s">i</span><span class="c note">        ; while (i &lt; 3)</span></span>
+<span class="ln"><span class="k">value.number</span> <span class="n">3</span></span>
+<span class="ln"><span class="k">operator.less</span></span>
+<span class="ln"><span class="k">jump-else</span> <span class="n">11</span><span class="c note">            ; exit the loop</span></span>
+<span class="ln"><span class="k">value.variable</span> <span class="s">i</span><span class="c note">        ; i++;</span></span>
+<span class="ln"><span class="k">operator.post-incr</span></span>
+<span class="ln"><span class="k">value.pop</span></span>
+<span class="ln"><span class="k">jump-to</span> <span class="n">3</span><span class="c note">               ; loop</span></span></code></pre>
+<ul><li><code>if / else</code>: condition, <code>jump-else &lt;else&gt;</code>, then-part, <code>jump-to &lt;end&gt;</code>, else-part.</li><li><code>do … while</code>: body, condition, <code>jump-if &lt;body start&gt;</code>. <code>break</code> / <code>continue</code> = <code>jump-to</code>.</li><li><code>switch</code>: value, then per case <code>value.copy</code> · case value · <code>operator.equ</code> · <code>jump-else &lt;next&gt;</code>; final <code>value.pop</code>.</li></ul>
+</section>
+<section id="functions"><h2>Functions</h2>
+<pre class="lang-asm"><code><span class="ln"><span class="k">jump-to</span> <span class="n">11</span><span class="c note">              ; function add(a, b) {</span></span>
+<span class="ln"><span class="k">value.arg</span> <span class="n">0</span><span class="c note">             ; ← body (line 2)</span></span>
+<span class="ln"><span class="k">define.variable</span> <span class="s">a</span></span>
+<span class="ln"><span class="k">value.arg</span> <span class="n">1</span></span>
+<span class="ln"><span class="k">define.variable</span> <span class="s">b</span></span>
+<span class="ln"><span class="k">value.variable</span> <span class="s">a</span><span class="c note">        ;   return a + b;</span></span>
+<span class="ln"><span class="k">value.variable</span> <span class="s">b</span></span>
+<span class="ln"><span class="k">operator.add</span></span>
+<span class="ln"><span class="k">define.return</span></span>
+<span class="ln"><span class="k">return</span><span class="c note">                  ; }</span></span>
+<span class="ln"><span class="k">value.callback</span> <span class="n">2</span></span>
+<span class="ln"><span class="k">define.variable</span> <span class="s">add</span></span>
+<span class="ln"><span class="k">value.variable</span> <span class="s">add</span><span class="c note">      ; add(2, 3)</span></span>
+<span class="ln"><span class="k">push.args</span></span>
+<span class="ln"><span class="k">value.number</span> <span class="n">2</span></span>
+<span class="ln"><span class="k">define.arg</span> <span class="n">0</span></span>
+<span class="ln"><span class="k">value.number</span> <span class="n">3</span></span>
+<span class="ln"><span class="k">define.arg</span> <span class="n">1</span></span>
+<span class="ln"><span class="k">operator.call</span><span class="c note">           ; → 5 on the stack</span></span></code></pre>
+<p>Rest parameter <code>f(a, r...)</code>: <code>value.args 1</code> · <code>define.variable r</code>. Anonymous function: <code>value.callback &lt;line&gt;</code> used as a value.</p>
+</section>
+<section id="classes"><h2>Classes</h2>
+<pre class="lang-asm"><code><span class="ln"><span class="k">value.class</span><span class="c note">             ; class Point {</span></span>
+<span class="ln"><span class="k">value.number</span> <span class="n">0</span><span class="c note">          ;   var x = 0;</span></span>
+<span class="ln"><span class="k">value.assign</span></span>
+<span class="ln"><span class="k">class.push-unstatic</span> <span class="s">x</span></span>
+<span class="ln"><span class="k">jump-to</span> <span class="n">14</span><span class="c note">              ;   function Point(x) {</span></span>
+<span class="ln"><span class="k">value.arg</span> <span class="n">0</span></span>
+<span class="ln"><span class="k">define.variable</span> <span class="s">x</span></span>
+<span class="ln"><span class="k">value.this</span><span class="c note">              ;     this.x = x;</span></span>
+<span class="ln"><span class="k">operator.member</span> <span class="s">x</span></span>
+<span class="ln"><span class="k">value.variable</span> <span class="s">x</span></span>
+<span class="ln"><span class="k">operator.assign</span></span>
+<span class="ln"><span class="k">value.pop</span></span>
+<span class="ln"><span class="k">return</span><span class="c note">                  ;   }</span></span>
+<span class="ln"><span class="k">value.callback</span> <span class="n">6</span></span>
+<span class="ln"><span class="k">class.push-unstatic</span> <span class="s">Point</span></span>
+<span class="ln"><span class="k">jump-to</span> <span class="n">21</span><span class="c note">              ;   function get() {</span></span>
+<span class="ln"><span class="k">value.this</span><span class="c note">              ;     return this.x;</span></span>
+<span class="ln"><span class="k">operator.member</span> <span class="s">x</span></span>
+<span class="ln"><span class="k">define.return</span></span>
+<span class="ln"><span class="k">return</span><span class="c note">                  ;   }</span></span>
+<span class="ln"><span class="k">value.callback</span> <span class="n">17</span></span>
+<span class="ln"><span class="k">class.push-unstatic</span> <span class="s">get</span></span>
+<span class="ln"><span class="k">class.constructor</span> <span class="s">Point</span><span class="c note"> ; }</span></span>
+<span class="ln"><span class="k">define.variable</span> <span class="s">Point</span></span>
+<span class="ln"><span class="k">value.variable</span> <span class="s">Point</span><span class="c note">    ; new Point(4).get()</span></span>
+<span class="ln"><span class="k">push.args</span></span>
+<span class="ln"><span class="k">value.number</span> <span class="n">4</span></span>
+<span class="ln"><span class="k">define.arg</span> <span class="n">0</span></span>
+<span class="ln"><span class="k">value.object</span></span>
+<span class="ln"><span class="k">operator.member</span> <span class="s">get</span></span>
+<span class="ln"><span class="k">push.args</span></span>
+<span class="ln"><span class="k">operator.call</span><span class="c note">           ; → 4</span></span></code></pre>
+<ul><li><code>class P : B</code>: <code>value.class</code> · <code>value.variable B</code> · <code>class.inherit</code> first.</li><li><code>static var n</code>: <code>class.push-static n</code>. <code>operator add(o)</code>: callback then <code>class.push-operator 7</code>.</li></ul>
+</section>
+<section id="errors-namespaces-scopes"><h2>Errors, namespaces, scopes</h2>
+<pre class="lang-asm"><code><span class="ln"><span class="k">try.begin</span> <span class="n">6</span><span class="c note">             ; try {</span></span>
+<span class="ln"><span class="k">value.string</span> <span class="s">oops</span></span>
+<span class="ln"><span class="k">throw</span><span class="c note">                   ;   throw &quot;oops&quot;;</span></span>
+<span class="ln"><span class="k">try.end</span><span class="c note">                 ; }</span></span>
+<span class="ln"><span class="k">jump-to</span> <span class="n">7</span></span>
+<span class="ln"><span class="k">define.variable</span> <span class="s">e</span><span class="c note">       ; catch (e) — error on the stack</span></span></code></pre>
+<table class=""><thead><tr><th>Script</th><th>Assembly</th></tr></thead><tbody><tr><td><code>namespace A.B;</code> / <code>namespace global;</code></td><td><code>namespace A.B</code> / <code>namespace global</code></td></tr><tr><td>block with its own variables (manual)</td><td><code>push.nsp</code> · … · <code>define.return</code> · <code>pop.nsp</code> → value pushed, locals gone</td></tr></tbody></table>
+</section>
+</div>
+</main>
+</body>
+</html>

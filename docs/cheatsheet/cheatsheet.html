@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>LiteScript Cheatsheet</title>
-<meta name="description" content="Quick reference of the LiteScript language, its standard library and the litescript-pg playground.">
+<meta name="description" content="JavaScript-like scripting language embedded in C++ applications.">
 <style>
 :root {
   --bg: #ffffff; --fg: #1d2330; --muted: #5d6677; --rule: #dde2ea;
@@ -43,13 +43,14 @@ nav a { text-decoration: none; margin-right: 10px; white-space: nowrap; }
   color: var(--pg); background: var(--pg-soft); border-left: 5px solid var(--pg); border-radius: 3px;
 }
 section { margin: 0; min-width: 0; }
-pre, table, ul, p, tr { break-inside: avoid; page-break-inside: avoid; }
+pre, ul, p, tr { break-inside: avoid; page-break-inside: avoid; }
+thead { break-after: avoid; }
 h2 {
   break-after: avoid; page-break-after: avoid;
   margin: 0 0 4px; padding: 2px 6px; font-size: 13.5px; color: var(--accent);
   background: var(--accent-soft); border-radius: 3px;
 }
-.part-playground h2 { color: var(--pg); background: var(--pg-soft); }
+.part ~ .part h2 { color: var(--pg); background: var(--pg-soft); }
 p { margin: 3px 0; }
 ul { margin: 3px 0; padding-left: 16px; }
 li { margin: 1px 0; }
@@ -60,6 +61,13 @@ pre {
   overflow-x: auto; white-space: pre; border-left: 3px solid var(--rule);
 }
 pre code { font-size: 11px; }
+pre.lang-asm code { counter-reset: line; }
+pre.lang-asm .ln { counter-increment: line; }
+pre.lang-asm .ln::before {
+  content: counter(line); display: inline-block; width: 2em; margin-right: 0.7em; padding-right: 0.4em;
+  text-align: right; color: var(--c); border-right: 1px solid var(--rule);
+}
+.note { user-select: none; -webkit-user-select: none; }
 .k { color: var(--k); font-weight: 600; } .s { color: var(--s); } .n { color: var(--n); } .c { color: var(--c); font-style: italic; }
 table { width: 100%; border-collapse: collapse; margin: 4px 0; font-size: 12px; }
 th, td { text-align: left; vertical-align: top; padding: 2px 5px; border-bottom: 1px solid var(--rule); }
