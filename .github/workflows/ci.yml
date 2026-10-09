@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Linux GCC release
+            os: ubuntu-24.04
+            cxx: g++
+            options: --buildtype=release
+          - name: Linux GCC sanitizers
+            os: ubuntu-24.04
+            cxx: g++
+            options: --buildtype=debug -Db_sanitize=address,undefined
+          - name: Linux Clang release
+            os: ubuntu-24.04
+            cxx: clang++
+            options: --buildtype=release
+          - name: Linux Clang sanitizers
+            os: ubuntu-24.04
+            cxx: clang++
+            options: --buildtype=debug -Db_sanitize=address,undefined -Db_lundef=false
+          - name: macOS Clang release
+            os: macos-14
+            cxx: clang++
+            options: --buildtype=release
+          - name: Windows MSVC release
+            os: windows-2022
+            cxx: cl
+            options: --buildtype=release -Dwerror=true
+          - name: Windows MSVC debug and AddressSanitizer
+            os: windows-2022
+            cxx: cl
+            options: --buildtype=debug -Db_sanitize=address -Dwerror=true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Meson and Ninja
+        run: python -m pip install meson ninja
+
+      - name: Cache the subprojects
+        uses: actions/cache@v4
+        with:
+          path: subprojects/packagecache
+          key: subprojects-${{ hashFiles('subprojects/*.wrap') }}
+
+      - name: Setup MSVC
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Configure
+        env:
+          CXX: ${{ matrix.cxx }}
+        run: meson setup build ${{ matrix.options }} -Dbenchmarks=true
+
+      - name: Build
+        run: meson compile -C build
+
+      - name: Test
+        env:
+          UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
+        run: meson test -C build --print-errorlogs
+
+      - name: Examples
+        shell: bash
+        run: |
+          ./build/examples/assembly examples/assembly/fibonacci.txt
+          ./build/examples/script examples/script/fibonacci.txt

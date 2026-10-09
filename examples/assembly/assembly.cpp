@@ -1,55 +1,48 @@
-#include <cstring>
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <optional>
+#include <sstream>
+#include <string>
 
-#include "../../src/litescript.hpp"
+#include <litescript/litescript.hpp>
 
 using namespace LiteScript;
 
 /**
  * Read the content of a file
  * @param name The filename
- * @param i The line number reference
- * @return The content of the file
+ * @return The content of the file or nullopt if the file can't be opened
  */
-std::string readfile(const char * name, unsigned int& i) {
-    std::string s;
-    std::ifstream file(name);
+std::optional<std::string> ReadFile(const std::string& name) {
+    std::ifstream file(name, std::ios::binary);
     if (!file.is_open())
-        return std::string("error : can't open the file");
-
-    char tmp[256];
-    while (file.getline(tmp, 256)) {
-        s += tmp;
-        s += '\n';
-        i++;
-    }
-    file.close();
-
-    return s;
+        return std::nullopt;
+    std::ostringstream content;
+    content << file.rdbuf();
+    return content.str();
 }
 
 /**
- * The print callback to include in the state of script
- * @param s The assembly state
+ * The print function to include in the state of script
+ * @param state The assembly state
  * @param args The arguments
  * @return Undefined value
  */
-Variable print_var(State& s, std::vector<Variable>& args) {
+Variable Print(State& state, std::vector<Variable>& args) {
     std::cout << "print: ";
-    for (unsigned int i = 0, sz = args.size(); i < sz; i++) {
+    for (std::size_t i = 0; i < args.size(); i++) {
         std::cout << args[i];
-        if (i < sz - 1)
+        if (i + 1 < args.size())
             std::cout << ", ";
     }
     std::cout << std::endl;
-    return s.memory.Create(Type::UNDEFINED);
+    return state.GetMemory().CreateUndefined();
 }
 
 /**
  * The assembly instruction syntaxes
  */
-std::array<const char *, 76> commands_instructions({
+constexpr const char * INSTRUCTIONS_HELP[] = {
     "define.variable <name> : define a variable in the current namespace (1 pop)",
     "define.arg <index number> : define an argument (1 pop)",
     "define.return : define the return value (1 pop)",
@@ -64,7 +57,7 @@ std::array<const char *, 76> commands_instructions({
     "value.array : add an array value to the heap (1 push)",
     "value.class : add a class value to the heap (1 push)",
     "value.object : add a class object value to the heap, the class need to be on the top of the heap (1 pop, 1 push)",
-    "value.callback <line number> : add a callback value to the heap with the line number of its (1 push)",
+    "value.callback <line number> : add a callback value to the heap with the line number of its first instruction (1 push)",
     "value.arg <index number> : add the nth argument value to the heap (1 push)",
     "value.args <index number> : add an array value to the heap that contain arguments from the referenced index to the end (1 push)",
     "value.variable <name> : add a variable to the heap (1 push)",
@@ -126,118 +119,110 @@ std::array<const char *, 76> commands_instructions({
     "class.constructor <name> : define the constructor member in the class by its name",
     "",
     "namespace <name[.name]*> : define the current namespace base, \"global\" for return to the global namespace"
-});
+};
 
 /**
  * The commands
  */
-std::array<const char *, 5> command_help({
+constexpr const char * COMMANDS_HELP[] = {
     "exit : stop execution",
     "file <filepath> : execute assembly code in a file",
     "help : redisplay this text",
     "instructions : display all instructions commands",
     "enter white line to execute previous code"
-});
+};
 
 /**
  * For display instructions and commands
- * @param commnds_c The number of strings
- * @param commnds_v The strings
  */
-void display_commands(int commnds_c, const char ** commnds_v) {
-    for (unsigned int i = 0; i < commnds_c; i++) {
-        if (strlen(commnds_v[i]) != 0)
-            std::cout << "- " << commnds_v[i];
+template <std::size_t N>
+void DisplayCommands(const char * const (&commands)[N]) {
+    for (const char * command : commands) {
+        if (command[0] != '\0')
+            std::cout << "- " << command;
         std::cout << std::endl;
     }
 }
 
 /**
- * The main fonction
+ * The main function
  */
 int main(int argc, char * argv[]) {
     // We create the main memory and the script state
     Memory memory;
     State state(memory);
-    // We create an assembly object
-    Assembly assembly(state);
 
-    // We add the "print" callback in the global namespace
-    DeclareVariable(state, "print", CreateVariable(memory, print_var));
+    // We add the "print" function in the global namespace
+    state.DeclareVariable("print", memory.RegisterFunction("print", Print));
 
     // If there is a parameter, it's a file assembly script to execute
     if (argc > 1) {
-        unsigned int i;
-        // We read the file content
-        std::string code = readfile(argv[1], i);
-        if (code == "error : can't open the file") {
-            std::cout << code << " \"" << argv[1] << "\"" << std::endl;
+        auto code = ReadFile(argv[1]);
+        if (!code) {
+            std::cout << "error : can't open the file \"" << argv[1] << "\"" << std::endl;
             return -1;
         }
-
         // We execute the assembly script
-        Variable result = assembly.ExecuteAfter(code.c_str());
+        Assembly::Result result = Assembly::ExecuteAfter(state, *code);
         // If there is an error, we print it
-        if (assembly.error != Assembly::ErrorType::ASSM_ERROR_NO) {
-            std::cout << "ERROR(" << assembly.line_error + 1 << "): " << assembly.GetError() << std::endl;
+        if (!result) {
+            std::cout << "ERROR(" << result.line + 1 << "): " << result.GetMessage() << std::endl;
             return 1;
         }
-        // Otherwise we print the result of the script
-        // (it's the last value on the heap)
-        else
-            std::cout << (std::string)(result) << std::endl;
+        // Otherwise we print the result of the script (it's the last value on the stack)
+        std::cout << result.value << std::endl;
         return 0;
     }
 
     // Else we read lines on the keyboard
-    // (the script execution is relatively the same as above)
-    char cmd[256];
-    std::string code;
-    unsigned int line_num = 1, prev_num = 1;
+    // (the instructions are added at the end of the same list, line numbers continue)
+    std::size_t line_num = 1;
     std::cout << "Enter assembly code :" << std::endl;
-    display_commands(command_help.size(), command_help.data());
+    DisplayCommands(COMMANDS_HELP);
     while (true) {
         std::cout << std::endl;
-        code.clear();
+        std::size_t first_line = line_num;
+        std::string code, line;
         while (true) {
             std::cout << line_num << " > ";
-            std::cin.getline(cmd, 256);
-            if (strncmp(cmd, "file ", 5) == 0) {
-                code += readfile(cmd + 5, line_num);
-                break;
-            }
-            else if (strncmp(cmd, "help", 4) == 0) {
-                std::cout << "Commands :" << std::endl;
-                display_commands(command_help.size(), command_help.data());
-                std::cout << std::endl;
-                continue;
-            }
-            else if (strncmp(cmd, "instructions", 12) == 0) {
-                std::cout << "I"
-                        "nstructions :" << std::endl;
-                display_commands(commands_instructions.size(), commands_instructions.data());
-                std::cout << std::endl;
-                continue;
-            }
-            else if (strcmp(cmd, "exit") == 0)
+            if (!std::getline(std::cin, line) || line == "exit")
                 return 0;
-            else if (cmd[0] == '\0')
+            if (line.rfind("file ", 0) == 0) {
+                auto content = ReadFile(line.substr(5));
+                if (!content) {
+                    std::cout << "error : can't open the file" << std::endl;
+                    continue;
+                }
+                for (char c : *content)
+                    line_num += c == '\n';
+                code += *content;
                 break;
-            code += cmd;
-            code += '\n';
+            }
+            if (line == "help") {
+                std::cout << "Commands :" << std::endl;
+                DisplayCommands(COMMANDS_HELP);
+                std::cout << std::endl;
+                continue;
+            }
+            if (line == "instructions") {
+                std::cout << "Instructions :" << std::endl;
+                DisplayCommands(INSTRUCTIONS_HELP);
+                std::cout << std::endl;
+                continue;
+            }
+            if (line.empty())
+                break;
+            code += line + '\n';
             line_num++;
         }
-        code.pop_back();
 
-        Variable result = assembly.ExecuteAfter(code.c_str());
-        if (assembly.error != Assembly::ErrorType::ASSM_ERROR_NO) {
-            std::cout << "ERROR(" << assembly.line_error + prev_num << "): " << assembly.GetError() << std::endl;
-            line_num = prev_num;
+        Assembly::Result result = Assembly::ExecuteAfter(state, code);
+        if (!result) {
+            std::cout << "ERROR(" << result.line + first_line << "): " << result.GetMessage() << std::endl;
+            line_num = first_line;
         }
         else {
-            std::cout << (std::string)(result) << std::endl;
-            prev_num = line_num;
+            std::cout << result.value << std::endl;
         }
     }
-
 }

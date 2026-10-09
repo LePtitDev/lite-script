@@ -1,144 +1,119 @@
-#include <cstring>
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <optional>
+#include <sstream>
+#include <string>
 
-#include "../../src/litescript.hpp"
+#include <litescript/litescript.hpp>
 
 using namespace LiteScript;
 
 /**
  * Read the content of a file
  * @param name The filename
- * @param i The line number reference
- * @return The content of the file
+ * @return The content of the file or nullopt if the file can't be opened
  */
-std::string readfile(const char * name, unsigned int& i) {
-    std::string s;
-    std::ifstream file(name);
+std::optional<std::string> ReadFile(const std::string& name) {
+    std::ifstream file(name, std::ios::binary);
     if (!file.is_open())
-        return std::string("error : can't open the file");
-
-    char tmp[256];
-    while (file.getline(tmp, 256)) {
-        s += tmp;
-        s += '\n';
-        i++;
-    }
-    file.close();
-
-    return s;
+        return std::nullopt;
+    std::ostringstream content;
+    content << file.rdbuf();
+    return content.str();
 }
 
 /**
- * The print callback to include in the state of script
- * @param s The assembly state
+ * The print function to include in the state of script
+ * @param state The script state
  * @param args The arguments
  * @return Undefined value
  */
-Variable print_var(State& s, std::vector<Variable>& args) {
-    for (unsigned int i = 0, sz = args.size(); i < sz; i++) {
-        std::cout << args[i];
-        if (i < sz - 1)
+Variable Print(State& state, std::vector<Variable>& args) {
+    for (std::size_t i = 0; i < args.size(); i++) {
+        // Strings are displayed without quotes
+        std::cout << ToText(args[i]).ToUTF8();
+        if (i + 1 < args.size())
             std::cout << ", ";
     }
     std::cout << std::endl;
-    return s.memory.Create(Type::UNDEFINED);
+    return state.GetMemory().CreateUndefined();
+}
+
+/**
+ * Execute a code and display the syntax error if there is one
+ * @return true if the code has been executed
+ */
+bool Run(State& state, const std::string& code) {
+    Script::Result result = Script::Execute(state, code);
+    if (!result)
+        std::cout << "ERROR(" << (result.line + 1) << "," << (result.column + 1) << "): " << result.GetMessage() << std::endl;
+    return static_cast<bool>(result);
 }
 
 /**
  * The commands
  */
-std::array<const char *, 4> command_help({
-                                                 "exit : stop execution",
-                                                 "file <filepath> : execute script code in a file",
-                                                 "help : redisplay this text",
-                                                 "enter white line to execute previous code"
-                                         });
+constexpr const char * COMMANDS_HELP[] = {
+    "exit : stop execution",
+    "file <filepath> : execute script code in a file",
+    "help : redisplay this text",
+    "enter white line to execute previous code"
+};
 
-
-/**
- * For display commands
- * @param commnds_c The number of strings
- * @param commnds_v The strings
- */
-void display_commands(int commnds_c, const char ** commnds_v) {
-    for (unsigned int i = 0; i < commnds_c; i++) {
-        if (strlen(commnds_v[i]) != 0)
-            std::cout << "- " << commnds_v[i];
-        std::cout << std::endl;
-    }
+void DisplayCommands() {
+    for (const char * command : COMMANDS_HELP)
+        std::cout << "- " << command << std::endl;
 }
 
-
 /**
- * The main fonction
+ * The main function
  */
 int main(int argc, char * argv[]) {
     // We create the main memory and the script state
     Memory memory;
     State state(memory);
-    // We create an assembly object
-    Script script(state);
 
-    // We add the "print" callback in the global namespace
-    DeclareVariable(state, "print", CreateVariable(memory, print_var));
+    // We add the "print" function in the global namespace
+    state.DeclareVariable("print", memory.RegisterFunction("print", Print));
 
-    // If there is a parameter, it's a file assembly script to execute
+    // If there is a parameter, it's a script file to execute
     if (argc > 1) {
-        unsigned int i;
-        // We read the file content
-        std::string code = readfile(argv[1], i);
-        if (code == "error : can't open the file") {
-            std::cout << code << " \"" << argv[1] << "\"" << std::endl;
+        auto code = ReadFile(argv[1]);
+        if (!code) {
+            std::cout << "error : can't open the file \"" << argv[1] << "\"" << std::endl;
             return -1;
         }
-
-        // We execute the script
-        script.Execute(code.c_str());
-        // If there is an error, we print it
-        if (script.error != Script::ErrorType::SCRPT_ERROR_NO) {
-            std::cout << "ERROR(" << (script.line_error + 1) << "," << (script.col_error + 1) << "): " << script.GetError() << std::endl;
-            return 1;
-        }
-        return 0;
+        return Run(state, *code) ? 0 : 1;
     }
 
     // Else we read lines on the keyboard
-    // (the script execution is relatively the same as above)
-    char cmd[256];
-    std::string code;
-    unsigned int line_num;
     std::cout << "Enter script code :" << std::endl;
-    display_commands(command_help.size(), command_help.data());
+    DisplayCommands();
     while (true) {
-        line_num = 1;
         std::cout << std::endl;
-        code.clear();
-        while (true) {
+        std::string code, line;
+        for (unsigned int line_num = 1; true; line_num++) {
             std::cout << line_num << " > ";
-            std::cin.getline(cmd, 256);
-            if (strncmp(cmd, "file ", 5) == 0) {
-                code += readfile(cmd + 5, line_num);
+            if (!std::getline(std::cin, line) || line == "exit")
+                return 0;
+            if (line.rfind("file ", 0) == 0) {
+                auto content = ReadFile(line.substr(5));
+                if (content)
+                    code += *content;
+                else
+                    std::cout << "error : can't open the file" << std::endl;
                 break;
             }
-            else if (strncmp(cmd, "help", 4) == 0) {
+            if (line == "help") {
                 std::cout << "Commands :" << std::endl;
-                display_commands(command_help.size(), command_help.data());
-                std::cout << std::endl;
+                DisplayCommands();
+                line_num--;
                 continue;
             }
-            else if (strcmp(cmd, "exit") == 0)
-                return 0;
-            else if (cmd[0] == '\0')
+            if (line.empty())
                 break;
-            code += cmd;
-            code += '\n';
-            line_num++;
+            code += line + '\n';
         }
-        code.pop_back();
-
-        script.Execute(code.c_str());
-        if (script.error != Script::ErrorType::SCRPT_ERROR_NO)
-            std::cout << "ERROR(" << (script.line_error + 1) << "," << (script.col_error + 1) << "): " << script.GetError() << std::endl;
+        Run(state, code);
     }
 }

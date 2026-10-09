@@ -1,0 +1,7 @@
+# Build directories
+/build*/
+/builddir/
+
+# Subprojects downloaded by Meson (the .wrap files are kept)
+/subprojects/*
+!/subprojects/*.wrap
