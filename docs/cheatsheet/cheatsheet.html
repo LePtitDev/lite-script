@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LiteScript Cheatsheet</title>
+<meta name="description" content="Quick reference of the LiteScript language, its standard library and the litescript-pg playground.">
+<style>
+:root {
+  --bg: #ffffff; --fg: #1d2330; --muted: #5d6677; --rule: #dde2ea;
+  --code-bg: #f3f5f9; --accent: #2457c5; --accent-soft: #e8eefb;
+  --pg: #b4570c; --pg-soft: #fbefe3;
+  --k: #8a2bb9; --s: #187a3c; --n: #b4570c; --c: #8a93a3;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #15181e; --fg: #dfe4ec; --muted: #9aa3b2; --rule: #2c323d;
+    --code-bg: #1d2129; --accent: #7aa2ff; --accent-soft: #1f2a44;
+    --pg: #f0a35e; --pg-soft: #3a2a1b;
+    --k: #d19af0; --s: #8fd19e; --n: #f0a35e; --c: #737c8c;
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; padding: 20px 16px 40px; background: var(--bg); color: var(--fg);
+  font: 13px/1.4 "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+main { max-width: 1500px; margin: 0 auto; }
+a { color: var(--accent); }
+header { margin-bottom: 10px; border-bottom: 3px solid var(--accent); padding-bottom: 6px; }
+header h1 { margin: 0; font-size: 22px; letter-spacing: -0.01em; }
+.lead { margin: 2px 0 0; color: var(--muted); }
+nav { margin: 6px 0 12px; font-size: 12px; }
+nav a { text-decoration: none; margin-right: 10px; white-space: nowrap; }
+.part {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(min(400px, 100%), 1fr));
+  gap: 14px 18px; align-items: start;
+}
+.part + .part { margin-top: 18px; }
+.part-title {
+  grid-column: 1 / -1; column-span: all; margin: 0 0 8px; padding: 4px 10px; font-size: 17px;
+  color: var(--pg); background: var(--pg-soft); border-left: 5px solid var(--pg); border-radius: 3px;
+}
+section { margin: 0; min-width: 0; }
+pre, table, ul, p, tr { break-inside: avoid; page-break-inside: avoid; }
+h2 {
+  break-after: avoid; page-break-after: avoid;
+  margin: 0 0 4px; padding: 2px 6px; font-size: 13.5px; color: var(--accent);
+  background: var(--accent-soft); border-radius: 3px;
+}
+.part-playground h2 { color: var(--pg); background: var(--pg-soft); }
+p { margin: 3px 0; }
+ul { margin: 3px 0; padding-left: 16px; }
+li { margin: 1px 0; }
+code { font: 11.5px/1.35 "Cascadia Mono", Consolas, "SFMono-Regular", Menlo, monospace; }
+:not(pre) > code { background: var(--code-bg); padding: 0 3px; border-radius: 3px; }
+pre {
+  margin: 4px 0; padding: 5px 7px; background: var(--code-bg); border-radius: 4px;
+  overflow-x: auto; white-space: pre; border-left: 3px solid var(--rule);
+}
+pre code { font-size: 11px; }
+.k { color: var(--k); font-weight: 600; } .s { color: var(--s); } .n { color: var(--n); } .c { color: var(--c); font-style: italic; }
+table { width: 100%; border-collapse: collapse; margin: 4px 0; font-size: 12px; }
+th, td { text-align: left; vertical-align: top; padding: 2px 5px; border-bottom: 1px solid var(--rule); }
+th { font-weight: 600; color: var(--muted); border-bottom: 1.5px solid var(--muted); }
+td:first-child { white-space: normal; }
+table.center-first td:first-child { text-align: center; font-weight: 600; color: var(--muted); width: 1%; white-space: nowrap; }
+
+@page { size: A4 landscape; margin: 8mm; }
+@media print {
+  :root, :root:not([data-theme="light"]) {
+    --bg: #fff; --fg: #111; --muted: #555; --rule: #d6d9df; --code-bg: #f2f4f7;
+    --accent: #1f4fb5; --accent-soft: #e6ecf9; --pg: #a24c08; --pg-soft: #fbeee1;
+    --k: #7a1fa8; --s: #146b33; --n: #a24c08; --c: #7d8594;
+  }
+  body { padding: 0; font-size: 7.6pt; line-height: 1.3; }
+  main { max-width: none; }
+  nav { display: none; }
+  header { margin-bottom: 5px; padding-bottom: 3px; border-bottom-width: 2px; }
+  header h1 { font-size: 13pt; }
+  .lead { font-size: 7.6pt; }
+  .part { display: block; column-count: 3; column-gap: 12px; column-rule: 1px solid var(--rule); }
+  .part + .part { margin-top: 0; break-before: page; page-break-before: always; }
+  .part-title { font-size: 11pt; padding: 2px 8px; margin-bottom: 5px; }
+  section { margin-bottom: 6px; }
+  h2 { font-size: 8.6pt; padding: 1px 5px; margin-bottom: 2px; }
+  code, pre code { font-size: 7pt; }
+  pre { padding: 3px 5px; margin: 2px 0; overflow: visible; white-space: pre-wrap; }
+  pre code { font-size: 6.9pt; line-height: 1.28; }
+  table { font-size: 7.3pt; margin: 2px 0; }
+  th, td { padding: 1px 3px; }
+  ul { padding-left: 12px; }
+  a { color: inherit; text-decoration: none; }
+}
+</style>
+</head>
+<body>
+<main>
+<header><h1>LiteScript cheatsheet</h1>
+<p class="lead">JavaScript-like scripting language embedded in C++ applications. The language has <strong>no built-in functions</strong>: the application provides them (and may enable the standard library). Full docs: <a href="../README.md">docs/README.md</a>.</p></header>
+<nav><a href="#syntax-essentials">Syntax essentials</a> <a href="#types">Types</a> <a href="#arrays-strings">Arrays &amp; strings</a> <a href="#operators">Operators</a> <a href="#control-structures">Control structures</a> <a href="#functions">Functions</a> <a href="#classes">Classes</a> <a href="#namespaces">Namespaces</a> <a href="#errors">Errors</a> <a href="#standard-library-optional">Standard library (optional)</a> <a href="#playground-litescript-pg">Playground (litescript-pg)</a> <a href="#command-line">Command line</a> <a href="#console">Console</a> <a href="#files-paths">Files &amp; paths</a> <a href="#json">JSON</a> <a href="#http">HTTP</a> <a href="#process-time">Process &amp; time</a> <a href="#recipes">Recipes</a></nav>
+<div class="part">
+<section id="syntax-essentials"><h2>Syntax essentials</h2>
+<table class="noheader"><tbody><tr><td>Statements</td><td><code>;</code> is <strong>mandatory</strong>: <code>var a = 1;</code></td></tr><tr><td>Comments</td><td><code>// line</code>, <code>/* block */</code></td></tr><tr><td>Variables</td><td><code>var a;</code> (null) · <code>var b = 2, c = &quot;x&quot;;</code> — no <code>let</code> / <code>const</code></td></tr><tr><td>Names</td><td><code>[A-Za-z_$][A-Za-z0-9_$]*</code></td></tr><tr><td>Scope</td><td><code>var</code> is local to the function (or the current namespace outside functions)</td></tr><tr><td>Lookup</td><td>function → current namespace → global namespace</td></tr><tr><td>Blocks</td><td>braces optional for a single statement</td></tr><tr><td>Script result</td><td><code>return value;</code> at the top level stops the script and gives the value to the application</td></tr></tbody></table>
+<p><strong>Keywords</strong>: <code>var function class static operator new this return if else for while do switch case default break continue try catch throw namespace true false null undefined</code></p>
+<p><strong>Not in LiteScript</strong>: semicolon-less code, prototypes, arrow functions <code>=&gt;</code>, <code>let</code>/<code>const</code>, <code>finally</code>, string → number implicit conversion, short-circuit <code>&amp;&amp;</code>/<code>||</code>.</p>
+</section>
+<section id="types"><h2>Types</h2>
+<table class=""><thead><tr><th>Type (<code>typeOf</code>)</th><th>Literals</th><th>Copy</th></tr></thead><tbody><tr><td><code>undefined</code></td><td><code>undefined</code> — missing variable / member / argument</td><td>value</td></tr><tr><td><code>null</code></td><td><code>null</code> — <code>var x;</code>, impossible operation</td><td>value</td></tr><tr><td><code>boolean</code></td><td><code>true</code>, <code>false</code></td><td>value</td></tr><tr><td><code>number</code></td><td><code>42</code>, <code>-6</code>, <code>2.5</code>, <code>.8e-3</code> — int64 or double</td><td>value</td></tr><tr><td><code>string</code></td><td><code>&quot;Hello&quot;</code>, <code>&#x27;¡Hola!&#x27;</code> — UTF-8</td><td>value</td></tr><tr><td><code>callback</code></td><td><code>function(x) { return x; }</code></td><td>—</td></tr><tr><td><code>array</code></td><td><code>[1, 2]</code>, <code>{ name: &quot;Percy&quot;, &quot;age&quot;: 17 }</code></td><td><strong>shared</strong></td></tr><tr><td><code>class</code></td><td><code>class { ... }</code></td><td><strong>shared</strong></td></tr><tr><td><code>class object</code></td><td><code>new Point(1, 2)</code></td><td><strong>shared</strong></td></tr><tr><td><code>namespace</code></td><td><code>namespace Math;</code></td><td><strong>shared</strong></td></tr></tbody></table>
+<p><strong>String escapes</strong>: <code>\n \t \r \b \f \v \0 \uXXXX \u{1F600}</code>, any other <code>\c</code> gives <code>c</code> (<code>\\</code>, <code>\&quot;</code>, <code>\&#x27;</code>).</p>
+<p><strong>Falsy</strong>: <code>undefined</code>, <code>null</code>, <code>false</code>, <code>0</code>, <code>NaN</code>, <code>&quot;&quot;</code>. Everything else is true (empty arrays too).</p>
+</section>
+<section id="arrays-strings"><h2>Arrays &amp; strings</h2>
+<pre class="lang-javascript"><code><span class="k">var</span> a = [<span class="n">10</span>, <span class="n">20</span>, <span class="n">30</span>];
+<span class="k">var</span> o = { name: <span class="s">&quot;Percy&quot;</span>, <span class="s">&quot;age&quot;</span>: <span class="n">17</span> };
+a[<span class="n">0</span>]; a.length;         <span class="c">// 10, 3 (indexed elements only)</span>
+o.name; o[<span class="s">&quot;age&quot;</span>];       <span class="c">// &quot;Percy&quot;, 17</span>
+a[<span class="n">5</span>] = <span class="n">60</span>;              <span class="c">// a[3], a[4] undefined, len 6</span>
+o.city = <span class="s">&quot;NY&quot;</span>;          <span class="c">// adds a named element</span>
+a[<span class="n">10</span>];                  <span class="c">// undefined, NOT created</span>
+[<span class="n">1</span>, <span class="n">2</span>] + { x: <span class="n">3</span> };      <span class="c">// new array with both contents</span>
+
+<span class="k">var</span> b = a; b.push(<span class="n">4</span>);   <span class="c">// a changes too (shared)</span>
+
+<span class="k">var</span> s = <span class="s">&quot;héllo&quot;</span>;
+s.length; s[<span class="n">1</span>];         <span class="c">// 5, &quot;é&quot; (characters)</span>
+s[<span class="n">0</span>] = <span class="s">&quot;H&quot;</span>;             <span class="c">// strings are mutable values</span>
+<span class="s">&quot;ab&quot;</span> * <span class="n">3</span>;               <span class="c">// &quot;ababab&quot;</span></code></pre>
+</section>
+<section id="operators"><h2>Operators</h2>
+<p>Lower precedence first. Same level: left → right, except <code>?:</code> and assignments (right → left).</p>
+<table class="center-first"><thead><tr><th>Prec.</th><th>Operators → overload name</th></tr></thead><tbody><tr><td>1</td><td><code>a++</code> post_increment · <code>a--</code> post_decrement · <code>a(...)</code> call · <code>a[b]</code> get · <code>a.b</code></td></tr><tr><td>2</td><td><code>++a</code> pre_increment · <code>--a</code> pre_decrement · <code>+a</code> unary_plus · <code>-a</code> unary_minus · <code>!a</code> not · <code>~a</code> bitwise_not · <code>new A()</code></td></tr><tr><td>3</td><td><code>*</code> multiply · <code>/</code> divide · <code>%</code> modulo</td></tr><tr><td>4</td><td><code>+</code> add · <code>-</code> subtract</td></tr><tr><td>5</td><td><code>&lt;&lt;</code> left_shift · <code>&gt;&gt;</code> right_shift</td></tr><tr><td>6</td><td><code>&gt;</code> greater · <code>&lt;</code> lesser · <code>&gt;=</code> greater_equal · <code>&lt;=</code> lesser_equal</td></tr><tr><td>7</td><td><code>==</code> equal · <code>!=</code> not_equal</td></tr><tr><td>8–10</td><td><code>&amp;</code> bitwise_and · <code>^</code> bitwise_xor · <code>|</code> bitwise_or</td></tr><tr><td>11–12</td><td><code>&amp;&amp;</code> and · <code>||</code> or</td></tr><tr><td>13</td><td><code>a ? b : c</code></td></tr><tr><td>14</td><td><code>=</code> assign · <code>+=</code> add_assign · <code>-=</code> subtract_assign · <code>*=</code> multiply_assign · <code>/=</code> divide_assign</td></tr></tbody></table>
+<table class=""><thead><tr><th>Behavior</th><th>Example</th></tr></thead><tbody><tr><td>int ÷ int stays int if exact</td><td><code>6 / 2</code> → <code>3</code>, <code>7 / 2</code> → <code>3.5</code></td></tr><tr><td>int64 overflow → float, ÷0 → <code>Infinity</code> / <code>NaN</code></td><td><code>1 / 0</code></td></tr><tr><td>Incompatible types → <code>null</code> (no error)</td><td><code>1 + &quot;2&quot;</code> → <code>null</code>, <code>-&quot;a&quot;</code> → <code>null</code></td></tr><tr><td>String + anything → concatenation</td><td><code>&quot;a&quot; + 1</code> → <code>&quot;a1&quot;</code></td></tr><tr><td><code>==</code> never converts</td><td><code>1 == &quot;1&quot;</code> false, <code>1 == 1.0</code> true</td></tr><tr><td>Arrays / instances / classes compare by identity</td><td><code>[1] == [1]</code> false</td></tr><tr><td><code>&lt; &gt; &lt;= &gt;=</code> only number/number or string/string</td><td>otherwise false</td></tr><tr><td><code>! &amp;&amp; ||</code> give a boolean, <strong>both sides evaluated</strong></td><td></td></tr><tr><td>Default value: <code>|</code> with non-number left side</td><td><code>opts.name | &quot;default&quot;</code></td></tr></tbody></table>
+</section>
+<section id="control-structures"><h2>Control structures</h2>
+<pre class="lang-javascript"><code><span class="k">if</span> (c) { ... } <span class="k">else</span> <span class="k">if</span> (d) { ... } <span class="k">else</span> { ... }
+<span class="k">while</span> (c) { ... }
+<span class="k">do</span> { ... } <span class="k">while</span> (c);
+<span class="k">for</span> (<span class="k">var</span> i = <span class="n">0</span>; i &lt; <span class="n">10</span>; i++) { ... }
+<span class="k">for</span> (;;) { ... }            <span class="c">// no condition = true</span>
+<span class="k">switch</span> (v) {                <span class="c">// cases: any expr, ==</span>
+    <span class="k">case</span> <span class="n">1</span>:
+    <span class="k">case</span> f(<span class="n">2</span>): ...; <span class="k">break</span>;  <span class="c">// no break: fall through</span>
+    <span class="k">default</span>: ...            <span class="c">// must be last</span>
+}
+<span class="k">break</span>; <span class="k">continue</span>;            <span class="c">// continue ok in switch/try</span></code></pre>
+</section>
+<section id="functions"><h2>Functions</h2>
+<pre class="lang-javascript"><code><span class="k">function</span> add(a, b) { <span class="k">return</span> a + b; }
+<span class="k">var</span> sub = <span class="k">function</span>(a, b) { <span class="k">return</span> a - b; };
+<span class="k">var</span> eight = (<span class="k">function</span>(x) { <span class="k">return</span> x * <span class="n">2</span>; })(<span class="n">4</span>);
+
+f();                    <span class="c">// missing args are undefined</span>
+f(<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>, <span class="n">4</span>);          <span class="c">// extra args are ignored</span>
+<span class="k">function</span> g(a, rest...) { }  <span class="c">// g(1, 2, 3): rest = [2, 3]</span>
+
+<span class="k">function</span> counter() {    <span class="c">// closures</span>
+    <span class="k">var</span> n = <span class="n">0</span>;
+    <span class="k">return</span> <span class="k">function</span>() { n++; <span class="k">return</span> n; };
+}
+
+<span class="k">var</span> arr = [<span class="n">3</span>, <span class="n">1</span>] + {
+    first: <span class="k">function</span>() { <span class="k">return</span> <span class="k">this</span>[<span class="n">0</span>]; }
+};
+arr.first();            <span class="c">// 3: this = arr</span></code></pre>
+<ul><li><code>this</code> = the array/instance the function was read from, else <code>undefined</code>.</li></ul>
+<ul><li>No <code>return</code> → <code>undefined</code>.</li><li>Arguments are copies, but arrays/instances they hold are shared.</li><li>Max call depth set by the application (100,000 by default).</li></ul>
+</section>
+<section id="classes"><h2>Classes</h2>
+<pre class="lang-javascript"><code><span class="k">class</span> Point : Base, Other {   <span class="c">// multiple inheritance</span>
+    <span class="k">var</span> x = <span class="n">0</span>, y = <span class="n">0</span>;         <span class="c">// copied per instance</span>
+    <span class="k">static</span> <span class="k">var</span> count = <span class="n">0</span>;
+
+    <span class="k">function</span> Point(x, y) {    <span class="c">// constructor</span>
+        <span class="k">this</span>.Base();          <span class="c">// inherited constructor</span>
+        <span class="k">this</span>.x = x; <span class="k">this</span>.y = y;
+        count++;              <span class="c">// &quot;Point.&quot; optional</span>
+    }
+    <span class="k">function</span> len() { <span class="k">return</span> <span class="k">this</span>.x + <span class="k">this</span>.y; }
+    <span class="k">static</span> <span class="k">function</span> zero() { <span class="k">return</span> <span class="k">new</span> Point(<span class="n">0</span>, <span class="n">0</span>); }
+
+    <span class="k">operator</span> add(p) {         <span class="c">// p1 + p2</span>
+        <span class="k">return</span> <span class="k">new</span> Point(<span class="k">this</span>.x + p.x, <span class="k">this</span>.y + p.y);
+    }
+    <span class="k">operator</span> equal(p) { <span class="k">return</span> <span class="k">this</span>.x == p.x; }
+    <span class="k">operator</span> get(i) { <span class="k">return</span> i == <span class="n">0</span> ? <span class="k">this</span>.x : <span class="k">this</span>.y; }
+    <span class="k">operator</span> call(k) { <span class="k">return</span> <span class="k">this</span>.x * k; }  <span class="c">// p(2)</span>
+
+    <span class="k">class</span> Inner { }           <span class="c">// nested = static</span>
+}
+
+<span class="k">var</span> p = <span class="k">new</span> Point(<span class="n">1</span>, <span class="n">2</span>) + Point.zero();
+p.label = <span class="s">&quot;A&quot;</span>;                <span class="c">// add a member</span>
+
+<span class="k">var</span> Anon = <span class="k">class</span> {
+    <span class="k">function</span> constructor(v) { <span class="k">this</span>.v = v; }
+};
+<span class="k">var</span> once = <span class="k">new</span> (<span class="k">class</span> { <span class="k">var</span> a = <span class="n">1</span>; })();</code></pre>
+<ul><li>Constructor = method named like the class (<code>constructor</code> for an anonymous class).</li><li>Bases are any expressions; all members are public; inherited methods/operators can be redefined.</li><li>Overloaded operator only used if the instance is the <strong>first</strong> operand (<code>5 + p</code> → <code>null</code>).</li><li>Without overload: <code>==</code> / <code>!=</code> compare identity, <code>=</code> replaces the value.</li></ul>
+</section>
+<section id="namespaces"><h2>Namespaces</h2>
+<pre class="lang-javascript"><code><span class="k">namespace</span> Math;          <span class="c">// enter (created if needed)</span>
+<span class="k">function</span> add(a, b) { <span class="k">return</span> a + b; }
+<span class="k">namespace</span> Game.Engine;   <span class="c">// nested</span>
+<span class="k">var</span> version = <span class="n">2</span>;
+<span class="k">namespace</span> <span class="k">global</span>;        <span class="c">// back to the default</span>
+
+Math.add(<span class="n">3</span>, <span class="n">2</span>);          <span class="c">// 5</span>
+Game.Engine.version;     <span class="c">// 2</span>
+Math.zero = <span class="n">0</span>;           <span class="c">// add from outside</span>
+Math = <span class="n">5</span>;                <span class="c">// no effect</span></code></pre>
+</section>
+<section id="errors"><h2>Errors</h2>
+<pre class="lang-javascript"><code><span class="k">throw</span> <span class="s">&quot;invalid value&quot;</span>;        <span class="c">// any value</span>
+<span class="k">throw</span> { message: <span class="s">&quot;bad&quot;</span>, code: <span class="n">3</span> };
+<span class="k">try</span> { risky(); }
+<span class="k">catch</span> (e) { print(e.message, e.line, e.column); }
+<span class="k">try</span> { risky(); } <span class="k">catch</span> { }    <span class="c">// name optional</span></code></pre>
+<ul><li>No <code>finally</code>. Errors propagate up calls to the nearest <code>try</code>; <code>catch</code> may rethrow.</li><li>Engine errors are arrays <code>{ message, line, column }</code> (1-based position).</li><li>Uncaught errors stop the script and go to the application.</li></ul>
+<table class=""><thead><tr><th>Engine error</th><th>Cause</th></tr></thead><tbody><tr><td><code>a value of type number isn&#x27;t a function</code></td><td><code>x()</code> on a non-function</td></tr><tr><td><code>can&#x27;t read the member &quot;y&quot; of undefined</code></td><td><code>x.y</code> on <code>undefined</code> / <code>null</code></td></tr><tr><td><code>can&#x27;t read an element of null</code></td><td><code>x[0]</code> on <code>undefined</code> / <code>null</code></td></tr><tr><td><code>a value of type array isn&#x27;t a class</code></td><td><code>new x()</code> on a non-class</td></tr><tr><td><code>the instance doesn&#x27;t overload the call operator</code></td><td>calling an instance</td></tr><tr><td><code>maximum call depth exceeded</code></td><td>too much recursion</td></tr></tbody></table>
+</section>
+<section id="standard-library-optional"><h2>Standard library (optional)</h2>
+<table class=""><thead><tr><th>Math</th><th></th></tr></thead><tbody><tr><td><code>abs sign floor ceil round trunc</code></td><td><code>Math.floor(2.7)</code> → <code>2</code></td></tr><tr><td><code>sqrt pow exp log</code></td><td><code>Math.pow(2, 10)</code> → <code>1024</code></td></tr><tr><td><code>sin cos tan asin acos atan atan2(y, x)</code></td><td>radians</td></tr><tr><td><code>min(a, b, ...)</code>, <code>max(a, b, ...)</code></td><td></td></tr><tr><td><code>random()</code> / <code>random(n)</code> / <code>random(a, b)</code></td><td>[0, 1[ · int [0, n[ · int [a, b]</td></tr><tr><td><code>seed(n)</code>, <code>PI</code>, <code>E</code></td><td>non-number argument → <code>null</code></td></tr></tbody></table>
+<table class=""><thead><tr><th>Conversions</th><th></th></tr></thead><tbody><tr><td><code>typeOf(x)</code></td><td>type name (see Types)</td></tr><tr><td><code>toString(x)</code></td><td>text of a value</td></tr><tr><td><code>parseNumber(s)</code></td><td><code>&quot; 4.5 &quot;</code> → <code>4.5</code>, else <code>null</code></td></tr><tr><td><code>parseInt(s, base)</code></td><td>base 2–36 (default 10)</td></tr><tr><td><code>isNaN(x)</code></td><td>not a number or <code>NaN</code></td></tr><tr><td><code>char(code)</code></td><td><code>char(233)</code> → <code>&quot;é&quot;</code></td></tr></tbody></table>
+<table class=""><thead><tr><th>Array methods</th><th></th></tr></thead><tbody><tr><td><code>push(x, ...)</code> / <code>pop()</code></td><td>append (→ new size) / remove last</td></tr><tr><td><code>insert(i, x)</code> / <code>remove(i)</code></td><td><code>remove(-1)</code> = last</td></tr><tr><td><code>clear()</code></td><td>remove indexed elements</td></tr><tr><td><code>indexOf(x)</code> / <code>contains(x)</code></td><td><code>-1</code> if absent</td></tr><tr><td><code>join(sep = &quot;,&quot;)</code></td><td>text of the elements</td></tr><tr><td><code>slice(start, end)</code></td><td>negative = from the end</td></tr><tr><td><code>reverse()</code> / <code>sort(cmp)</code></td><td>in place, stable; <code>cmp(a, b) &lt; 0</code> → a first</td></tr><tr><td><code>keys()</code></td><td>names of the named elements</td></tr><tr><td><code>map(f)</code> / <code>filter(f)</code> / <code>forEach(f)</code></td><td><code>f(element, index)</code></td></tr></tbody></table>
+<p>A named element hides a method with the same name.</p>
+<table class=""><thead><tr><th>String methods (return new strings)</th><th></th></tr></thead><tbody><tr><td><code>substring(start, end)</code></td><td>part of the string</td></tr><tr><td><code>indexOf(t, from)</code></td><td><code>-1</code> if absent</td></tr><tr><td><code>contains(t)</code>, <code>startsWith(t)</code>, <code>endsWith(t)</code></td><td>search</td></tr><tr><td><code>split(sep)</code></td><td><code>&quot;&quot;</code> → one element per character</td></tr><tr><td><code>replace(a, b)</code></td><td>replaces <strong>all</strong> occurrences</td></tr><tr><td><code>trim()</code>, <code>toUpperCase()</code>, <code>toLowerCase()</code></td><td></td></tr><tr><td><code>charCode(i)</code></td><td>Unicode code at <code>i</code></td></tr></tbody></table>
+</section>
+</div>
+<div class="part part-playground"><h1 class="part-title" id="playground-litescript-pg">Playground (<code>litescript-pg</code>)</h1>
+<p>Runs <code>.ls</code> files with the standard library <strong>plus</strong> <code>print</code>, <code>assert</code>, <code>Console</code>, <code>File</code>, <code>Directory</code>, <code>Path</code>, <code>JSON</code>, <code>Http</code>, <code>Process</code>, <code>Time</code>.</p>
+<section id="command-line"><h2>Command line</h2>
+<pre class="lang-bash"><code><span class="k">litescript</span>-pg script.ls             <span class="c"># run a file</span>
+<span class="k">litescript</span>-pg <span class="s">&quot;dir/*.ls&quot;</span> <span class="s">&quot;t/**/*.ls&quot;</span> <span class="c"># patterns</span>
+<span class="k">litescript</span>-pg dir                   <span class="c"># every .ls of dir</span>
+<span class="k">litescript</span>-pg -e <span class="s">&quot;print(1 + 2);&quot;</span>    <span class="c"># run code</span>
+<span class="k">litescript</span>-pg a.ls -- one two       <span class="c"># Process.args</span>
+<span class="k">litescript</span>-pg                       <span class="c"># interactive</span></code></pre>
+<table class=""><thead><tr><th>Option</th><th></th></tr></thead><tbody><tr><td><code>-e</code>, <code>--eval &lt;code&gt;</code></td><td>run code before the files (repeatable)</td></tr><tr><td><code>-s</code>, <code>--shared</code></td><td>files share one state (isolated by default)</td></tr><tr><td><code>-b</code>, <code>--bail</code></td><td>stop at the first failing file</td></tr><tr><td><code>-i</code>, <code>--interactive</code></td><td>interactive session after the files</td></tr><tr><td><code>-h</code> / <code>-v</code></td><td>help / version</td></tr></tbody></table>
+<ul><li>Files run in alphabetical order. A first <code>#!</code> line is ignored.</li><li>Errors: <code>file:line:column: error: message</code>. Exit code 1 if a file failed, 2 for a bad command line.</li><li>Interactive: an empty line runs what was typed; a single expression's value is printed and stored in <code>_</code>.</li><li>Build: <code>scripts/build.sh</code> (<code>.bat</code> on Windows) → <code>builddir/release/playground/litescript-pg</code>; <code>-Dplayground=false</code>, <code>-Dhttp=disabled</code>.</li></ul>
+</section>
+<section id="console"><h2>Console</h2>
+<table class="noheader"><tbody><tr><td><code>print(a, b, ...)</code></td><td>values separated by spaces + newline</td></tr><tr><td><code>assert(cond, msg)</code></td><td>throws <code>assertion failed: msg</code></td></tr><tr><td><code>Console.write(...)</code> / <code>writeLine(...)</code></td><td>without / with newline</td></tr><tr><td><code>Console.error(...)</code></td><td>to stderr</td></tr><tr><td><code>Console.readLine(prompt)</code></td><td>one line, <code>null</code> at end of input</td></tr><tr><td><code>Console.readAll()</code></td><td>whole stdin</td></tr></tbody></table>
+</section>
+<section id="files-paths"><h2>Files &amp; paths</h2>
+<p>Paths relative to the current directory, <code>/</code> as separator.</p>
+<table class=""><thead><tr><th>File</th><th></th></tr></thead><tbody><tr><td><code>read(p)</code> / <code>readLines(p)</code></td><td>text / array of lines</td></tr><tr><td><code>write(p, text)</code> / <code>append(p, text)</code></td><td>replace / add at end</td></tr><tr><td><code>exists(p)</code> / <code>size(p)</code></td><td>bytes</td></tr><tr><td><code>copy(src, dst, overwrite = true)</code> / <code>move(src, dst)</code></td><td></td></tr><tr><td><code>remove(p)</code></td><td><code>false</code> if missing</td></tr></tbody></table>
+<table class=""><thead><tr><th>Directory</th><th></th></tr></thead><tbody><tr><td><code>list(p = &quot;.&quot;, recursive)</code></td><td>sorted paths</td></tr><tr><td><code>create(p)</code></td><td>with parents, <code>false</code> if exists</td></tr><tr><td><code>remove(p, recursive)</code></td><td><code>false</code> if missing</td></tr><tr><td><code>exists(p)</code>, <code>current()</code>, <code>setCurrent(p)</code></td><td></td></tr></tbody></table>
+<table class=""><thead><tr><th>Path (<code>&quot;a/b/c.ls&quot;</code>)</th><th></th></tr></thead><tbody><tr><td><code>join(a, b, ...)</code></td><td></td></tr><tr><td><code>directory</code> / <code>filename</code> / <code>stem</code> / <code>extension</code></td><td><code>&quot;a/b&quot;</code> / <code>&quot;c.ls&quot;</code> / <code>&quot;c&quot;</code> / <code>&quot;.ls&quot;</code></td></tr><tr><td><code>absolute(p)</code>, <code>normalize(p)</code>, <code>exists(p)</code></td><td><code>normalize</code> removes <code>.</code> / <code>..</code></td></tr></tbody></table>
+</section>
+<section id="json"><h2>JSON</h2>
+<table class="noheader"><tbody><tr><td><code>JSON.parse(text)</code></td><td>objects → named elements, arrays → indexed; invalid text throws (with position)</td></tr><tr><td><code>JSON.stringify(v, indent)</code></td><td><code>indent</code>: spaces count or text (compact by default)</td></tr></tbody></table>
+<ul><li>Arrays with names → objects (indexes become names); instances/namespaces → objects of their members.</li><li>Functions, classes, <code>undefined</code> skipped; self-containing value throws; <code>{}</code> is written <code>[]</code>.</li></ul>
+</section>
+<section id="http"><h2>HTTP</h2>
+<table class="noheader"><tbody><tr><td><code>Http.get(url, headers)</code> / <code>Http.delete(url, headers)</code></td><td>no body</td></tr><tr><td><code>Http.post(url, body, headers)</code> / <code>put</code> / <code>patch</code></td><td>non-string body → JSON</td></tr><tr><td><code>Http.request({ url, method, headers, body, timeout, followRedirects })</code></td><td></td></tr><tr><td><code>Http.available</code></td><td><code>false</code> if built without HTTP</td></tr></tbody></table>
+<ul><li>Result: <code>{ status, ok, headers, body }</code> — <code>ok</code> for 2xx, header names lower case.</li><li>Timeout in ms (30 s default), redirects followed. Network error throws.</li></ul>
+</section>
+<section id="process-time"><h2>Process &amp; time</h2>
+<table class="noheader"><tbody><tr><td><code>Process.args</code></td><td>arguments after <code>--</code></td></tr><tr><td><code>Process.script</code></td><td>absolute path of the running script</td></tr><tr><td><code>Process.platform</code></td><td><code>&quot;windows&quot;</code>, <code>&quot;linux&quot;</code>, <code>&quot;macos&quot;</code>, <code>&quot;unknown&quot;</code></td></tr><tr><td><code>Process.env(name)</code></td><td><code>null</code> if undefined</td></tr><tr><td><code>Process.run(cmd)</code></td><td><code>{ code, output }</code> (stdout)</td></tr><tr><td><code>Process.exit(code)</code></td><td>stop the program</td></tr><tr><td><code>Time.now()</code></td><td>ms since epoch (UTC)</td></tr><tr><td><code>Time.clock()</code></td><td>monotonic ms, for durations</td></tr><tr><td><code>Time.sleep(ms)</code></td><td>wait</td></tr><tr><td><code>Time.iso(ms)</code></td><td><code>&quot;2024-05-17T08:30:00.000Z&quot;</code> (now by default)</td></tr></tbody></table>
+</section>
+<section id="recipes"><h2>Recipes</h2>
+<pre class="lang-javascript"><code><span class="c">// Arguments with default</span>
+<span class="k">var</span> args = Process.args;
+<span class="k">var</span> name = args.length &gt; <span class="n">0</span> ? args[<span class="n">0</span>] : <span class="s">&quot;World&quot;</span>;
+
+<span class="c">// Read stdin until an empty line</span>
+<span class="k">while</span> (<span class="k">true</span>) {
+    <span class="k">var</span> line = Console.readLine(<span class="s">&quot;&gt; &quot;</span>);
+    <span class="k">if</span> (line == <span class="k">null</span>) <span class="k">break</span>;    <span class="c">// no short-circuit</span>
+    <span class="k">if</span> (line.trim() == <span class="s">&quot;&quot;</span>) <span class="k">break</span>;
+    <span class="k">var</span> n = parseNumber(line);
+    print(n == <span class="k">null</span> ? <span class="s">&quot;not a number&quot;</span> : n * <span class="n">2</span>);
+}
+
+<span class="c">// Edit a JSON file</span>
+<span class="k">var</span> cfg = JSON.parse(File.read(<span class="s">&quot;config.json&quot;</span>));
+cfg.version += <span class="n">1</span>;
+File.write(<span class="s">&quot;config.json&quot;</span>, JSON.stringify(cfg, <span class="n">2</span>));
+
+<span class="c">// Walk a directory</span>
+Directory.list(<span class="s">&quot;.&quot;</span>, <span class="k">true</span>).forEach(<span class="k">function</span>(p) {
+    <span class="k">if</span> (File.exists(p)) print(File.size(p), p);
+});
+
+<span class="c">// HTTP + JSON</span>
+<span class="k">var</span> url = <span class="s">&quot;https://api.github.com/repos/LePtitDev/lite-script&quot;</span>;
+<span class="k">var</span> r = Http.get(url, { Accept: <span class="s">&quot;application/json&quot;</span> });
+<span class="k">if</span> (r.ok) print(JSON.parse(r.body).stargazers_count);
+
+<span class="c">// Time a command</span>
+<span class="k">var</span> t = Time.clock();
+<span class="k">var</span> res = Process.run(<span class="s">&quot;git log --oneline -5&quot;</span>);
+<span class="k">if</span> (res.code == <span class="n">0</span>) print(res.output);
+print(<span class="s">&quot;Done in&quot;</span>, Math.round(Time.clock() - t), <span class="s">&quot;ms&quot;</span>);</code></pre>
+</section>
+</div>
+</main>
+</body>
+</html>
